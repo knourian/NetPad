@@ -38,26 +38,29 @@ const electronBuilderConfig = {
         },
         target: [
             {
-                target: "pacman",
+                target: "dir",
             },
-            {
-                target: "AppImage",
-            },
-            {
-                target: "deb",
-            },
-            {
-                target: "rpm",
-            },
-            {
-                target: "flatpak",
-            },
-            {
-                target: "snap",
-            },
-            {
-                target: "zip",
-            },
+            // {
+            //     target: "pacman",
+            // },
+            // {
+            //     target: "AppImage",
+            // },
+            // {
+            //     target: "deb",
+            // },
+            // {
+            //     target: "rpm",
+            // },
+            // {
+            //     target: "flatpak",
+            // },
+            // {
+            //     target: "snap",
+            // },
+            // {
+            //     target: "zip",
+            // },
         ]
     },
     mac: {

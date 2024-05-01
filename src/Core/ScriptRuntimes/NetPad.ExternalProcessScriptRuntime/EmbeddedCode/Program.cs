@@ -1,4 +1,5 @@
 using System.Reflection;
+using NetPad;
 using NetPad.Runtimes;
 
 /// <summary>
@@ -11,11 +12,16 @@ using NetPad.Runtimes;
 /// </summary>
 public partial class Program
 {
-    public static readonly UserScript UserScript = new(new Guid("SCRIPT_ID"), "SCRIPT_NAME", "SCRIPT_LOCATION");
-
     static Program()
     {
         var args = Environment.GetCommandLineArgs();
+
+        Util.Init(
+            new Guid("SCRIPT_ID"),
+            "SCRIPT_NAME",
+            "SCRIPT_LOCATION",
+            args
+        );
 
         if (args.Contains("-help"))
         {
@@ -26,7 +32,7 @@ public partial class Program
                 currentAssemblyPath = "." + currentAssemblyPath.Replace(Environment.CurrentDirectory, string.Empty);
             }
 
-            Console.WriteLine($"{UserScript.Name}");
+            Console.WriteLine($"{Util.CurrentScript.Name}");
             Console.WriteLine($@"
 Usage:
     dotnet {currentAssemblyPath} [-console|-text|-html] [OPTIONS]
@@ -53,5 +59,7 @@ Options:
         bool useConsoleColors = !args.Contains("-no-color");
 
         ScriptRuntimeServices.UseStandardIO(format, useConsoleColors);
+
+        Util.ScriptStopwatch.Start();
     }
 }

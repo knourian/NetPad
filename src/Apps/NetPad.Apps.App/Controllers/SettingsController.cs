@@ -51,7 +51,7 @@ public class SettingsController : Controller
         if (string.IsNullOrWhiteSpace(containingDir) || !Directory.Exists(containingDir))
             return Ok();
 
-        ProcessUtil.OpenInDesktopExplorer(containingDir);
+        ProcessUtil.OpenWithDefaultApp(containingDir);
 
         return Ok();
     }
