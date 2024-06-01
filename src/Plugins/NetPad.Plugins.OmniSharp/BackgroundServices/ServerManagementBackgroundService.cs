@@ -1,5 +1,7 @@
 using NetPad.Events;
 using NetPad.Scripts;
+using NetPad.Scripts.Events;
+using NetPad.Sessions.Events;
 using ISession = NetPad.Sessions.ISession;
 
 namespace NetPad.Plugins.OmniSharp.BackgroundServices;

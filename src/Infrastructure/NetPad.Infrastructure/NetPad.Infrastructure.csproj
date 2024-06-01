@@ -8,8 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Core\NetPad.Domain\NetPad.Domain.csproj"/>
-        <ProjectReference Include="..\..\Core\NetPad.Application\NetPad.Application.csproj"/>
+        <ProjectReference Include="..\..\Core\NetPad.Runtime\NetPad.Runtime.csproj" />
     </ItemGroup>
 
     <ItemGroup>

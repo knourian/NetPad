@@ -12,8 +12,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Core\NetPad.Application\NetPad.Application.csproj"/>
-        <ProjectReference Include="..\..\Core\NetPad.Domain\NetPad.Domain.csproj"/>
+        <ProjectReference Include="..\..\Apps\NetPad.Apps.App.Common\NetPad.Apps.App.Common.csproj" />
+        <ProjectReference Include="..\..\Core\NetPad.Runtime\NetPad.Runtime.csproj" />
         <ProjectReference Include="..\..\External\OmniSharp.NET\OmniSharp.NET.csproj"/>
     </ItemGroup>
 

@@ -1,17 +1,16 @@
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
-using NetPad.CQs;
+using NetPad.Apps.App.Common.CQs;
+using NetPad.Apps.App.Common.UiInterop;
 using NetPad.Data;
 using NetPad.DotNet;
 using NetPad.Dtos;
 using NetPad.Exceptions;
-using NetPad.Runtimes;
+using NetPad.ExecutionModel;
 using NetPad.Scripts;
-using NetPad.UiInterop;
+using NetPad.Services;
 
 namespace NetPad.Controllers;
 
@@ -73,10 +72,9 @@ public class ScriptsController : ControllerBase
     }
 
     [HttpPatch("{id:guid}/save")]
-    public async Task Save(Guid id)
+    public async Task Save(Guid id, [FromServices] ScriptService scriptService)
     {
-        var environment = await GetScriptEnvironmentAsync(id);
-        await _mediator.Send(new SaveScriptCommand(environment.Script));
+        await scriptService.SaveScriptAsync(id);
     }
 
     [HttpPatch("{id:guid}/run")]

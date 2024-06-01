@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Extensions.DependencyInjection;
 using NetPad.Data;
 using NetPad.Data.EntityFrameworkCore;

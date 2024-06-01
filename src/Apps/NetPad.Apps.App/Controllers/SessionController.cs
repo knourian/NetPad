@@ -1,11 +1,10 @@
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using NetPad.CQs;
+using NetPad.Apps.App.Common.CQs;
 using NetPad.Exceptions;
 using NetPad.Scripts;
+using NetPad.Services;
 
 namespace NetPad.Controllers;
 
@@ -40,9 +39,9 @@ public class SessionController : ControllerBase
     }
 
     [HttpPatch("{scriptId:guid}/close")]
-    public async Task Close(Guid scriptId)
+    public async Task Close(Guid scriptId, [FromServices] ScriptService scriptService)
     {
-        await _mediator.Send(new CloseScriptCommand(scriptId));
+        await scriptService.CloseScriptAsync(scriptId);
     }
 
     [HttpGet("active")]

@@ -73,15 +73,13 @@
         </ItemGroup>
     </Target>
     <ItemGroup>
-        <ProjectReference Include="..\..\Core\NetPad.Application\NetPad.Application.csproj" />
-        <ProjectReference Include="..\..\Core\NetPad.Domain\NetPad.Domain.csproj" />
-        <ProjectReference Include="..\..\Core\ScriptRuntimes\NetPad.ExternalProcessScriptRuntime\NetPad.ExternalProcessScriptRuntime.csproj" />
-        <ProjectReference Include="..\..\Core\ScriptRuntimes\NetPad.InMemoryScriptRuntime\NetPad.InMemoryScriptRuntime.csproj" />
+        <ProjectReference Include="..\..\Core\NetPad.Runtime\NetPad.Runtime.csproj" />
         <ProjectReference Include="..\..\External\O2Html\O2Html.csproj" />
-        <ProjectReference Include="..\..\Infrastructure\NetPad.Electron\NetPad.Electron.csproj" />
+        <ProjectReference Include="..\..\Infrastructure\NetPad.Apps.App.Electron\NetPad.Apps.App.Electron.csproj" />
         <ProjectReference Include="..\..\Infrastructure\NetPad.Infrastructure\NetPad.Infrastructure.csproj" />
-        <ProjectReference Include="..\..\Infrastructure\NetPad.Web\NetPad.Web.csproj" />
+        <ProjectReference Include="..\..\Infrastructure\NetPad.Apps.App.Web\NetPad.Apps.App.Web.csproj" />
         <ProjectReference Include="..\..\Plugins\NetPad.Plugins.OmniSharp\NetPad.Plugins.OmniSharp.csproj" />
+        <ProjectReference Include="..\NetPad.Apps.App.Common\NetPad.Apps.App.Common.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Compile Remove="App\dist\**" />

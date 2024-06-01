@@ -3,8 +3,8 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using NetPad.Data.Events;
 using NetPad.DotNet;
-using NetPad.Events;
 
 namespace NetPad.Data;
 

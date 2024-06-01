@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
-using NetPad.CQs;
+using NetPad.Application.Events;
+using NetPad.Apps.App.Common.CQs;
+using NetPad.Apps.App.Common.UiInterop;
+using NetPad.Configuration.Events;
 using NetPad.Data.EntityFrameworkCore.DataConnections;
+using NetPad.Data.Events;
 using NetPad.Dtos;
-using NetPad.Events;
-using NetPad.Runtimes;
+using NetPad.Presentation;
 using NetPad.Scripts;
-using NetPad.UiInterop;
+using NetPad.Scripts.Events;
+using NetPad.Sessions.Events;
 
 namespace NetPad.Controllers;
 

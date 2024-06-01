@@ -22,7 +22,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\Core\NetPad.Application\NetPad.Application.csproj" />
         <ProjectReference Include="..\..\NetPad.Tests\NetPad.Tests.csproj" />
     </ItemGroup>
 

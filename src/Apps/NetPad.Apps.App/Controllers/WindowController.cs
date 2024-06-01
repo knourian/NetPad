@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using NetPad.UiInterop;
+﻿using Microsoft.AspNetCore.Mvc;
+using NetPad.Apps.App.Common.UiInterop;
 
 namespace NetPad.Controllers;
 

@@ -1,14 +1,13 @@
-using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NetPad.CQs;
+using NetPad.Apps.App.Common.CQs;
+using NetPad.Apps.App.Common.UiInterop;
 using NetPad.Events;
 using NetPad.IO;
 using NetPad.Scripts;
+using NetPad.Scripts.Events;
 using NetPad.Services;
-using NetPad.UiInterop;
+using NetPad.Sessions.Events;
 
 namespace NetPad.BackgroundServices;
 

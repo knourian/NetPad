@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using NetPad.Application;
+using NetPad.Apps.App.Common.UiInterop;
 using NetPad.Events;
 using NetPad.Plugins.OmniSharp.Events;
-using NetPad.UiInterop;
 using OmniSharp.Models.Events;
 
 namespace NetPad.Plugins.OmniSharp.BackgroundServices;

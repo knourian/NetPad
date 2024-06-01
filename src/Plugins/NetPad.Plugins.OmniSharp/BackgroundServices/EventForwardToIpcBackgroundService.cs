@@ -1,6 +1,6 @@
+using NetPad.Apps.App.Common.UiInterop;
 using NetPad.Events;
 using NetPad.Plugins.OmniSharp.Events;
-using NetPad.UiInterop;
 
 namespace NetPad.Plugins.OmniSharp.BackgroundServices;
 

@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
@@ -6,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetPad.Application;
+using NetPad.Apps.App.Common.Application;
 using NetPad.Configuration;
 using NetPad.Electron;
 using NetPad.Web;

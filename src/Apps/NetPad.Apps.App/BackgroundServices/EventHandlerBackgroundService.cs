@@ -1,6 +1,5 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using NetPad.Configuration.Events;
 using NetPad.Events;
 using NetPad.Presentation.Html;
 

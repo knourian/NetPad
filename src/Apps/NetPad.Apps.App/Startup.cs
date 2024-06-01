@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -11,6 +10,11 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NetPad.Application;
+using NetPad.Apps.App.Common;
+using NetPad.Apps.App.Common.CQs;
+using NetPad.Apps.App.Common.Plugins;
+using NetPad.Apps.App.Common.Resources;
+using NetPad.Apps.App.Common.UiInterop;
 using NetPad.Assemblies;
 using NetPad.BackgroundServices;
 using NetPad.CodeAnalysis;
@@ -18,24 +22,21 @@ using NetPad.Common;
 using NetPad.Compilation;
 using NetPad.Compilation.CSharp;
 using NetPad.Configuration;
-using NetPad.CQs;
 using NetPad.Data;
 using NetPad.Data.EntityFrameworkCore;
 using NetPad.Data.EntityFrameworkCore.DataConnections;
 using NetPad.DotNet;
 using NetPad.Events;
+using NetPad.ExecutionModel;
 using NetPad.Middlewares;
 using NetPad.Packages;
-using NetPad.Plugins;
+using NetPad.Packages.NuGet;
 using NetPad.Plugins.OmniSharp;
-using NetPad.Resources;
-using NetPad.Runtimes;
 using NetPad.Scripts;
 using NetPad.Services;
 using NetPad.Services.Data;
 using NetPad.Sessions;
 using NetPad.Swagger;
-using NetPad.UiInterop;
 
 namespace NetPad;
 
@@ -82,14 +83,15 @@ public class Startup
         services.AddSingleton<ITrivialDataStore, FileSystemTrivialDataStore>();
 
         // Scripts
+        services.AddTransient<ScriptService>();
         services.AddTransient<IScriptRepository, FileSystemScriptRepository>();
         services.AddTransient<IAutoSaveScriptRepository, FileSystemAutoSaveScriptRepository>();
         services.AddSingleton<IScriptNameGenerator, DefaultScriptNameGenerator>();
         services.AddTransient<IScriptEnvironmentFactory, DefaultScriptEnvironmentFactory>();
 
         // Select how we will run scripts, using an external process or in-memory
-        // NOTE: A different app, ex. a CLI version of NetPad, could use AddInMemoryScriptRuntime()
-        services.AddExternalProcessScriptRuntime();
+        // NOTE: A different app, ex. a CLI version of NetPad, could use AddInMemoryExecutionModel()
+        services.AddExternalExecutionModel();
 
         // Data connections
         services.AddTransient<IDataConnectionRepository, FileSystemDataConnectionRepository>();
