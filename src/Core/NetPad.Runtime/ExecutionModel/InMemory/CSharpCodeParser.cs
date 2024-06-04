@@ -19,7 +19,7 @@ public class CSharpCodeParser : ICodeParser
     public CodeParsingResult Parse(
         string code,
         ScriptKind scriptKind,
-        IEnumerable<string>? namespaces = null,
+        IEnumerable<string>? usings = null,
         CodeParsingOptions? options = null)
     {
         var userProgram = GetUserProgram(code, scriptKind);
@@ -33,7 +33,7 @@ public class CSharpCodeParser : ICodeParser
         var bootstrapperProgramSourceCode = new SourceCode(bootstrapperProgram, _usingsNeededByBaseProgram);
 
         return new CodeParsingResult(
-            new SourceCode(userProgram, namespaces),
+            new SourceCode(userProgram, usings),
             bootstrapperProgramSourceCode,
             options?.AdditionalCode);
     }

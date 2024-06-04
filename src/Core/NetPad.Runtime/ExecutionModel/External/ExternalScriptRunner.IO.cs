@@ -94,6 +94,7 @@ public partial class ExternalScriptRunner
         }
         else
         {
+            // The raw output handler will handle writing the output
             _rawOutputHandler.RawOutputReceived(raw);
             return;
         }
@@ -115,7 +116,8 @@ public partial class ExternalScriptRunner
     }
 
     /// <summary>
-    /// Corrects line numbers in stack trace messages of uncaught exceptions in external running process.
+    /// Corrects line numbers in stack trace messages of uncaught exceptions outputted by external running process,
+    /// relative to the line number where user code starts.
     /// </summary>
     private static string CorrectUncaughtExceptionStackTraceLineNumber(string output, int userProgramStartLineNumber)
     {

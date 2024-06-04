@@ -14,14 +14,22 @@ public static class ReferenceUtil
 
         foreach (var reference in references.Distinct())
         {
-            if (reference is AssemblyFileReference assemblyFileReference && assemblyFileReference.AssemblyPath != null)
+            if (reference is AssemblyImageReference)
+            {
+                // AssemblyImages don't have file assets
+            }
+            else if (reference is AssemblyFileReference assemblyFileReference &&
+                     assemblyFileReference.AssemblyPath != null)
             {
                 assets.Add(new ReferenceAsset(assemblyFileReference.AssemblyPath));
             }
             else if (reference is PackageReference packageReference)
             {
                 var packageAssets = await packageProvider
-                    .GetPackageAndDependencyAssetsAsync(packageReference.PackageId, packageReference.Version, dotNetFrameworkVersion)
+                    .GetRecursivePackageAssetsAsync(
+                        packageReference.PackageId,
+                        packageReference.Version,
+                        dotNetFrameworkVersion)
                     .ConfigureAwait(false);
 
                 assets.AddRange(packageAssets);

@@ -91,7 +91,8 @@ public class AppOmniSharpServer
 
         await SetPreprocessorSymbolsAsync();
 
-        await Project.AddReferencesAsync(_environment.GetScriptRuntimeUserAccessibleAssemblies().Select(a => new AssemblyFileReference(a)));
+        await Project.AddReferencesAsync(
+            _environment.GetUserVisibleAssemblies().Select(a => new AssemblyFileReference(a)));
 
         await Project.RestoreAsync();
 

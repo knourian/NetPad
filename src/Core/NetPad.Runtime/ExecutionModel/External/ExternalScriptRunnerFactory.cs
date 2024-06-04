@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetPad.Compilation;
 using NetPad.Configuration;
+using NetPad.Data;
 using NetPad.DotNet;
 using NetPad.Packages;
 using NetPad.Scripts;
@@ -24,6 +25,7 @@ public class ExternalScriptRunnerFactory : IScriptRunnerFactory
             _serviceProvider.GetRequiredService<ICodeParser>(),
             _serviceProvider.GetRequiredService<ICodeCompiler>(),
             _serviceProvider.GetRequiredService<IPackageProvider>(),
+            _serviceProvider.GetRequiredService<IDataConnectionResourcesCache>(),
             _serviceProvider.GetRequiredService<IDotNetInfo>(),
             _serviceProvider.GetRequiredService<Settings>(),
             _serviceProvider.GetRequiredService<ILogger<ExternalScriptRunner>>()

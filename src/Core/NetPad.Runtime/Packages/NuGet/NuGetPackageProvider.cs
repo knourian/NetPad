@@ -211,7 +211,7 @@ public class NuGetPackageProvider : IPackageProvider
         }
     }
 
-    public async Task<HashSet<PackageAsset>> GetPackageAndDependencyAssetsAsync(
+    public async Task<HashSet<PackageAsset>> GetRecursivePackageAssetsAsync(
         string packageId,
         string packageVersion,
         DotNetFrameworkVersion dotNetFrameworkVersion)

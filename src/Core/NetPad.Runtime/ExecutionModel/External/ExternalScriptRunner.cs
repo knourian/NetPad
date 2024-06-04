@@ -3,6 +3,7 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using NetPad.Compilation;
 using NetPad.Configuration;
+using NetPad.Data;
 using NetPad.DotNet;
 using NetPad.IO;
 using NetPad.Packages;
@@ -19,6 +20,7 @@ namespace NetPad.ExecutionModel.External;
 public sealed partial class ExternalScriptRunner : IScriptRunner
 {
     private readonly Script _script;
+    private readonly IDataConnectionResourcesCache _dataConnectionResourcesCache;
     private readonly IDotNetInfo _dotNetInfo;
     private readonly ILogger<ExternalScriptRunner> _logger;
     private readonly IOutputWriter<object> _output;
@@ -28,16 +30,30 @@ public sealed partial class ExternalScriptRunner : IScriptRunner
     private readonly RawOutputHandler _rawOutputHandler;
     private ProcessHandler? _processHandler;
 
+    private static readonly string[] _userVisibleAssemblies =
+    {
+        typeof(INetPadRuntimeMarker).Assembly.Location,
+        typeof(O2Html.HtmlSerializer).Assembly.Location,
+    };
+
+    private static readonly string[] _supportAssemblies =
+    {
+        // typeof(Dumpify.DumpExtensions).Assembly.Location,
+        // typeof(Spectre.Console.IAnsiConsole).Assembly.Location
+    };
+
     public ExternalScriptRunner(
         Script script,
         ICodeParser codeParser,
         ICodeCompiler codeCompiler,
         IPackageProvider packageProvider,
+        IDataConnectionResourcesCache dataConnectionResourcesCache,
         IDotNetInfo dotNetInfo,
         Settings settings,
         ILogger<ExternalScriptRunner> logger)
     {
         _script = script;
+        _dataConnectionResourcesCache = dataConnectionResourcesCache;
         _codeParser = codeParser;
         _codeCompiler = codeCompiler;
         _packageProvider = packageProvider;
@@ -73,6 +89,8 @@ public sealed partial class ExternalScriptRunner : IScriptRunner
 
         _rawOutputHandler = new RawOutputHandler(_output);
     }
+
+    public string[] GetUserVisibleAssemblies() => _userVisibleAssemblies;
 
     public async Task<RunResult> RunScriptAsync(RunOptions runOptions)
     {
@@ -177,17 +195,6 @@ public sealed partial class ExternalScriptRunner : IScriptRunner
         }
 
         return Task.CompletedTask;
-    }
-
-    public string[] GetUserAccessibleAssemblies()
-    {
-        return new[]
-        {
-            typeof(INetPadRuntimeMarker).Assembly.Location,
-            typeof(O2Html.HtmlSerializer).Assembly.Location,
-            // typeof(Dumpify.DumpExtensions).Assembly.Location,
-            // typeof(Spectre.Console.IAnsiConsole).Assembly.Location
-        };
     }
 
     public void Dispose()

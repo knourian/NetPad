@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using NetPad.Common;
 using NetPad.Compilation;
 using NetPad.Configuration;
+using NetPad.Data;
 using NetPad.DotNet;
 using NetPad.IO;
 using NetPad.Packages;
@@ -20,27 +21,50 @@ public partial class ExternalScriptRunner
 
     private async Task<RunDependencies?> GetRunDependencies(RunOptions runOptions)
     {
-        // Images
-        var referenceAssemblyImages = new HashSet<AssemblyImage>();
-        foreach (var additionalReference in runOptions.AdditionalReferences)
+        var references = new List<Reference>();
+        var additionalCode = new SourceCodeCollection();
+
+        // Add script references
+        references.AddRange(_script.Config.References);
+
+        // Add data connection resources
+        if (_script.DataConnection != null)
         {
-            if (additionalReference is AssemblyImageReference assemblyImageReference)
-                referenceAssemblyImages.Add(assemblyImageReference.AssemblyImage);
+            var dcResources = await GetDataConnectionResourcesAsync(_script.DataConnection);
+
+            if (dcResources.Code.Count > 0)
+            {
+                additionalCode.AddRange(dcResources.Code);
+            }
+
+            if (dcResources.References.Count > 0)
+            {
+                references.AddRange(dcResources.References);
+            }
         }
 
-        // Files
-        var referenceAssets = (await _script.Config.References
-                .Union(runOptions.AdditionalReferences)
-                .GetAssetsAsync(_script.Config.TargetFrameworkVersion, _packageProvider))
-            .Select(asset => new
+        // Resolve all assembly images
+        var images = references
+            .Select(r => r is AssemblyImageReference air ? air.AssemblyImage : null!)
+            .Where(r => r != null!)
+            .ToList();
+
+
+        // Resolve all assembly assets
+        var referenceAssets = (
+                await references.GetAssetsAsync(_script.Config.TargetFrameworkVersion, _packageProvider)
+            )
+            .Select(a => new
             {
-                asset.Path,
-                IsAssembly = asset.IsAssembly()
+                a.Path,
+                IsAssembly = a.IsAssembly()
             })
+            .DistinctBy(a => a.Path)
             .ToArray();
 
-        var referenceAssemblyPaths = referenceAssets
-            .Where(x => x.IsAssembly)
+        // Get assembly file assets
+        var assemblyFilePaths = referenceAssets
+            .Where(a => a.IsAssembly)
             .Select(x => new
             {
                 x.Path,
@@ -52,18 +76,22 @@ public partial class ExternalScriptRunner
             .Select(x => x.Path)
             .ToHashSet();
 
-        // Add assemblies needed to support running external process
-        foreach (var assemblyPath in GetUserAccessibleAssemblies())
+
+        // Add assembly files needed to support running external process
+        foreach (var assemblyPath in _supportAssemblies.Concat(_userVisibleAssemblies))
         {
-            referenceAssemblyPaths.Add(assemblyPath);
+            assemblyFilePaths.Add(assemblyPath);
         }
 
         // Parse Code & Compile
-        var (parsingResult, compilationResult) = ParseAndCompile(
+        var (parsingResult, compilationResult) = ParseAndCompile.Do(
             runOptions.SpecificCodeToRun ?? _script.Code,
-            referenceAssemblyImages,
-            referenceAssemblyPaths,
-            runOptions.AdditionalCode);
+            _script,
+            _codeParser,
+            _codeCompiler,
+            images,
+            assemblyFilePaths,
+            additionalCode);
 
         if (!compilationResult.Success)
         {
@@ -77,120 +105,57 @@ public partial class ExternalScriptRunner
             return null;
         }
 
-        var runAssets = new HashSet<RunAsset>(runOptions.Assets);
-
-        foreach (var asset in referenceAssets.Where(x => !x.IsAssembly))
-        {
-            runAssets.Add(new RunAsset(asset.Path, $"./{Path.GetFileName(asset.Path)}"));
-        }
+        // Get non-assembly file assets
+        var fileAssets = referenceAssets
+            .Where(a => !a.IsAssembly)
+            .Select(a => new FileAssetCopy(a.Path, $"./{Path.GetFileName(a.Path)}"))
+            .ToHashSet();
 
         return new RunDependencies(
             parsingResult,
             compilationResult.AssemblyBytes,
-            referenceAssemblyImages,
-            referenceAssemblyPaths,
-            runAssets
+            images,
+            assemblyFilePaths,
+            fileAssets
         );
     }
 
-    private ParseAndCompileResult ParseAndCompile(
-        string code,
-        HashSet<AssemblyImage> referenceAssemblyImages,
-        HashSet<string> referenceAssemblyPaths,
-        SourceCodeCollection additionalCode)
+    private async Task<(SourceCodeCollection Code, IReadOnlyList<Reference> References)>
+        GetDataConnectionResourcesAsync(DataConnection dataConnection)
     {
-        ParseAndCompileResult parseAndCompile(string targetCode)
+        var code = new SourceCodeCollection();
+        var references = new List<Reference>();
+
+        var targetFrameworkVersion = _script.Config.TargetFrameworkVersion;
+
+        var connectionCode = await _dataConnectionResourcesCache.GetSourceGeneratedCodeAsync(
+            dataConnection,
+            targetFrameworkVersion);
+
+        if (connectionCode.ApplicationCode.Any())
         {
-            var parsingResult = _codeParser.Parse(
-                targetCode,
-                _script.Config.Kind,
-                _script.Config.Namespaces,
-                new CodeParsingOptions
-                {
-                    IncludeAspNetUsings = _script.Config.UseAspNet,
-                    AdditionalCode = additionalCode
-                });
-
-            parsingResult.BootstrapperProgram.Code.Update(parsingResult.BootstrapperProgram.Code.Value?
-                .Replace("SCRIPT_ID", _script.Id.ToString())
-                .Replace("SCRIPT_NAME", _script.Name)
-                .Replace("SCRIPT_LOCATION", _script.Path));
-
-            var fullProgram = parsingResult.GetFullProgram();
-
-            var compilationInput = new CompilationInput(
-                    fullProgram.ToCodeString(),
-                    _script.Config.TargetFrameworkVersion,
-                    referenceAssemblyImages.Select(a => a.Image).ToHashSet(),
-                    referenceAssemblyPaths)
-                .WithOptimizationLevel(_script.Config.OptimizationLevel)
-                .WithUseAspNet(_script.Config.UseAspNet);
-
-            var compilationResult = _codeCompiler.Compile(compilationInput);
-
-            return new ParseAndCompileResult(parsingResult, compilationResult);
+            code.AddRange(connectionCode.ApplicationCode);
         }
 
-        // We will try different permutations of the user's code, starting with running it as-is. The idea is to account
-        // for, and give the ability for users to, run expressions not ending with semi-colon or .Dump() and still produce
-        // the "missing" pieces to run the expression.
-        var permutations = new List<Func<(bool shouldAttempt, string code)>>
+        var connectionAssembly = await _dataConnectionResourcesCache.GetAssemblyAsync(
+            dataConnection,
+            targetFrameworkVersion);
+
+        if (connectionAssembly != null)
         {
-            // As-is
-            () => (true, code),
-
-            // Try adding ".Dump();" to dump the result of an expression
-            // There is no good way that I've found to determine if expression returns void or otherwise
-            // so the only way to test if the expression results in a value is to try to compile it.
-            () =>
-            {
-                var trimmedCode = code.Trim();
-
-                if (!trimmedCode.EndsWith(";") && !trimmedCode.EndsWith(".Dump()"))
-                {
-                    return (true, $"({trimmedCode}).Dump();");
-                }
-
-                return (false, code);
-            },
-
-            // Try adding ";" to execute an expression
-            () =>
-            {
-                var trimmedCode = code.Trim();
-                return !trimmedCode.EndsWith(";")
-                    ? (true, trimmedCode + ";")
-                    : (false, code);
-            }
-        };
-
-        ParseAndCompileResult? asIsResult = null;
-
-        for (var ixPerm = 0; ixPerm < permutations.Count; ixPerm++)
-        {
-            var permutationFunc = permutations[ixPerm];
-            var permutation = permutationFunc();
-
-            if (!permutation.shouldAttempt)
-            {
-                continue;
-            }
-
-            var result = parseAndCompile(permutation.code);
-
-            if (result.CompilationResult.Success)
-            {
-                return result;
-            }
-
-            if (ixPerm == 0)
-            {
-                asIsResult = result;
-            }
+            references.Add(new AssemblyImageReference(connectionAssembly));
         }
 
-        // If we got here compilation failed
-        return asIsResult!;
+        var requiredReferences = await _dataConnectionResourcesCache.GetRequiredReferencesAsync(
+            dataConnection,
+            targetFrameworkVersion);
+
+        if (requiredReferences.Any())
+        {
+            references.AddRange(requiredReferences);
+        }
+
+        return (code, references);
     }
 
     private async Task<FilePath> SetupExternalProcessRootDirectoryAsync(RunDependencies runDependencies)
@@ -216,7 +181,8 @@ public partial class ExternalScriptRunner
                                  // to the output directory, resulting in the referenced assembly not being found.
                                  + "__";
 
-        FilePath scriptAssemblyFilePath = Path.Combine(_externalProcessRootDirectory.FullName, $"{fileSafeScriptName}.dll");
+        FilePath scriptAssemblyFilePath =
+            Path.Combine(_externalProcessRootDirectory.FullName, $"{fileSafeScriptName}.dll");
 
         await File.WriteAllBytesAsync(scriptAssemblyFilePath.Path, runDependencies.ScriptAssemblyBytes);
 
@@ -247,7 +213,8 @@ public partial class ExternalScriptRunner
 
         foreach (var referenceAssemblyPath in runDependencies.AssemblyPathDependencies)
         {
-            var destPath = Path.Combine(_externalProcessRootDirectory.FullName, Path.GetFileName(referenceAssemblyPath));
+            var destPath = Path.Combine(_externalProcessRootDirectory.FullName,
+                Path.GetFileName(referenceAssemblyPath));
 
             // Checking file exists means that the first assembly in the list of paths will win.
             // Later assemblies with the same file name will not be copied to the output directory.
@@ -255,14 +222,20 @@ public partial class ExternalScriptRunner
                 File.Copy(referenceAssemblyPath, destPath, true);
         }
 
-        foreach (var asset in runDependencies.Assets)
+        foreach (var asset in runDependencies.FileAssetsToCopy)
         {
             if (!asset.CopyFrom.Exists())
             {
                 continue;
             }
 
-            var copyTo = Path.Combine(_externalProcessRootDirectory.FullName, asset.CopyTo.Path);
+            var copyTo = Path.GetFullPath(Path.Combine(_externalProcessRootDirectory.FullName, asset.CopyTo.Path));
+
+            if (!copyTo.StartsWith(_externalProcessRootDirectory.FullName))
+            {
+                throw new Exception("Cannot copy asset to path outside the script start directory");
+            }
+
             File.Copy(asset.CopyFrom.Path, copyTo, true);
         }
 
@@ -279,10 +252,12 @@ public partial class ExternalScriptRunner
             .Version;
 
         if (runtimeVersion == null)
-            throw new Exception($"Could not find a .NET {_script.Config.TargetFrameworkVersion.GetMajorVersion()} runtime");
+            throw new Exception(
+                $"Could not find a .NET {_script.Config.TargetFrameworkVersion.GetMajorVersion()} runtime");
 
         var tfm = _script.Config.TargetFrameworkVersion.GetTargetFrameworkMoniker();
-        var probingPaths = JsonSerializer.Serialize(runDependencies.AssemblyPathDependencies.Select(Path.GetDirectoryName).Distinct());
+        var probingPaths =
+            JsonSerializer.Serialize(runDependencies.AssemblyPathDependencies.Select(Path.GetDirectoryName).Distinct());
 
         return $@"{{
     ""runtimeOptions"": {{
@@ -298,7 +273,7 @@ public partial class ExternalScriptRunner
     }
 
     /// <summary>
-    /// Corrects line numbers in compilation errors.
+    /// Corrects line numbers in compilation errors relative to the line number where user code starts.
     /// </summary>
     private static string CorrectDiagnosticErrorLineNumber(Diagnostic diagnostic, int userProgramStartLineNumber)
     {
@@ -322,9 +297,7 @@ public partial class ExternalScriptRunner
     private record RunDependencies(
         CodeParsingResult ParsingResult,
         byte[] ScriptAssemblyBytes,
-        HashSet<AssemblyImage> AssemblyImageDependencies,
+        List<AssemblyImage> AssemblyImageDependencies,
         HashSet<string> AssemblyPathDependencies,
-        HashSet<RunAsset> Assets);
-
-    private record ParseAndCompileResult(CodeParsingResult ParsingResult, CompilationResult CompilationResult);
+        HashSet<FileAssetCopy> FileAssetsToCopy);
 }

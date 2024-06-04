@@ -1,8 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetPad.Common;
-using NetPad.Data;
-using NetPad.DotNet;
 using NetPad.Events;
 using NetPad.ExecutionModel;
 using NetPad.IO;
@@ -15,12 +13,10 @@ public class ScriptEnvironment : IDisposable, IAsyncDisposable
 {
     private readonly IEventBus _eventBus;
     private readonly ILogger<ScriptEnvironment> _logger;
-    private readonly IDataConnectionResourcesCache _dataConnectionResourcesCache;
     private IServiceScope _serviceScope;
     private IInputReader<string> _inputReader;
     private IOutputWriter<object> _outputWriter;
-    private ScriptStatus _status;
-    private Lazy<IScriptRunner> _runtime;
+    private Lazy<IScriptRunner> _runner;
     private bool _isDisposed;
 
     public ScriptEnvironment(Script script, IServiceScope serviceScope)
@@ -28,11 +24,10 @@ public class ScriptEnvironment : IDisposable, IAsyncDisposable
         Script = script;
         _serviceScope = serviceScope;
         _eventBus = _serviceScope.ServiceProvider.GetRequiredService<IEventBus>();
-        _dataConnectionResourcesCache = _serviceScope.ServiceProvider.GetRequiredService<IDataConnectionResourcesCache>();
         _logger = _serviceScope.ServiceProvider.GetRequiredService<ILogger<ScriptEnvironment>>();
         _inputReader = ActionInputReader<string>.Null;
         _outputWriter = ActionOutputWriter<object>.Null;
-        _status = ScriptStatus.Ready;
+        Status = ScriptStatus.Ready;
 
         // Forwards the following 2 property change notifications as messages on the event bus. They will eventually be pushed to IPC clients.
         Script.OnPropertyChanged.Add(async args =>
@@ -45,18 +40,18 @@ public class ScriptEnvironment : IDisposable, IAsyncDisposable
             await _eventBus.PublishAsync(new ScriptConfigPropertyChangedEvent(Script.Id, args.PropertyName, args.OldValue, args.NewValue));
         });
 
-        _runtime = new Lazy<IScriptRunner>(() =>
+        _runner = new Lazy<IScriptRunner>(() =>
         {
             var factory = _serviceScope.ServiceProvider.GetRequiredService<IScriptRunnerFactory>();
-            var runtime = factory.CreateRunner(Script);
-            _logger.LogDebug("Initialized new runtime");
-            return runtime;
+            var runner = factory.CreateRunner(Script);
+            _logger.LogDebug($"Initialized new {nameof(IScriptRunner)}");
+            return runner;
         });
     }
 
     public Script Script { get; }
 
-    public virtual ScriptStatus Status => _status;
+    public ScriptStatus Status { get; private set; }
 
     public double RunDurationMilliseconds { get; private set; }
 
@@ -66,32 +61,25 @@ public class ScriptEnvironment : IDisposable, IAsyncDisposable
 
         _logger.LogTrace($"{nameof(RunAsync)} start");
 
-        if (_status.NotIn(ScriptStatus.Ready, ScriptStatus.Error))
+        if (Status.NotIn(ScriptStatus.Ready, ScriptStatus.Error))
         {
-            throw new InvalidOperationException($"Script is not in the correct state to run. Status is currently: {_status}");
+            throw new InvalidOperationException($"Script is not in the correct state to run. Status is currently: {Status}");
         }
 
         await SetStatusAsync(ScriptStatus.Running);
 
         try
         {
-            if (Script.DataConnection != null)
-            {
-                await AppendDataConnectionResourcesAsync(runOptions, Script.DataConnection);
-            }
-
             // Script could have been requested to stop by this point
             if (Status == ScriptStatus.Stopping) return;
 
-            if (Status == ScriptStatus.Stopping) return;
-
-            var runResult = await _runtime.Value.RunScriptAsync(runOptions);
+            var runResult = await _runner.Value.RunScriptAsync(runOptions);
 
             await SetRunDurationAsync(runResult.DurationMs);
 
             await SetStatusAsync(runResult.IsScriptCompletedSuccessfully || runResult.IsRunCancelled ? ScriptStatus.Ready : ScriptStatus.Error);
 
-            _logger.LogDebug("Run finished with status: {Status}", _status);
+            _logger.LogDebug("Run finished with status: {Status}", Status);
         }
         catch (Exception ex)
         {
@@ -102,28 +90,6 @@ public class ScriptEnvironment : IDisposable, IAsyncDisposable
         finally
         {
             _logger.LogTrace($"{nameof(RunAsync)} end");
-        }
-    }
-
-    private async Task AppendDataConnectionResourcesAsync(RunOptions runOptions, DataConnection dataConnection)
-    {
-        var connectionCode = await _dataConnectionResourcesCache.GetSourceGeneratedCodeAsync(dataConnection, Script.Config.TargetFrameworkVersion);
-        if (connectionCode.ApplicationCode.Any())
-        {
-            runOptions.AdditionalCode.AddRange(connectionCode.ApplicationCode);
-        }
-
-        var connectionAssembly = await _dataConnectionResourcesCache.GetAssemblyAsync(dataConnection, Script.Config.TargetFrameworkVersion);
-        if (connectionAssembly != null)
-        {
-            runOptions.AdditionalReferences.Add(new AssemblyImageReference(connectionAssembly));
-        }
-
-        var requiredReferences = await _dataConnectionResourcesCache.GetRequiredReferencesAsync(dataConnection, Script.Config.TargetFrameworkVersion);
-
-        if (requiredReferences.Any())
-        {
-            runOptions.AdditionalReferences.AddRange(requiredReferences);
         }
     }
 
@@ -143,7 +109,7 @@ public class ScriptEnvironment : IDisposable, IAsyncDisposable
 
         try
         {
-            await _runtime.Value.StopScriptAsync();
+            await _runner.Value.StopScriptAsync();
             await _outputWriter.WriteAsync(new RawScriptOutput($"Script stopped at: {stopTime}"));
             await SetStatusAsync(ScriptStatus.Ready);
         }
@@ -163,25 +129,25 @@ public class ScriptEnvironment : IDisposable, IAsyncDisposable
     {
         EnsureNotDisposed();
 
-        RemoveScriptRuntimeIOHandlers();
+        RemoveScriptRunnerIOHandlers();
 
         _inputReader = inputReader ?? throw new ArgumentNullException(nameof(inputReader));
         _outputWriter = outputWriter;
 
-        AddScriptRuntimeIOHandlers();
+        AddScriptRunnerIOHandlers();
     }
 
-    public string[] GetScriptRuntimeUserAccessibleAssemblies() => _runtime.Value.GetUserAccessibleAssemblies();
+    public string[] GetUserVisibleAssemblies() => _runner.Value.GetUserVisibleAssemblies();
 
     private async Task SetStatusAsync(ScriptStatus status)
     {
-        if (status == _status)
+        if (status == Status)
         {
             return;
         }
 
-        var oldValue = _status;
-        _status = status;
+        var oldValue = Status;
+        Status = status;
         await _eventBus.PublishAsync(new EnvironmentPropertyChangedEvent(Script.Id, nameof(Status), oldValue, status));
     }
 
@@ -192,16 +158,16 @@ public class ScriptEnvironment : IDisposable, IAsyncDisposable
         await _eventBus.PublishAsync(new EnvironmentPropertyChangedEvent(Script.Id, nameof(RunDurationMilliseconds), oldValue, runDurationMs));
     }
 
-    private void AddScriptRuntimeIOHandlers()
+    private void AddScriptRunnerIOHandlers()
     {
-        _runtime.Value.AddInput(_inputReader);
-        _runtime.Value.AddOutput(_outputWriter);
+        _runner.Value.AddInput(_inputReader);
+        _runner.Value.AddOutput(_outputWriter);
     }
 
-    private void RemoveScriptRuntimeIOHandlers()
+    private void RemoveScriptRunnerIOHandlers()
     {
-        _runtime.Value.RemoveInput(_inputReader);
-        _runtime.Value.RemoveOutput(_outputWriter);
+        _runner.Value.RemoveInput(_inputReader);
+        _runner.Value.RemoveOutput(_outputWriter);
     }
 
     private void EnsureNotDisposed()
@@ -255,14 +221,14 @@ public class ScriptEnvironment : IDisposable, IAsyncDisposable
 
             try
             {
-                _runtime.Value.Dispose();
+                _runner.Value.Dispose();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error disposing runtime of type: {ScriptRuntimeType}", _runtime.GetType().FullName);
+                _logger.LogError(ex, "Error disposing runner of type: {Type}", _runner.GetType().FullName);
             }
 
-            _runtime = null!;
+            _runner = null!;
 
             _serviceScope.Dispose();
             _serviceScope = null!;
@@ -278,14 +244,14 @@ public class ScriptEnvironment : IDisposable, IAsyncDisposable
 
         try
         {
-            _runtime.Value.Dispose();
+            _runner.Value.Dispose();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error disposing runtime of type: {RuntimeType}", _runtime.GetType().FullName);
+            _logger.LogError(ex, "Error disposing runner of type: {Type}", _runner.GetType().FullName);
         }
 
-        _runtime = null!;
+        _runner = null!;
 
         if (_serviceScope is IAsyncDisposable asyncDisposable)
         {

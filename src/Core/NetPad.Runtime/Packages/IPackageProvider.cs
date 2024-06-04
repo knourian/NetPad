@@ -84,7 +84,7 @@ public interface IPackageProvider
     /// <param name="packageId">Package ID</param>
     /// <param name="packageVersion">Package Version</param>
     /// <param name="dotNetFrameworkVersion">The .NET framework version to target.</param>
-    Task<HashSet<PackageAsset>> GetPackageAndDependencyAssetsAsync(string packageId, string packageVersion, DotNetFrameworkVersion dotNetFrameworkVersion);
+    Task<HashSet<PackageAsset>> GetRecursivePackageAssetsAsync(string packageId, string packageVersion, DotNetFrameworkVersion dotNetFrameworkVersion);
 
 
     /// <summary>

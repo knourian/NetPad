@@ -6,9 +6,9 @@ namespace NetPad.ExecutionModel.External;
 
 /// <summary>
 /// Handles unstructured raw process output. Used to buffer output and give it order. Usually raw process output
-/// is not user-designated output and can be unpredictable (ex. stackoverflow output can be thousands of lines in rapid succession).
+/// is not a result of user output and can be unpredictable (ex. stackoverflow output can be thousands of lines in rapid succession).
 ///
-/// Another use for this is raw process output comes in line-by-line. An error emitted as a result of an uncaught
+/// Another use for this is that raw process output comes in line-by-line. An error emitted as a result of an uncaught
 /// exception for example will span multiple lines, each line will come in one by one. The debounced queue
 /// implemented here will ensure that those lines will be bundled and written to output as one message.
 /// </summary>

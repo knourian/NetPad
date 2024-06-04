@@ -3,7 +3,7 @@ using NetPad.IO;
 namespace NetPad.ExecutionModel;
 
 /// <summary>
-/// An execution engine that runs <see cref="Scripts.Script"/>s.
+/// Runs a script.
 /// </summary>
 public interface IScriptRunner : IDisposable
 {
@@ -11,10 +11,14 @@ public interface IScriptRunner : IDisposable
     Task StopScriptAsync();
 
     /// <summary>
-    /// Gets assemblies that expose supporting code to the running script specific to this runtime.
+    /// Gets assemblies that users can reference in scripts.
+    ///
+    /// This is different than the assemblies or nuget packages users have added to their scripts. These
+    /// assemblies are provided by NetPad. If we want an assembly that is packaged with NetPad to be
+    /// accessible to user code, we add it here.
     /// </summary>
-    /// <returns>Fully-qualified file paths of all support assemblies exposed by runtime.</returns>
-    string[] GetUserAccessibleAssemblies();
+    /// <returns>Fully-qualified file paths of all user-visible assemblies.</returns>
+    string[] GetUserVisibleAssemblies();
 
     /// <summary>
     /// Adds an input reader that will be invoked whenever script makes a request for user input.
@@ -27,7 +31,7 @@ public interface IScriptRunner : IDisposable
     void RemoveInput(IInputReader<string> inputReader);
 
     /// <summary>
-    /// Adds an output writer that will be invoked whenever script, or this runtime itself, emits any output.
+    /// Adds an output writer that will be invoked whenever output is emitted.
     /// </summary>
     void AddOutput(IOutputWriter<object> outputWriter);
 

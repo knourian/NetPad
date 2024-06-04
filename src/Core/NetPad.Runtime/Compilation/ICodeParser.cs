@@ -9,11 +9,11 @@ public interface ICodeParser
     /// </summary>
     /// <param name="code">The code to parse.</param>
     /// <param name="scriptKind">The kind of code.</param>
-    /// <param name="namespaces">Namespaces to be included in parsed code.</param>
+    /// <param name="usings">Usings to be included in parsed code.</param>
     /// <param name="options">Parsing options.</param>
     CodeParsingResult Parse(
         string code,
         ScriptKind scriptKind,
-        IEnumerable<string>? namespaces = null,
+        IEnumerable<string>? usings = null,
         CodeParsingOptions? options = null);
 }

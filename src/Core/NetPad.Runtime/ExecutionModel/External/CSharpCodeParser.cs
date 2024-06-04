@@ -21,35 +21,28 @@ public class CSharpCodeParser : ICodeParser
     public CodeParsingResult Parse(
         string code,
         ScriptKind scriptKind,
-        IEnumerable<string>? namespaces = null,
+        IEnumerable<string>? usings = null,
         CodeParsingOptions? options = null)
     {
-        var userProgram = GetUserProgram(code, scriptKind);
+        var bootstrapperProgramCode = SourceCode.Parse(GetEmbeddedBootstrapperProgram());
 
-        var bootstrapperProgram = GetBootstrapperProgram();
-
-        var bootstrapperProgramSourceCode = SourceCode.Parse(bootstrapperProgram);
-
-        var additionalCode = options != null ? new SourceCodeCollection(options.AdditionalCode) : new SourceCodeCollection();
-
-        var usings = new List<string>();
-
-        if (namespaces != null)
-        {
-            usings.AddRange(namespaces);
-        }
+        var userProgramUsings = usings?.ToList() ?? new();
 
         if (options?.IncludeAspNetUsings == true)
         {
-            usings.AddRange(_aspNetUsings);
+            userProgramUsings.AddRange(_aspNetUsings);
         }
 
-        return new CodeParsingResult(new SourceCode(userProgram, usings), bootstrapperProgramSourceCode, additionalCode);
+        var userProgramCode = new SourceCode(GetUserProgram(code, scriptKind), userProgramUsings.ToHashSet());
+
+        var additionalCode = options != null ? new SourceCodeCollection(options.AdditionalCode) : null;
+
+        return new CodeParsingResult(userProgramCode, bootstrapperProgramCode, additionalCode);
     }
 
     private static string GetUserProgram(string scriptCode, ScriptKind kind)
     {
-        string userCode;
+        string userProgram;
 
         if (kind == ScriptKind.Expression)
         {
@@ -60,19 +53,23 @@ public class CSharpCodeParser : ICodeParser
         {
             scriptCode = scriptCode.Replace("\"", "\"\"");
 
-            userCode = AssemblyUtil.ReadEmbeddedResource(typeof(CSharpCodeParser).Assembly, "EmbeddedCode.SqlAccessCode.cs")
-                .Replace("SQL_CODE", scriptCode);
+            userProgram = GetEmbeddedSqlProgram().Replace("SQL_CODE", scriptCode);
         }
         else
         {
-            userCode = scriptCode;
+            userProgram = scriptCode;
         }
 
-        return userCode;
+        return userProgram;
     }
 
-    private static string GetBootstrapperProgram()
+    private static string GetEmbeddedBootstrapperProgram()
     {
         return AssemblyUtil.ReadEmbeddedResource(typeof(CSharpCodeParser).Assembly, "EmbeddedCode.Program.cs");
+    }
+
+    private static string GetEmbeddedSqlProgram()
+    {
+        return AssemblyUtil.ReadEmbeddedResource(typeof(CSharpCodeParser).Assembly, "EmbeddedCode.SqlAccessCode.cs");
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetPad.Data;
 using NetPad.Events;
@@ -11,7 +12,7 @@ public class Session : ISession
 {
     private const string CurrentActiveSaveKey = "session.active";
 
-    private readonly IScriptEnvironmentFactory _scriptEnvironmentFactory;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ITrivialDataStore _trivialDataStore;
     private readonly IEventBus _eventBus;
     private readonly ILogger<Session> _logger;
@@ -19,12 +20,12 @@ public class Session : ISession
     private Guid? _lastActiveScriptId;
 
     public Session(
-        IScriptEnvironmentFactory scriptEnvironmentFactory,
+        IServiceScopeFactory serviceScopeFactory,
         ITrivialDataStore trivialDataStore,
         IEventBus eventBus,
         ILogger<Session> logger)
     {
-        _scriptEnvironmentFactory = scriptEnvironmentFactory;
+        _serviceScopeFactory = serviceScopeFactory;
         _trivialDataStore = trivialDataStore;
         _eventBus = eventBus;
         _logger = logger;
@@ -47,7 +48,7 @@ public class Session : ISession
 
         if (environment == null)
         {
-            environment = await _scriptEnvironmentFactory.CreateEnvironmentAsync(script);
+            environment = new ScriptEnvironment(script, _serviceScopeFactory.CreateScope());
             _environments.Add(environment);
             await _eventBus.PublishAsync(new EnvironmentsAddedEvent(environment));
         }

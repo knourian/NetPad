@@ -109,7 +109,7 @@ public sealed class InMemoryScriptRunner : IScriptRunner
         throw new InvalidOperationException("Cannot stop a script running in-memory.");
     }
 
-    public string[] GetUserAccessibleAssemblies()
+    public string[] GetUserVisibleAssemblies()
     {
         return Array.Empty<string>();
     }
