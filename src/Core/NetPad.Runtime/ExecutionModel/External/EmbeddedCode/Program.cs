@@ -1,8 +1,9 @@
 using System.Reflection;
 using NetPad.ExecutionModel.External.Interface;
+using NetPad.Presentation;
 
 /// <summary>
-/// Meant to be injected into script code so it can initialize <see cref="ScriptProcessIO"/>.
+/// Meant to be injected into script code so it can initialize <see cref="ExternalProcessDumpSink"/>.
 /// The class name must be "Program" and must be partial. This is so we augment the base "Program" class
 /// .NET will implicitly wrap top-level statements within. Code in the constructor will be called by the runtime
 /// before a script's code is executed.
@@ -19,7 +20,8 @@ public partial class Program
 
         if (args.Contains("-help"))
         {
-            ScriptProcessIO.UseConsoleOutput(true);
+            ExternalProcessDumpSink.Instance.UseConsoleOutput(true);
+
             var currentAssemblyPath = Assembly.GetExecutingAssembly().Location;
             if (Environment.CurrentDirectory.Length > 1)
             {
@@ -46,7 +48,7 @@ Options:
 
         if (args.Contains("-html"))
         {
-            ScriptProcessIO.UseHtmlOutput();
+            ExternalProcessDumpSink.Instance.UseHtmlOutput();
         }
         else
         {
@@ -54,13 +56,15 @@ Options:
 
             if (args.Contains("-text"))
             {
-                ScriptProcessIO.UseTextOutput(useConsoleColors);
+                ExternalProcessDumpSink.Instance.UseTextOutput(useConsoleColors);
             }
             else
             {
-                ScriptProcessIO.UseConsoleOutput(useConsoleColors);
+                ExternalProcessDumpSink.Instance.UseConsoleOutput(useConsoleColors);
             }
         }
+
+        DumpExtension.UseSink(ExternalProcessDumpSink.Instance);
     }
 }
 

@@ -173,7 +173,7 @@ public class EntityFrameworkResourcesGenerator : IDataConnectionResourcesGenerat
                               .LogTo(
                                   output =>
                                   {
-                                      ScriptProcessIO.SqlWrite(output + "\n");
+                                      DumpExtension.Sink.SqlWrite(output + "\n");
                                   }
                               );
 

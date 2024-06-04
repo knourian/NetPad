@@ -1,9 +1,20 @@
-using NetPad.Presentation;
-
-namespace NetPad.ExecutionModel.External.Interface;
+namespace NetPad.Presentation;
 
 public static class DumpExtension
 {
+    public static IDumpSink Sink { get; private set; }
+
+    static DumpExtension()
+    {
+        Sink = new NullDumpSink();
+    }
+
+    public static void UseSink(IDumpSink sink)
+    {
+        ArgumentNullException.ThrowIfNull(sink);
+        Sink = sink;
+    }
+
     /// <summary>
     /// Dumps this object to the results console.
     /// </summary>
@@ -17,7 +28,7 @@ public static class DumpExtension
     [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("o")]
     public static T? Dump<T>(this T? o, string? title = null, string? css = null, string? code = null, int? clear = null)
     {
-        ScriptProcessIO.ResultWrite(o, new DumpOptions(
+        Sink.ResultWrite(o, new DumpOptions(
             Title: title,
             CssClasses: css,
             CodeType: code,
@@ -37,7 +48,7 @@ public static class DumpExtension
     /// <returns>The <see cref="Span{T}"/> being dumped.</returns>
     public static Span<T> Dump<T>(this Span<T> span, string? title = null, string? cssClasses = null, int? clear = null)
     {
-        ScriptProcessIO.ResultWrite(span.ToArray(), new DumpOptions(
+        Sink.ResultWrite(span.ToArray(), new DumpOptions(
             Title: title,
             CssClasses: cssClasses
         ));
@@ -54,7 +65,7 @@ public static class DumpExtension
     /// <returns>The <see cref="ReadOnlySpan{T}"/> being dumped.</returns>
     public static ReadOnlySpan<T> Dump<T>(this ReadOnlySpan<T> span, string? title = null, string? cssClasses = null, int? clear = null)
     {
-        ScriptProcessIO.ResultWrite(span.ToArray(), new DumpOptions(
+        Sink.ResultWrite(span.ToArray(), new DumpOptions(
             Title: title,
             CssClasses: cssClasses
         ));

@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using NetPad.DotNet;
 using NetPad.ExecutionModel;
 
 namespace NetPad.Dtos;
@@ -8,18 +6,8 @@ namespace NetPad.Dtos;
 public class RunOptionsDto
 {
     public string? SpecificCodeToRun { get; set; }
-    public SourceCodeDto[]? AdditionalCode { get; set; }
 
-    public RunOptions ToRunOptions()
-    {
-        AdditionalCode ??= Array.Empty<SourceCodeDto>();
-
-        var runOptions = new RunOptions(SpecificCodeToRun);
-
-        runOptions.AdditionalCode.AddRange(AdditionalCode.Select(c => new SourceCode(c.Code, c.Usings)));
-
-        return runOptions;
-    }
+    public RunOptions ToRunOptions() => new RunOptions(SpecificCodeToRun);
 
     public class SourceCodeDto
     {

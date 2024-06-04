@@ -7,21 +7,28 @@ namespace NetPad.ExecutionModel.External.Interface;
 /// <summary>
 /// Provides IO utils to a running script.
 /// </summary>
-public static class ScriptProcessIO
+public class ExternalProcessDumpSink : IDumpSink
 {
     private static readonly TextReader _defaultConsoleInput;
     private static readonly TextWriter _defaultConsoleOutput;
     private static IExternalProcessOutputWriter? _output;
     private static bool _isHtmlOutput;
+    private static readonly Lazy<ExternalProcessDumpSink> _instance = new(() => new ExternalProcessDumpSink());
 
-    static ScriptProcessIO()
+    static ExternalProcessDumpSink()
     {
         // Capture default IO
         _defaultConsoleInput = Console.In;
         _defaultConsoleOutput = Console.Out;
     }
 
-    public static void UseHtmlOutput()
+    private ExternalProcessDumpSink()
+    {
+    }
+
+    public static ExternalProcessDumpSink Instance => _instance.Value;
+
+    public void UseHtmlOutput()
     {
         Console.SetIn(new ActionTextReader(() =>
         {
@@ -34,7 +41,7 @@ public static class ScriptProcessIO
         _output = new ExternalProcessOutputHtmlWriter(async str => await _defaultConsoleOutput.WriteLineAsync(str));
     }
 
-    public static void UseTextOutput(bool useConsoleColors)
+    public void UseTextOutput(bool useConsoleColors)
     {
         Console.SetIn(_defaultConsoleInput);
         Console.SetOut(_defaultConsoleOutput);
@@ -43,7 +50,7 @@ public static class ScriptProcessIO
         _output = new ExternalProcessOutputTextWriter(useConsoleColors, async str => await _defaultConsoleOutput.WriteLineAsync(str));
     }
 
-    public static void UseConsoleOutput(bool useConsoleColors)
+    public void UseConsoleOutput(bool useConsoleColors)
     {
         Console.SetIn(_defaultConsoleInput);
         Console.SetOut(_defaultConsoleOutput);
@@ -52,12 +59,12 @@ public static class ScriptProcessIO
         _output = new ExternalProcessOutputConsoleWriter(useConsoleColors);
     }
 
-    public static void RawConsoleWriteLine(string text)
+    public void RawConsoleWriteLine(string text)
     {
         _defaultConsoleOutput.WriteLine(text);
     }
 
-    public static void ResultWrite<T>(T? o, DumpOptions? options = null)
+    public void ResultWrite<T>(T? o, DumpOptions? options = null)
     {
         options ??= DumpOptions.Default;
 
@@ -79,7 +86,7 @@ public static class ScriptProcessIO
         _ = _output?.WriteResultAsync(o, options);
     }
 
-    public static void SqlWrite<T>(T? o, DumpOptions? options = null)
+    public void SqlWrite<T>(T? o, DumpOptions? options = null)
     {
         _ = _output?.WriteSqlAsync(o, options);
     }
