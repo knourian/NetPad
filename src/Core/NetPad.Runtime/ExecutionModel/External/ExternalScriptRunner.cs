@@ -110,7 +110,7 @@ public sealed partial class ExternalScriptRunner : IScriptRunner
 
             _processHandler = new ProcessHandler(
                 _dotNetInfo.LocateDotNetExecutableOrThrow(),
-                $"{scriptAssemblyFilePath.Path} -html"
+                $"{scriptAssemblyFilePath.Path} -html -parent {Environment.ProcessId}"
             );
 
             // On Windows, we need this environment var to force console output when using the ConsoleLoggingProvider

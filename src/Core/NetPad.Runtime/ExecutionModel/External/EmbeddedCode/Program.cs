@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using NetPad.ExecutionModel.External.Interface;
 using NetPad.Presentation;
@@ -22,26 +23,7 @@ public partial class Program
         {
             ExternalProcessDumpSink.Instance.UseConsoleOutput(true);
 
-            var currentAssemblyPath = Assembly.GetExecutingAssembly().Location;
-            if (Environment.CurrentDirectory.Length > 1)
-            {
-                currentAssemblyPath = "." + currentAssemblyPath.Replace(Environment.CurrentDirectory, string.Empty);
-            }
-
-            Console.WriteLine($"{UserScript.Name}");
-            Console.WriteLine($@"
-Usage:
-    dotnet {currentAssemblyPath} [-console|-text|-html] [OPTIONS]
-
-Output Format:
-    -console    Optimized for console output (default)
-    -text       Text output
-    -html       HTML output
-
-Options:
-    -no-color   Do not color output. Does not apply to ""HTML"" format
-    -help       Display this help
-");
+            PrintHelp();
 
             Environment.Exit(0);
         }
@@ -65,6 +47,62 @@ Options:
         }
 
         DumpExtension.UseSink(ExternalProcessDumpSink.Instance);
+
+        TerminateProcessOnParentExit(args);
+    }
+
+    private static void PrintHelp()
+    {
+        var currentAssemblyPath = Assembly.GetExecutingAssembly().Location;
+        if (Environment.CurrentDirectory.Length > 1)
+        {
+            currentAssemblyPath = "." + currentAssemblyPath.Replace(Environment.CurrentDirectory, string.Empty);
+        }
+
+        Console.WriteLine($"{UserScript.Name}");
+        Console.WriteLine($@"
+Usage:
+    dotnet {currentAssemblyPath} [-console|-text|-html] [OPTIONS]
+
+Output Format:
+    -console        Optimized for console output (default)
+    -text           Text output
+    -html           HTML output
+
+Options:
+    -no-color       Do not color output. Does not apply to ""HTML"" format
+    -parent <ID>    Instructs process to terminate itself when this process ID is terminated.
+    -help           Display this help
+");
+    }
+
+    private static void TerminateProcessOnParentExit(string[] args)
+    {
+        var parentIx = Array.IndexOf(args, "-parent");
+
+        if (parentIx < 0)
+        {
+            // No parent
+            return;
+        }
+
+        if (args.Length < parentIx + 1 || !int.TryParse(args[parentIx + 1], out var parentProcessId))
+        {
+            Console.Error.WriteLine("Invalid parent process ID");
+            Environment.Exit(1);
+            return;
+        }
+
+        var parentProcess = Try.Run(() => Process.GetProcessById(parentProcessId));
+
+        if (parentProcess != null)
+        {
+            parentProcess.Exited += (_, _) => Environment.Exit(1);
+        }
+        else
+        {
+            Console.Error.WriteLine($"Parent process {parentProcessId} is not running");
+            Environment.Exit(1);
+        }
     }
 }
-
