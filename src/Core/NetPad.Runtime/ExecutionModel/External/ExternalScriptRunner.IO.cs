@@ -49,7 +49,7 @@ public partial class ExternalScriptRunner
                 }
             }
 
-            var stdInput = _processHandler?.IO.StandardInput;
+            var stdInput = _scriptProcess?.Process.StandardInput;
 
             if (stdInput != null)
             {
@@ -107,12 +107,10 @@ public partial class ExternalScriptRunner
     /// </summary>
     /// <param name="raw">Raw error data as written to STD OUT of external process.</param>
     /// <param name="userProgramStartLineNumber">The line number the user's program starts. Used to correct line numbers.</param>
-    private Task OnProcessErrorReceived(string raw, int userProgramStartLineNumber)
+    private void OnProcessErrorReceived(string raw, int userProgramStartLineNumber)
     {
         raw = CorrectUncaughtExceptionStackTraceLineNumber(raw, userProgramStartLineNumber);
-
         _rawOutputHandler.RawErrorReceived(raw);
-        return Task.CompletedTask;
     }
 
     /// <summary>

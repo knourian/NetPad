@@ -11,9 +11,19 @@ public static class DependencyInjection
     /// <summary>
     /// Registers the "External" execution model. Only one execution model should be registered per-application.
     /// </summary>
-    public static void AddExternalExecutionModel(this IServiceCollection services)
+    public static void AddExternalExecutionModel(this IServiceCollection services, Action<ExternalScriptRunnerOptions> configure)
     {
-        services.AddTransient<IScriptRunnerFactory, ExternalScriptRunnerFactory>();
+        services.AddSingleton<IScriptRunnerFactory, ExternalScriptRunnerFactory>(sp =>
+        {
+            var options = new ExternalScriptRunnerOptions(Array.Empty<string>(), false);
+
+            configure(options);
+
+            return new ExternalScriptRunnerFactory(
+                sp.GetRequiredService<IServiceProvider>(),
+                options
+            );
+        });
         services.AddTransient<ICodeParser, CSharpCodeParser>();
     }
 

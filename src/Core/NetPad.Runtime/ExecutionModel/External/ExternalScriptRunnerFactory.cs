@@ -12,15 +12,18 @@ namespace NetPad.ExecutionModel.External;
 public class ExternalScriptRunnerFactory : IScriptRunnerFactory
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly ExternalScriptRunnerOptions _options;
 
-    public ExternalScriptRunnerFactory(IServiceProvider serviceProvider)
+    public ExternalScriptRunnerFactory(IServiceProvider serviceProvider, ExternalScriptRunnerOptions options)
     {
         _serviceProvider = serviceProvider;
+        _options = options;
     }
 
     public IScriptRunner CreateRunner(Script script)
     {
         return new ExternalScriptRunner(
+            _options,
             script,
             _serviceProvider.GetRequiredService<ICodeParser>(),
             _serviceProvider.GetRequiredService<ICodeCompiler>(),

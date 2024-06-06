@@ -146,7 +146,8 @@ class Program
         var startInfo = new ProcessStartInfo(dotnetEfToolExe, args)
             .WithWorkingDirectory(_project.ProjectDirectoryPath)
             .WithRedirectIO()
-            .WithNoUi();
+            .WithNoUi()
+            .CopyCurrentEnvironmentVariables();
 
         // Add dotnet directory to the PATH because when dotnet-ef process starts, if dotnet is not in PATH
         // it will fail as dotnet-ef depends on dotnet
@@ -155,14 +156,18 @@ class Program
         startInfo.EnvironmentVariables["PATH"] = string.IsNullOrWhiteSpace(pathVariableVal) ? dotnetExeDir : $"{pathVariableVal}:{dotnetExeDir}";
         startInfo.EnvironmentVariables["DOTNET_ROOT"] = dotnetExeDir;
 
-        var runResult = await ProcessHandler.RunAsync(startInfo);
+        var outputs = new List<string>();
 
-        _logger.LogDebug("Call to dotnet scaffold completed with exit code: '{ExitCode}'", runResult.ExitCode);
+        var startResult = startInfo.Run(output => outputs.Add(output), isLongRunning: true);
 
-        if (!runResult.Success)
+        var exitCode = await startResult.WaitForExitTask;
+
+        _logger.LogDebug("Call to dotnet scaffold completed with exit code: '{ExitCode}'", exitCode);
+
+        if (!startResult.Started)
         {
             throw new Exception(
-                $"Scaffolding process failed with exit code: {runResult.ExitCode}. dotnet-ef tool output:\n{runResult.Output.JoinToString("\n")}");
+                $"Scaffolding process failed with exit code: {exitCode}. dotnet-ef tool output:\n{outputs.JoinToString("\n")}");
         }
     }
 
@@ -181,21 +186,26 @@ class Program
         var startInfo = new ProcessStartInfo(dotnetEfToolExe, args)
             .WithWorkingDirectory(_project.ProjectDirectoryPath)
             .WithRedirectIO()
-            .WithNoUi();
+            .WithNoUi()
+            .CopyCurrentEnvironmentVariables();
 
         var dotnetExeDir = _dotNetInfo.LocateDotNetRootDirectory();
         var pathVariableVal = startInfo.EnvironmentVariables["PATH"]?.TrimEnd(':');
         startInfo.EnvironmentVariables["PATH"] = string.IsNullOrWhiteSpace(pathVariableVal) ? dotnetExeDir : $"{pathVariableVal}:{dotnetExeDir}";
         startInfo.EnvironmentVariables["DOTNET_ROOT"] = dotnetExeDir;
 
-        var runResult = await ProcessHandler.RunAsync(startInfo);
+        var outputs = new List<string>();
 
-        _logger.LogDebug("Call to dotnet optimize completed with exit code: '{ExitCode}'", runResult.ExitCode);
+        var startResult = startInfo.Run(output => outputs.Add(output), isLongRunning: true);
 
-        if (!runResult.Success)
+        var exitCode = await startResult.WaitForExitTask;
+
+        _logger.LogDebug("Call to dotnet optimize completed with exit code: '{ExitCode}'", exitCode);
+
+        if (!startResult.Started)
         {
             throw new Exception(
-                $"Scaffolding process failed with exit code: {runResult.ExitCode}. dotnet-ef tool output:\n{runResult.Output.JoinToString("\n")}");
+                $"Scaffolding process failed with exit code: {exitCode}. dotnet-ef tool output:\n{outputs.JoinToString("\n")}");
         }
     }
 

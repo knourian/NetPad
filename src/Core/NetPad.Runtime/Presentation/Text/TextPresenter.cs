@@ -18,12 +18,10 @@ public static class TextPresenter
 
     public static string Serialize(object? value, string? title = null, bool useConsoleColors = true)
     {
-        // var colors = useConsoleColors
-        //     ? Dumpify.ColorConfig.DefaultColors
-        //     : Dumpify.ColorConfig.NoColors;
-        //
-        // return Dumpify.DumpExtensions.DumpText(value, label: title, colors: colors, maxDepth: _maxDepth);
+        var colors = useConsoleColors
+            ? Dumpify.ColorConfig.DefaultColors
+            : Dumpify.ColorConfig.NoColors;
 
-        return "DISABLED";
+        return Dumpify.DumpExtensions.DumpText(value, label: title, colors: colors, maxDepth: _maxDepth);
     }
 }

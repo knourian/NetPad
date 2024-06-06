@@ -13,7 +13,7 @@ public static class SessionTestHelper
     public static Session CreateSession(IServiceProvider serviceProvider)
     {
         return new Session(
-            new DefaultScriptEnvironmentFactory(serviceProvider),
+            serviceProvider.GetRequiredService<IServiceScopeFactory>(),
             new NullTrivialDataStore(),
             serviceProvider.GetRequiredService<IEventBus>(),
             serviceProvider.GetRequiredService<ILogger<Session>>());

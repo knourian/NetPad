@@ -14,7 +14,7 @@ public class NullPackageProvider : IPackageProvider
         throw new NotImplementedException();
     }
 
-    public Task<HashSet<PackageAsset>> GetPackageAndDependencyAssetsAsync(string packageId, string packageVersion, DotNetFrameworkVersion dotNetFrameworkVersion)
+    public Task<HashSet<PackageAsset>> GetRecursivePackageAssetsAsync(string packageId, string packageVersion, DotNetFrameworkVersion dotNetFrameworkVersion)
     {
         throw new NotImplementedException();
     }

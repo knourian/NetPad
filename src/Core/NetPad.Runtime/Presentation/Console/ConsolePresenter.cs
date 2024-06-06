@@ -19,12 +19,10 @@ public static class ConsolePresenter
 
     public static void Serialize(object? value, string? title = null, bool useConsoleColors = true)
     {
-        // var colors = useConsoleColors
-        //     ? Dumpify.ColorConfig.DefaultColors
-        //     : Dumpify.ColorConfig.NoColors;
-        //
-        // Dumpify.DumpExtensions.Dump(value, label: title, colors: colors, maxDepth: _maxDepth);
+        var colors = useConsoleColors
+            ? Dumpify.ColorConfig.DefaultColors
+            : Dumpify.ColorConfig.NoColors;
 
-        System.Console.WriteLine("DISABLED");
+        Dumpify.DumpExtensions.Dump(value, label: title, colors: colors, maxDepth: _maxDepth);
     }
 }

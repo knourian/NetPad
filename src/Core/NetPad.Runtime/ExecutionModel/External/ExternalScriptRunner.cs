@@ -20,6 +20,7 @@ namespace NetPad.ExecutionModel.External;
 public sealed partial class ExternalScriptRunner : IScriptRunner
 {
     private readonly Script _script;
+    private readonly ExternalScriptRunnerOptions _options;
     private readonly IDataConnectionResourcesCache _dataConnectionResourcesCache;
     private readonly IDotNetInfo _dotNetInfo;
     private readonly ILogger<ExternalScriptRunner> _logger;
@@ -28,7 +29,7 @@ public sealed partial class ExternalScriptRunner : IScriptRunner
     private readonly HashSet<IOutputWriter<object>> _externalOutputWriters;
     private readonly DirectoryInfo _externalProcessRootDirectory;
     private readonly RawOutputHandler _rawOutputHandler;
-    private ProcessHandler? _processHandler;
+    private ProcessStartResult? _scriptProcess;
 
     private static readonly string[] _userVisibleAssemblies =
     {
@@ -38,11 +39,12 @@ public sealed partial class ExternalScriptRunner : IScriptRunner
 
     private static readonly string[] _supportAssemblies =
     {
-        // typeof(Dumpify.DumpExtensions).Assembly.Location,
-        // typeof(Spectre.Console.IAnsiConsole).Assembly.Location
+        typeof(Dumpify.DumpExtensions).Assembly.Location,
+        typeof(Spectre.Console.IAnsiConsole).Assembly.Location
     };
 
     public ExternalScriptRunner(
+        ExternalScriptRunnerOptions options,
         Script script,
         ICodeParser codeParser,
         ICodeCompiler codeCompiler,
@@ -52,6 +54,7 @@ public sealed partial class ExternalScriptRunner : IScriptRunner
         Settings settings,
         ILogger<ExternalScriptRunner> logger)
     {
+        _options = options;
         _script = script;
         _dataConnectionResourcesCache = dataConnectionResourcesCache;
         _codeParser = codeParser;
@@ -108,34 +111,43 @@ public sealed partial class ExternalScriptRunner : IScriptRunner
             // Reset raw output order
             _rawOutputHandler.Reset();
 
-            _processHandler = new ProcessHandler(
-                _dotNetInfo.LocateDotNetExecutableOrThrow(),
-                $"{scriptAssemblyFilePath.Path} -html -parent {Environment.ProcessId}"
-            );
+            var args = _options.ProcessCliArgs.Contains("-parent")
+                ? _options.ProcessCliArgs
+                : _options.ProcessCliArgs.Union(new[] { "-parent", Environment.ProcessId.ToString() }).ToArray();
+
+            var startInfo = new ProcessStartInfo(
+                    _dotNetInfo.LocateDotNetExecutableOrThrow(),
+                    $"{scriptAssemblyFilePath.Path} -- {string.Join(' ', args)}")
+                .CopyCurrentEnvironmentVariables();
+
+            if (_options.RedirectIo)
+            {
+                startInfo
+                    .WithRedirectIO()
+                    .WithNoUi();
+            }
 
             // On Windows, we need this environment var to force console output when using the ConsoleLoggingProvider
             // See: https://github.com/dotnet/runtime/blob/8a2e7e3e979d671d97cb408fbcbdbee5594479a4/src/libraries/Microsoft.Extensions.Logging.Console/src/ConsoleLoggerProvider.cs#L69
             if (_script.Config.UseAspNet && PlatformUtil.IsWindowsPlatform())
             {
-                _processHandler.ProcessStartInfo.EnvironmentVariables.Add(
-                    "DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION", "true");
+                startInfo.EnvironmentVariables.Add("DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION", "true");
             }
 
-            _processHandler.IO.OnOutputReceivedHandlers.Add(OnProcessOutputReceived);
-
-            _processHandler.IO.OnErrorReceivedHandlers.Add(async raw =>
-                await OnProcessErrorReceived(raw, runDependencies.ParsingResult.UserProgramStartLineNumber));
+            _scriptProcess = startInfo.Run(
+                output => _ = OnProcessOutputReceived(output),
+                error => OnProcessErrorReceived(error, runDependencies.ParsingResult.UserProgramStartLineNumber),
+                isLongRunning: true
+            );
 
             var stopWatch = Stopwatch.StartNew();
 
-            var startResult = _processHandler.StartProcess();
-
-            if (!startResult.Success)
+            if (!_scriptProcess.Started)
             {
                 return RunResult.RunAttemptFailure();
             }
 
-            var exitCode = await startResult.WaitForExitTask;
+            var exitCode = await _scriptProcess.WaitForExitTask;
 
             stopWatch.Stop();
             var elapsed = stopWatch.ElapsedMilliseconds;
@@ -166,17 +178,21 @@ public sealed partial class ExternalScriptRunner : IScriptRunner
 
     public Task StopScriptAsync()
     {
-        if (_processHandler == null) return Task.CompletedTask;
+        if (_scriptProcess == null)
+        {
+            return Task.CompletedTask;
+        }
 
         try
         {
-            _processHandler.Dispose();
-            _processHandler = null;
+            _scriptProcess.Process.KillIfRunning();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error disposing process handler");
+            _logger.LogError(ex, "Error killing script process");
         }
+
+        _scriptProcess = null;
 
         _externalProcessRootDirectory.Refresh();
 
@@ -205,7 +221,7 @@ public sealed partial class ExternalScriptRunner : IScriptRunner
 
         try
         {
-            _processHandler?.Dispose();
+            StopScriptAsync();
         }
         catch (Exception ex)
         {
