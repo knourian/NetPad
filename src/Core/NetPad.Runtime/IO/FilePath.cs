@@ -23,6 +23,10 @@ public record FilePath(string Path) : AbsolutePath(Path)
     public override void DeleteIfExists()
     {
         var file = GetInfo();
-        if (file.Exists) file.Delete();
+
+        if (file.Exists)
+        {
+            file.Delete();
+        }
     }
 }

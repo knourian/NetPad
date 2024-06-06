@@ -26,7 +26,7 @@ public class PackageMetadata
     public DateTime? PublishedDate { get; set; }
     public string? LatestAvailableVersion { get; set; }
 
-    public bool IsSomeMetadataMetadataMissing()
+    public bool HasMissingMetadata()
     {
         return string.IsNullOrWhiteSpace(Version)
                || string.IsNullOrWhiteSpace(Title)

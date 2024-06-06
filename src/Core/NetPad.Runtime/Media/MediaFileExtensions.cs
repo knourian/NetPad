@@ -24,6 +24,6 @@ public static class MediaFileExtensions
     /// Sets the <see cref="MediaFile.DisplayWidth"/> and <see cref="MediaFile.DisplayHeight"/> of this media file and returns the same instance.
     /// </summary>
     public static T WithDisplaySize<T>(this T file, string width, string height) where T : MediaFile =>
-        file.WithDisplayWidth<T>(width)
-            .WithDisplayHeight<T>(height);
+        file.WithDisplayWidth(width)
+            .WithDisplayHeight(height);
 }

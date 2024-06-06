@@ -620,7 +620,7 @@ public class NuGetPackageProvider : IPackageProvider
 
     private async Task HydrateMetadataAsync(IEnumerable<PackageMetadata> packages, TimeSpan? timeout = null)
     {
-        var needsProcessing = packages.Where(p => p.IsSomeMetadataMetadataMissing()).ToList();
+        var needsProcessing = packages.Where(p => p.HasMissingMetadata()).ToList();
         if (!needsProcessing.Any())
             return;
 

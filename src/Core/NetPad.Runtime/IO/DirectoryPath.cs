@@ -28,6 +28,10 @@ public record DirectoryPath(string Path) : AbsolutePath(Path)
     public override void DeleteIfExists()
     {
         var dir = GetInfo();
-        if (dir.Exists) dir.Delete(true);
+
+        if (dir.Exists)
+        {
+            dir.Delete(true);
+        }
     }
 }
