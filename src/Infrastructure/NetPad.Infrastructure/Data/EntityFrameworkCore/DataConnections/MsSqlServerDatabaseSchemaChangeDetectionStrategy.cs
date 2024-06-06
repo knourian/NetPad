@@ -4,7 +4,7 @@ using NetPad.Application;
 
 namespace NetPad.Data.EntityFrameworkCore.DataConnections;
 
-public class MsSqlServerDatabaseSchemaChangeDetectionStrategy : EntityFrameworkSchemaChangeDetectionStrategyBase, IDataConnectionSchemaChangeDetectionStrategy
+internal class MsSqlServerDatabaseSchemaChangeDetectionStrategy : EntityFrameworkSchemaChangeDetectionStrategyBase, IDataConnectionSchemaChangeDetectionStrategy
 {
     public MsSqlServerDatabaseSchemaChangeDetectionStrategy(
         IDataConnectionResourcesRepository dataConnectionResourcesRepository,

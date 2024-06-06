@@ -6,5 +6,7 @@ global using System.Threading.Tasks;
 global using NetPad.Utilities;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("NetPad.Apps.App")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("nprun")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("NetPad.Apps.App.Common")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("NetPad.Infrastructure")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("NetPad.Runtime.Tests")]

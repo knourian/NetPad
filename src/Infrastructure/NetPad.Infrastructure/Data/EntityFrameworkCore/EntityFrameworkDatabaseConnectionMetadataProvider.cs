@@ -9,7 +9,7 @@ using NetPad.Data.EntityFrameworkCore.DataConnections;
 
 namespace NetPad.Data.EntityFrameworkCore;
 
-public class EntityFrameworkDatabaseConnectionMetadataProvider : IDatabaseConnectionMetadataProvider
+internal class EntityFrameworkDatabaseConnectionMetadataProvider : IDatabaseConnectionMetadataProvider
 {
     private readonly IDataConnectionResourcesCache _dataConnectionResourcesCache;
     private readonly IAssemblyLoader _assemblyLoader;

@@ -1,8 +1,5 @@
 namespace NetPad.IO;
 
-/// <summary>
-/// An <see cref="IOutputWriter{TOutput}"/> that internally executes a specific async action.
-/// </summary>
 public class AsyncActionOutputWriter<TOutput> : IOutputWriter<TOutput>
 {
     private readonly Func<TOutput?, string?, Task> _action;

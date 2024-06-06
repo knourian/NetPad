@@ -5,6 +5,7 @@ namespace NetPad.Application;
 public class AppIdentifier
 {
     public const string AppName = "NetPad";
+    public const string AppId = "NETPAD_8C94D5EA-9510-4493-AA43-CADE372ED853";
     public static readonly Version VERSION;
     public static readonly string PRODUCT_VERSION;
 

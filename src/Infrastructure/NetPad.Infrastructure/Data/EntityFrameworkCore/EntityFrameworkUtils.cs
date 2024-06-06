@@ -10,6 +10,20 @@ namespace NetPad.Data.EntityFrameworkCore;
 
 internal static class EntityFrameworkUtils
 {
+    public static bool IsEntityFrameworkDataConnection(
+        this DataConnection dataConnection,
+        [MaybeNullWhen(false)] out EntityFrameworkDatabaseConnection entityFrameworkDatabaseConnection)
+    {
+        if (dataConnection is EntityFrameworkDatabaseConnection ef)
+        {
+            entityFrameworkDatabaseConnection = ef;
+            return true;
+        }
+
+        entityFrameworkDatabaseConnection = null;
+        return false;
+    }
+
     public static DatabaseStructure GetDatabaseStructure(this DbContext dbContext)
     {
         var dbSets = dbContext.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
@@ -81,19 +95,5 @@ internal static class EntityFrameworkUtils
         }
 
         return structure;
-    }
-
-    public static bool IsEntityFrameworkDataConnection(
-        this DataConnection dataConnection,
-        [MaybeNullWhen(false)] out EntityFrameworkDatabaseConnection entityFrameworkDatabaseConnection)
-    {
-        if (dataConnection is EntityFrameworkDatabaseConnection ef)
-        {
-            entityFrameworkDatabaseConnection = ef;
-            return true;
-        }
-
-        entityFrameworkDatabaseConnection = null;
-        return false;
     }
 }

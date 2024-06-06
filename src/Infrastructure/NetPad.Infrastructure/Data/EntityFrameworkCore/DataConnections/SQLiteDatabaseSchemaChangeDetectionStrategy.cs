@@ -6,7 +6,7 @@ using NetPad.Application;
 
 namespace NetPad.Data.EntityFrameworkCore.DataConnections;
 
-public class SQLiteDatabaseSchemaChangeDetectionStrategy : EntityFrameworkSchemaChangeDetectionStrategyBase, IDataConnectionSchemaChangeDetectionStrategy
+internal class SQLiteDatabaseSchemaChangeDetectionStrategy : EntityFrameworkSchemaChangeDetectionStrategyBase, IDataConnectionSchemaChangeDetectionStrategy
 {
     public SQLiteDatabaseSchemaChangeDetectionStrategy(
         IDataConnectionResourcesRepository dataConnectionResourcesRepository,

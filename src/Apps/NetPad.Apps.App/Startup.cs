@@ -4,12 +4,10 @@ using System.Net.Http;
 using System.Reflection;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NetPad.Application;
 using NetPad.Apps.App.Common;
 using NetPad.Apps.App.Common.CQs;
 using NetPad.Apps.App.Common.Plugins;
@@ -17,16 +15,10 @@ using NetPad.Apps.App.Common.Resources;
 using NetPad.Apps.App.Common.UiInterop;
 using NetPad.Assemblies;
 using NetPad.BackgroundServices;
-using NetPad.CodeAnalysis;
 using NetPad.Common;
-using NetPad.Compilation;
-using NetPad.Compilation.CSharp;
 using NetPad.Configuration;
 using NetPad.Data;
 using NetPad.Data.EntityFrameworkCore;
-using NetPad.Data.EntityFrameworkCore.DataConnections;
-using NetPad.DotNet;
-using NetPad.Events;
 using NetPad.ExecutionModel;
 using NetPad.Middlewares;
 using NetPad.Packages;
@@ -34,7 +26,6 @@ using NetPad.Packages.NuGet;
 using NetPad.Plugins.OmniSharp;
 using NetPad.Scripts;
 using NetPad.Services;
-using NetPad.Services.Data;
 using NetPad.Sessions;
 using NetPad.Swagger;
 
@@ -62,52 +53,36 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddSingleton<AppIdentifier>();
+        services.AddCoreServices();
+
         services.AddSingleton<HostInfo>();
-        services.AddSingleton<HttpClient>(_ =>
-        {
-            var httpClient = new HttpClient();
-            httpClient.Timeout = TimeSpan.FromMinutes(1);
-            return httpClient;
-        });
         services.AddTransient<ISettingsRepository, FileSystemSettingsRepository>();
         services.AddSingleton<Settings>(sp => sp.GetRequiredService<ISettingsRepository>().GetSettingsAsync().Result);
         services.AddSingleton<ISession, Session>();
-        services.AddSingleton<IEventBus, EventBus>();
-        services.AddSingleton<IDotNetInfo, DotNetInfo>();
-        services.AddTransient<ICodeCompiler, CSharpCodeCompiler>();
         services.AddTransient<IAssemblyLoader, UnloadableAssemblyLoader>();
-        services.AddTransient<ICodeAnalysisService, CodeAnalysisService>();
         services.AddTransient<ILogoService, LogoService>();
-        services.AddSingleton<IAppStatusMessagePublisher, AppStatusMessagePublisher>();
         services.AddSingleton<ITrivialDataStore, FileSystemTrivialDataStore>();
 
-        // Scripts
+        // Script services
         services.AddTransient<ScriptService>();
         services.AddTransient<IScriptRepository, FileSystemScriptRepository>();
         services.AddTransient<IAutoSaveScriptRepository, FileSystemAutoSaveScriptRepository>();
         services.AddSingleton<IScriptNameGenerator, DefaultScriptNameGenerator>();
-        services.AddTransient<IScriptEnvironmentFactory, DefaultScriptEnvironmentFactory>();
 
-        // Select how we will run scripts, using an external process or in-memory
-        // NOTE: A different app, ex. a CLI version of NetPad, could use AddInMemoryExecutionModel()
-        services.AddExternalExecutionModel();
+        // Script execution mechanism
+        services.AddExternalExecutionModel(options =>
+        {
+            options.ProcessCliArgs = new[] { "-html" };
+            options.RedirectIo = true;
+        });
 
         // Data connections
-        services.AddTransient<IDataConnectionRepository, FileSystemDataConnectionRepository>();
-        services.AddTransient<IDataConnectionResourcesGeneratorFactory, DataConnectionResourcesGeneratorFactory>();
-        services.AddTransient<EntityFrameworkResourcesGenerator>();
-        services.AddTransient<IDatabaseConnectionMetadataProviderFactory, DatabaseConnectionMetadataProviderFactory>();
-        services.AddTransient<EntityFrameworkDatabaseConnectionMetadataProvider>();
-        services.AddTransient<IDataConnectionResourcesRepository, FileSystemDataConnectionResourcesRepository>();
-        services.AddSingleton<IDataConnectionResourcesCache, FileSystemDataConnectionResourcesCache>();
-        services.AddSingleton(sp => new Lazy<IDataConnectionResourcesCache>(sp.GetRequiredService<IDataConnectionResourcesCache>()));
-        services.AddTransient<IDataConnectionPasswordProtector>(s =>
-            new DataProtector(s.GetRequiredService<IDataProtectionProvider>(), "DataConnectionPasswords"));
-        services.AddTransient<IDataConnectionSchemaChangeDetectionStrategyFactory, DataConnectionSchemaChangeDetectionStrategyFactory>();
-        services.AddTransient<IDataConnectionSchemaChangeDetectionStrategy, MsSqlServerDatabaseSchemaChangeDetectionStrategy>();
-        services.AddTransient<IDataConnectionSchemaChangeDetectionStrategy, PostgreSqlDatabaseSchemaChangeDetectionStrategy>();
-        services.AddTransient<IDataConnectionSchemaChangeDetectionStrategy, SQLiteDatabaseSchemaChangeDetectionStrategy>();
+        services
+            .AddDataConnectionFeature<
+                FileSystemDataConnectionRepository,
+                FileSystemDataConnectionResourcesRepository,
+                FileSystemDataConnectionResourcesCache>()
+            .AddEntityFrameworkCoreDataConnectionDriver();
 
         // Package management
         services.AddTransient<IPackageProvider, NuGetPackageProvider>();
@@ -123,10 +98,6 @@ public class Startup
         services.AddHostedService<EventForwardToIpcBackgroundService>();
         services.AddHostedService<ScriptEnvironmentBackgroundService>();
         services.AddHostedService<ScriptsFileWatcherBackgroundService>();
-
-#if DEBUG
-        //services.AddHostedService<DebugAssemblyUnloadBackgroundService>();
-#endif
 
         // Should be the last hosted service so it runs last on app start
         services.AddHostedService<AppSetupAndCleanupBackgroundService>();
@@ -160,6 +131,14 @@ public class Startup
             mvcBuilder.AddApplicationPart(registration.Assembly);
         }
 
+        // HttpClient
+        services.AddSingleton<HttpClient>(_ =>
+        {
+            var httpClient = new HttpClient();
+            httpClient.Timeout = TimeSpan.FromMinutes(1);
+            return httpClient;
+        });
+
         // SignalR
         services.AddSignalR()
             .AddJsonProtocol(options => { JsonSerializer.Configure(options.PayloadSerializerOptions); });
@@ -169,18 +148,13 @@ public class Startup
 
         // Mediator
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(MediatorRequestPipeline<,>));
-        services.AddMediatR(new[] { typeof(Command).Assembly }.Union(pluginRegistrations.Select(pr => pr.Assembly)).ToArray());
+        services.AddMediatR(new[] { typeof(Command).Assembly }.Union(pluginRegistrations.Select(pr => pr.Assembly))
+            .ToArray());
 
         // Swagger
 #if DEBUG
         SwaggerSetup.AddSwagger(services, WebHostEnvironment, pluginRegistrations);
 #endif
-
-        services.AddDataProtection(options =>
-        {
-            // A built-in string that identifies NetPad
-            options.ApplicationDiscriminator = "NETPAD_8C94D5EA-9510-4493-AA43-CADE372ED853";
-        });
 
         // Allow ApplicationConfigurator to add/modify any service registrations it needs
         Program.ApplicationConfigurator.ConfigureServices(services);

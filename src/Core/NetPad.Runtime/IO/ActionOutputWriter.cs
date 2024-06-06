@@ -1,8 +1,5 @@
 namespace NetPad.IO;
 
-/// <summary>
-/// An <see cref="IOutputWriter{TOutput}"/> that internally executes a specific action.
-/// </summary>
 public class ActionOutputWriter<TOutput> : IOutputWriter<TOutput>
 {
     private readonly Action<TOutput?, string?> _action;

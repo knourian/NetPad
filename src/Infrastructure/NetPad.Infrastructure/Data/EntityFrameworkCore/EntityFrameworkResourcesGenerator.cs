@@ -14,7 +14,7 @@ using NetPad.Packages;
 
 namespace NetPad.Data.EntityFrameworkCore;
 
-public class EntityFrameworkResourcesGenerator : IDataConnectionResourcesGenerator
+internal class EntityFrameworkResourcesGenerator : IDataConnectionResourcesGenerator
 {
     private readonly Settings _settings;
     private readonly ILoggerFactory _loggerFactory;

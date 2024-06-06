@@ -1,15 +1,14 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
-using NetPad.Data;
-using NetPad.Data.EntityFrameworkCore;
 using NetPad.Data.EntityFrameworkCore.DataConnections;
 
-namespace NetPad.Services.Data;
+namespace NetPad.Data.EntityFrameworkCore;
 
-public class DataConnectionResourcesGeneratorFactory : IDataConnectionResourcesGeneratorFactory
+internal class EntityFrameworkConnectionResourcesGeneratorFactory : IDataConnectionResourcesGeneratorFactory
 {
     private readonly IServiceProvider _serviceProvider;
 
-    public DataConnectionResourcesGeneratorFactory(IServiceProvider serviceProvider)
+    public EntityFrameworkConnectionResourcesGeneratorFactory(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
@@ -21,6 +20,6 @@ public class DataConnectionResourcesGeneratorFactory : IDataConnectionResourcesG
             return _serviceProvider.GetRequiredService<EntityFrameworkResourcesGenerator>();
         }
 
-        throw new NotImplementedException("Only EntityFramework data connections are supported at this time.");
+        throw new NotImplementedException("Only EntityFramework data connections are supported.");
     }
 }

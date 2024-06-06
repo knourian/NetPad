@@ -6,7 +6,7 @@ using NetPad.Application;
 
 namespace NetPad.Data.EntityFrameworkCore.DataConnections;
 
-public class PostgreSqlDatabaseSchemaChangeDetectionStrategy : EntityFrameworkSchemaChangeDetectionStrategyBase, IDataConnectionSchemaChangeDetectionStrategy
+internal class PostgreSqlDatabaseSchemaChangeDetectionStrategy : EntityFrameworkSchemaChangeDetectionStrategyBase, IDataConnectionSchemaChangeDetectionStrategy
 {
     public PostgreSqlDatabaseSchemaChangeDetectionStrategy(
         IDataConnectionResourcesRepository dataConnectionResourcesRepository,
