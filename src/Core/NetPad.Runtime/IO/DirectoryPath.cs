@@ -6,7 +6,7 @@ public record DirectoryPath(string Path) : AbsolutePath(Path)
 {
     public virtual bool Equals(DirectoryPath? other) =>
         Path.Equals(other?.Path,
-            PlatformUtil.IsWindowsPlatform()
+            PlatformUtil.IsOSWindows()
                 ? StringComparison.InvariantCultureIgnoreCase
                 : StringComparison.InvariantCulture);
 

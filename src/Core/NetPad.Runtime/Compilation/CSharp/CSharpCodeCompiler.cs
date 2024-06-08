@@ -94,6 +94,6 @@ public class CSharpCodeCompiler : ICodeCompiler
             _ => throw new ArgumentOutOfRangeException(nameof(outputKind), outputKind, null)
         };
 
-        static string ExeExtension() => PlatformUtil.IsWindowsPlatform() ? ".exe" : string.Empty;
+        static string ExeExtension() => PlatformUtil.IsOSWindows() ? ".exe" : string.Empty;
     }
 }

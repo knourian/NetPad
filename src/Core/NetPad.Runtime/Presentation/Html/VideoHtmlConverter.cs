@@ -14,7 +14,7 @@ public class VideoHtmlConverter : HtmlConverter
     public override Node WriteHtml<T>(T obj, Type type, SerializationScope serializationScope, HtmlSerializer htmlSerializer)
     {
         if (obj is not Video video)
-            throw new Exception($"Expected an object of type {typeof(Video).FullName}, got {obj.GetType().FullName}");
+            throw new Exception($"Expected an object of type {typeof(Video).FullName}, got {obj?.GetType().FullName}");
 
         string title = video.FilePath ?? video.Uri?.ToString() ?? (video.Base64Data == null ? "(no source)" : "Base 64 data");
 

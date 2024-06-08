@@ -26,7 +26,7 @@ public static class PlatformUtil
         throw new Exception($"Could not determine OS platform. OS: {RuntimeInformation.OSDescription}");
     }
 
-    public static bool IsWindowsPlatform() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    public static bool IsOSWindows() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
     public static bool IsOsArchitectureSupported(bool throwIfNotSupported = false)
     {

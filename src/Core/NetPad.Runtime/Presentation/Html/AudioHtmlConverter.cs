@@ -15,7 +15,7 @@ public class AudioHtmlConverter : ObjectHtmlConverter
     public override Node WriteHtml<T>(T obj, Type type, SerializationScope serializationScope, HtmlSerializer htmlSerializer)
     {
         if (obj is not Audio audio)
-            throw new Exception($"Expected an object of type {typeof(Audio).FullName}, got {obj.GetType().FullName}");
+            throw new Exception($"Expected an object of type {typeof(Audio).FullName}, got {obj?.GetType().FullName}");
 
         string title = audio.FilePath ?? audio.Uri?.ToString() ?? (audio.Base64Data == null ? "(no source)" : "Base 64 data");
 

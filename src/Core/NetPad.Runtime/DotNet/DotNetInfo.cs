@@ -361,12 +361,12 @@ public class DotNetInfo : IDotNetInfo
 
     private static string GetDotNetExeName()
     {
-        return PlatformUtil.IsWindowsPlatform() ? "dotnet.exe" : "dotnet";
+        return PlatformUtil.IsOSWindows() ? "dotnet.exe" : "dotnet";
     }
 
     private static string GetDotNetEfToolExeName()
     {
-        return PlatformUtil.IsWindowsPlatform() ? "dotnet-ef.exe" : "dotnet-ef";
+        return PlatformUtil.IsOSWindows() ? "dotnet-ef.exe" : "dotnet-ef";
     }
 
     private static bool IsValidDotNetSdkRootDirectory(string? path)
@@ -424,7 +424,7 @@ public class DotNetInfo : IDotNetInfo
         possibleDirectories.Add(Environment.GetEnvironmentVariable("DOTNET_INSTALL_DIR"));
 
         // Common installation paths in descending priority
-        if (PlatformUtil.IsWindowsPlatform())
+        if (PlatformUtil.IsOSWindows())
         {
             possibleDirectories.Add(@"C:\Program Files\dotnet\x64");
             possibleDirectories.Add(@"C:\Program Files\dotnet");

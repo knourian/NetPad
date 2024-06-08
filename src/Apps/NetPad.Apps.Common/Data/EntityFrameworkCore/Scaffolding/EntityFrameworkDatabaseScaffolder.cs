@@ -111,7 +111,7 @@ class Program
             $"--context {DbContextName}",
             "--namespace \"\"", // Instructs tool to not wrap code in any namespace
             "--force",
-            $"--output-dir {(PlatformUtil.IsWindowsPlatform() ? "." : "")}{_dbModelOutputDirPath.Replace(_project.ProjectDirectoryPath, "").Trim('/')}" // Relative to proj dir
+            $"--output-dir {(PlatformUtil.IsOSWindows() ? "." : "")}{_dbModelOutputDirPath.Replace(_project.ProjectDirectoryPath, "").Trim('/')}" // Relative to proj dir
         };
 
         if (_connection.ScaffoldOptions?.NoPluralize == true)
@@ -173,7 +173,7 @@ class Program
         {
             "dbcontext optimize",
             "--namespace \"\"",
-            $"--output-dir {(PlatformUtil.IsWindowsPlatform() ? "." : "")}{_dbModelOutputDirPath.Replace(_project.ProjectDirectoryPath, "").Trim('/')}/CompiledModels" // Relative to proj dir
+            $"--output-dir {(PlatformUtil.IsOSWindows() ? "." : "")}{_dbModelOutputDirPath.Replace(_project.ProjectDirectoryPath, "").Trim('/')}/CompiledModels" // Relative to proj dir
         };
 
         var dotnetEfToolExe = _dotNetInfo.LocateDotNetEfToolExecutableOrThrow();

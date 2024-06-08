@@ -6,7 +6,7 @@ public record FilePath(string Path) : AbsolutePath(Path)
 {
     public virtual bool Equals(FilePath? other) =>
         Path.Equals(other?.Path,
-            PlatformUtil.IsWindowsPlatform()
+            PlatformUtil.IsOSWindows()
                 ? StringComparison.InvariantCultureIgnoreCase
                 : StringComparison.InvariantCulture);
 

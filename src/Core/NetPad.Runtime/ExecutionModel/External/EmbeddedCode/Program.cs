@@ -13,10 +13,18 @@ using NetPad.Presentation;
 /// </summary>
 public partial class Program
 {
-    public static readonly UserScript UserScript = new(new Guid("SCRIPT_ID"), "SCRIPT_NAME", "SCRIPT_LOCATION");
+    public static readonly UserScript UserScript = new(
+        new Guid("SCRIPT_ID"),
+        "SCRIPT_NAME",
+        "SCRIPT_LOCATION");
 
     static Program()
     {
+        if (PlatformUtil.IsOSWindows())
+        {
+            WindowsNative.DisableWindowsErrorReporting();
+        }
+
         var args = Environment.GetCommandLineArgs();
 
         if (args.Contains("-help"))
@@ -98,6 +106,7 @@ Options:
         try
         {
             parentProcess = Process.GetProcessById(parentProcessId);
+            parentProcess.EnableRaisingEvents = true;
         }
         catch
         {

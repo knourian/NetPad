@@ -47,7 +47,7 @@ public static class ProcessUtil
 
     public static void MakeExecutable(string filePath)
     {
-        if (PlatformUtil.IsWindowsPlatform())
+        if (PlatformUtil.IsOSWindows())
         {
             return;
         }

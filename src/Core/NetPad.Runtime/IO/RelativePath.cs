@@ -19,7 +19,7 @@ public record RelativePath
 
     public virtual bool Equals(RelativePath? other) =>
         Path.Equals(other?.Path,
-            PlatformUtil.IsWindowsPlatform()
+            PlatformUtil.IsOSWindows()
                 ? StringComparison.InvariantCultureIgnoreCase
                 : StringComparison.InvariantCulture);
 

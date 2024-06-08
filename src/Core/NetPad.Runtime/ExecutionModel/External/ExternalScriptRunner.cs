@@ -130,7 +130,7 @@ public sealed partial class ExternalScriptRunner : IScriptRunner
 
             // On Windows, we need this environment var to force console output when using the ConsoleLoggingProvider
             // See: https://github.com/dotnet/runtime/blob/8a2e7e3e979d671d97cb408fbcbdbee5594479a4/src/libraries/Microsoft.Extensions.Logging.Console/src/ConsoleLoggerProvider.cs#L69
-            if (_script.Config.UseAspNet && PlatformUtil.IsWindowsPlatform())
+            if (_script.Config.UseAspNet && PlatformUtil.IsOSWindows())
             {
                 startInfo.EnvironmentVariables.Add("DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION", "true");
             }
