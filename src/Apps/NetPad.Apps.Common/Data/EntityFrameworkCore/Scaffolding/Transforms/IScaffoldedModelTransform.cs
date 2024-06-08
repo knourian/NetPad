@@ -1,4 +1,4 @@
-namespace NetPad.Data.EntityFrameworkCore.Scaffolding.Transforms;
+namespace NetPad.Apps.Data.EntityFrameworkCore.Scaffolding.Transforms;
 
 public interface IScaffoldedModelTransform
 {

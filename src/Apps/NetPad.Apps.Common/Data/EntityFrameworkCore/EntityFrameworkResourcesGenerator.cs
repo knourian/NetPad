@@ -1,18 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
+using NetPad.Apps.Data.EntityFrameworkCore.Scaffolding;
 using NetPad.Compilation;
 using NetPad.Configuration;
-using NetPad.Data.EntityFrameworkCore.DataConnections;
-using NetPad.Data.EntityFrameworkCore.Scaffolding;
+using NetPad.Data;
 using NetPad.DotNet;
 using NetPad.Packages;
 
-namespace NetPad.Data.EntityFrameworkCore;
+namespace NetPad.Apps.Data.EntityFrameworkCore;
 
 internal class EntityFrameworkResourcesGenerator : IDataConnectionResourcesGenerator
 {

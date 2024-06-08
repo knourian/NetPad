@@ -1,4 +1,3 @@
-using System;
 using NetPad.DotNet;
 
 namespace NetPad.Common;

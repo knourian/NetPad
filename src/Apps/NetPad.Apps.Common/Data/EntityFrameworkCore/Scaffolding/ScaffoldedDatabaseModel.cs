@@ -1,8 +1,6 @@
-using System;
-using System.Linq;
 using NetPad.DotNet;
 
-namespace NetPad.Data.EntityFrameworkCore.Scaffolding;
+namespace NetPad.Apps.Data.EntityFrameworkCore.Scaffolding;
 
 public class ScaffoldedDatabaseModel
 {

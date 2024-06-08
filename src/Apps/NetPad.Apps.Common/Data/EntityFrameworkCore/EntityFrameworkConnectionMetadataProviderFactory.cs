@@ -1,8 +1,8 @@
-using System;
 using Microsoft.Extensions.DependencyInjection;
-using NetPad.Data.EntityFrameworkCore.DataConnections;
+using NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
+using NetPad.Data;
 
-namespace NetPad.Data.EntityFrameworkCore;
+namespace NetPad.Apps.Data.EntityFrameworkCore;
 
 internal class EntityFrameworkConnectionMetadataProviderFactory : IDatabaseConnectionMetadataProviderFactory
 {

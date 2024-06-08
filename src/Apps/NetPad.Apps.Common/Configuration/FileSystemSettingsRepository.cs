@@ -1,11 +1,9 @@
-using System;
-using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
+using NetPad.Configuration;
 using NetPad.IO;
 using JsonSerializer = NetPad.Common.JsonSerializer;
 
-namespace NetPad.Configuration;
+namespace NetPad.Apps.Configuration;
 
 public class FileSystemSettingsRepository : ISettingsRepository
 {

@@ -1,19 +1,15 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
+using NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
+using NetPad.Apps.Data.EntityFrameworkCore.Scaffolding.Transforms;
 using NetPad.Configuration;
-using NetPad.Data.EntityFrameworkCore.DataConnections;
-using NetPad.Data.EntityFrameworkCore.Scaffolding.Transforms;
+using NetPad.Data;
 using NetPad.DotNet;
 using NetPad.IO;
 
-namespace NetPad.Data.EntityFrameworkCore.Scaffolding;
+namespace NetPad.Apps.Data.EntityFrameworkCore.Scaffolding;
 
 public class EntityFrameworkDatabaseScaffolder
 {

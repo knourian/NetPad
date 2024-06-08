@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
-namespace NetPad.Data.EntityFrameworkCore.Scaffolding.Transforms;
+namespace NetPad.Apps.Data.EntityFrameworkCore.Scaffolding.Transforms;
 
 public class AnyDatabaseProviderTransform : IScaffoldedModelTransform
 {

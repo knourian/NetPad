@@ -1,8 +1,7 @@
-using System;
-using System.Threading.Tasks;
 using NetPad.Application;
+using NetPad.Data;
 
-namespace NetPad.Data.EntityFrameworkCore.DataConnections;
+namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
 internal class MsSqlServerDatabaseSchemaChangeDetectionStrategy : EntityFrameworkSchemaChangeDetectionStrategyBase, IDataConnectionSchemaChangeDetectionStrategy
 {

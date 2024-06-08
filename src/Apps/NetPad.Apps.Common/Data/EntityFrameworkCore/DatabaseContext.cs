@@ -1,7 +1,6 @@
-using System;
 using Microsoft.EntityFrameworkCore;
 
-namespace NetPad.Data.EntityFrameworkCore;
+namespace NetPad.Apps.Data.EntityFrameworkCore;
 
 public class DatabaseContext : DbContext
 {

@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NetPad.Common;
 using NetPad.Data;
 using NetPad.DotNet;
 using NetPad.Exceptions;
+using NetPad.Scripts;
 
-namespace NetPad.Scripts;
+namespace NetPad.Apps.Scripts;
 
 public static class ScriptSerializer
 {

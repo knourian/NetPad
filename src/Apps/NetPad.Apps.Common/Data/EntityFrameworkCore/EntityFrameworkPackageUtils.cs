@@ -1,8 +1,7 @@
-using System.Threading.Tasks;
 using NetPad.Common;
 using NetPad.DotNet;
 
-namespace NetPad.Data.EntityFrameworkCore;
+namespace NetPad.Apps.Data.EntityFrameworkCore;
 
 public static class EntityFrameworkPackageUtils
 {

@@ -1,12 +1,10 @@
-using System;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using NetPad.Data;
 using NetPad.Data.Events;
 using NetPad.DotNet;
 
-namespace NetPad.Data;
+namespace NetPad.Apps.Data;
 
 public partial class FileSystemDataConnectionResourcesCache
 {

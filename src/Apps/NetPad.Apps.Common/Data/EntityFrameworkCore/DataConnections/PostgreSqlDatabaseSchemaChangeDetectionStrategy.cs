@@ -1,10 +1,9 @@
-using System;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using NetPad.Application;
+using NetPad.Data;
 
-namespace NetPad.Data.EntityFrameworkCore.DataConnections;
+namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
 internal class PostgreSqlDatabaseSchemaChangeDetectionStrategy : EntityFrameworkSchemaChangeDetectionStrategyBase, IDataConnectionSchemaChangeDetectionStrategy
 {

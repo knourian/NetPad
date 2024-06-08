@@ -1,11 +1,9 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using NetPad.Common;
 using NetPad.Configuration;
+using NetPad.Data;
 using NetPad.IO;
 
-namespace NetPad.Data;
+namespace NetPad.Apps.Data;
 
 public class FileSystemTrivialDataStore : ITrivialDataStore
 {

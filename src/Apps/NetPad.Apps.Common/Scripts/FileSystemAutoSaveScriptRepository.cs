@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NetPad.Common;
 using NetPad.Configuration;
 using NetPad.Data;
 using NetPad.DotNet;
+using NetPad.Scripts;
 
-namespace NetPad.Scripts;
+namespace NetPad.Apps.Scripts;
 
 public class FileSystemAutoSaveScriptRepository : IAutoSaveScriptRepository
 {

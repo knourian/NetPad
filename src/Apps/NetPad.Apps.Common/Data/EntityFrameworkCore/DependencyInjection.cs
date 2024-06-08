@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using NetPad.Data.EntityFrameworkCore.DataConnections;
+using NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
+using NetPad.Data;
 
-namespace NetPad.Data.EntityFrameworkCore;
+namespace NetPad.Apps.Data.EntityFrameworkCore;
 
 public static class DependencyInjection
 {

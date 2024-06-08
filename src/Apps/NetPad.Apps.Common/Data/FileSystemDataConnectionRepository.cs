@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NetPad.Configuration;
+using NetPad.Data;
 using NetPad.IO;
 using JsonSerializer = NetPad.Common.JsonSerializer;
 
-namespace NetPad.Data;
+namespace NetPad.Apps.Data;
 
 public class FileSystemDataConnectionRepository : IDataConnectionRepository
 {

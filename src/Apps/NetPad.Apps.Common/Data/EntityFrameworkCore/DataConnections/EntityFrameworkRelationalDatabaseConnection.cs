@@ -1,10 +1,9 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using NetPad.Data.EntityFrameworkCore.Scaffolding;
+using NetPad.Apps.Data.EntityFrameworkCore.Scaffolding;
+using NetPad.Data;
 
-namespace NetPad.Data.EntityFrameworkCore.DataConnections;
+namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
 public abstract class EntityFrameworkRelationalDatabaseConnection : EntityFrameworkDatabaseConnection
 {

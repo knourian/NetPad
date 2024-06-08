@@ -1,6 +1,4 @@
-using System;
-
-namespace NetPad.Data.EntityFrameworkCore.Scaffolding;
+namespace NetPad.Apps.Data.EntityFrameworkCore.Scaffolding;
 
 // Should be a record. Used to compare if any values have changed.
 public record ScaffoldOptions

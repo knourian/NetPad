@@ -1,13 +1,11 @@
-using System;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 using NetPad.Assemblies;
 using NetPad.Common;
-using NetPad.Data.EntityFrameworkCore.DataConnections;
+using NetPad.Data;
 
-namespace NetPad.Data.EntityFrameworkCore;
+namespace NetPad.Apps.Data.EntityFrameworkCore;
 
 internal class EntityFrameworkDatabaseConnectionMetadataProvider : IDatabaseConnectionMetadataProvider
 {

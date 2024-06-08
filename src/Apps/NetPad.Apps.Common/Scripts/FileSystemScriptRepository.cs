@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using NetPad.Common;
 using NetPad.Configuration;
 using NetPad.Data;
 using NetPad.DotNet;
 using NetPad.Exceptions;
+using NetPad.Scripts;
 
-namespace NetPad.Scripts;
+namespace NetPad.Apps.Scripts;
 
 public class FileSystemScriptRepository : IScriptRepository
 {

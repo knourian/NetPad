@@ -1,9 +1,8 @@
-using System;
 using System.Data.Common;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using NetPad.Data;
 
-namespace NetPad.Data.EntityFrameworkCore.DataConnections;
+namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
 public abstract class EntityFrameworkSchemaChangeDetectionStrategyBase
 {

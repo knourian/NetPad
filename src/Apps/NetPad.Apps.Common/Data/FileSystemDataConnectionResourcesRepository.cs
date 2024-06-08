@@ -1,15 +1,11 @@
-using System;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NetPad.Common;
 using NetPad.Configuration;
+using NetPad.Data;
 using NetPad.DotNet;
 
-namespace NetPad.Data;
+namespace NetPad.Apps.Data;
 
 public class FileSystemDataConnectionResourcesRepository : IDataConnectionResourcesRepository
 {

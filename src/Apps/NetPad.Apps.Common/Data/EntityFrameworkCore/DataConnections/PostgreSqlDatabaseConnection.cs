@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using NetPad.Data.EntityFrameworkCore.Scaffolding;
+using NetPad.Apps.Data.EntityFrameworkCore.Scaffolding;
+using NetPad.Data;
 
-namespace NetPad.Data.EntityFrameworkCore.DataConnections;
+namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
 public sealed class PostgreSqlDatabaseConnection : EntityFrameworkRelationalDatabaseConnection
 {
