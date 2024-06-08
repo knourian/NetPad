@@ -50,7 +50,13 @@ public class CodeAnalysisService : ICodeAnalysisService
 
         var kind = nodeOrToken.Kind();
 
-        var element = new SyntaxNodeOrTokenSlim(nodeOrToken.IsToken, nodeOrToken.IsNode, kind, nodeOrToken.GetLocation()!.GetLineSpan().Span, nodeOrToken.IsMissing);
+        var element = new SyntaxNodeOrTokenSlim(
+            nodeOrToken.IsToken,
+            nodeOrToken.IsNode,
+            kind,
+            nodeOrToken.IsNode ? nodeOrToken.AsNode()!.GetType().Name : string.Empty,
+            nodeOrToken.GetLocation()!.GetLineSpan().Span,
+            nodeOrToken.IsMissing);
 
         if (nodeOrToken.IsToken)
         {
@@ -78,12 +84,11 @@ public class CodeAnalysisService : ICodeAnalysisService
         return element;
     }
 
-    private static SyntaxTriviaSlim ToTrivia(Microsoft.CodeAnalysis.SyntaxTrivia trivia)
+    private static SyntaxTriviaSlim ToTrivia(SyntaxTrivia trivia)
     {
         var kind = trivia.Kind();
-        string? displayValue;// = kind.ToString();//.Token.ValueText; //TriviaDisplayValues.GetValueOrDefault(t.Kind());
 
-        if (!TriviaDisplayValues.TryGetValue(trivia.Kind(), out displayValue))
+        if (!_triviaDisplayValues.TryGetValue(trivia.Kind(), out var displayValue))
         {
             if (trivia.IsKind(SyntaxKind.WhitespaceTrivia))
             {
@@ -99,7 +104,7 @@ public class CodeAnalysisService : ICodeAnalysisService
         return new SyntaxTriviaSlim(kind, trivia.GetLocation()!.GetLineSpan().Span, displayValue.Truncate(50, true));
     }
 
-    private static Dictionary<SyntaxKind, string> TriviaDisplayValues = new Dictionary<SyntaxKind, string>
+    private static readonly Dictionary<SyntaxKind, string> _triviaDisplayValues = new Dictionary<SyntaxKind, string>
     {
         [SyntaxKind.SemicolonToken] = ";",
         [SyntaxKind.EndOfLineTrivia] = "\\n",

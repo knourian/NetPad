@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
@@ -236,16 +237,13 @@ class Program
         var syntaxTreeRoot = CSharpSyntaxTree.ParseText(scaffoldedCode).GetRoot();
         var nodes = syntaxTreeRoot.DescendantNodes().ToArray();
 
-        var usings = new HashSet<string>();
-
-        foreach (var usingDirective in nodes.OfType<UsingDirectiveSyntax>())
-        {
-            var ns = scaffoldedCode.Substring(usingDirective.Span.Start, usingDirective.Span.Length)
-                .Split(' ')[1]
-                .TrimEnd(';');
-
-            usings.Add(ns);
-        }
+        var usings = nodes
+            .OfType<UsingDirectiveSyntax>()
+            .Select(u => string.Join(
+                ' ',
+                u.NormalizeWhitespace().ChildNodes().Select(x => x.ToFullString()))
+            )
+            .ToArray();
 
         var classDeclaration = nodes.OfType<ClassDeclarationSyntax>().Single();
         var classCode = scaffoldedCode.Substring(classDeclaration.Span.Start, classDeclaration.Span.Length);

@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -73,37 +74,24 @@ public class SourceCode(Code? code, IEnumerable<Using>? usings = null)
 
     public static SourceCode Parse(string text)
     {
-        var syntaxTreeRoot = CSharpSyntaxTree.ParseText(text).GetRoot();
-        var nodes = syntaxTreeRoot.DescendantNodes().ToArray();
+        var root = CSharpSyntaxTree.ParseText(text).GetRoot();
 
-        var usings = new HashSet<string>();
-        var usingSpans = new List<(int startIndex, int length)>();
+        var usingDirectives = root
+            .DescendantNodes()
+            .OfType<UsingDirectiveSyntax>()
+            .ToArray();
 
-        foreach (var usingDirective in nodes.OfType<UsingDirectiveSyntax>())
-        {
-            int startIndex = usingDirective.Span.Start;
-            int length = usingDirective.Span.Length;
+        var usings = usingDirectives
+            .Select(u => string.Join(
+                ' ',
+                u.NormalizeWhitespace().ChildNodes().Select(x => x.ToFullString()))
+            )
+            .ToArray();
 
-            usingSpans.Add((startIndex, length));
-
-            var ns = text.Substring(startIndex, length)
-                .Split(' ').Skip(1).JoinToString(" ")
-                .TrimEnd(';');
-
-            usings.Add(ns);
-        }
-
-        string code;
-
-        if (!usings.Any())
-        {
-            code = text;
-        }
-        else
-        {
-            usingSpans = usingSpans.OrderBy(s => s.startIndex).ToList();
-            code = text.RemoveRanges(usingSpans);
-        }
+        var code = root
+            .RemoveNodes(usingDirectives, SyntaxRemoveOptions.KeepNoTrivia)?
+            .NormalizeWhitespace()
+            .ToFullString();
 
         return new SourceCode(code, usings);
     }
