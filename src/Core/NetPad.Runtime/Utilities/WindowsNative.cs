@@ -4,7 +4,7 @@ namespace NetPad.Utilities;
 
 public static class WindowsNative
 {
-    internal static void DisableWindowsErrorReporting()
+    public static void DisableWindowsErrorReporting()
     {
         // If older than Window 7
         if (Environment.OSVersion.Version < new Version(6, 1, 0, 0))

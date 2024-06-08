@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using NetPad.ExecutionModel.External.Interface;
 using NetPad.Presentation;
+using Utils = NetPad.Utilities;
 
 /// <summary>
 /// Meant to be injected into script code so it can initialize <see cref="ExternalProcessDumpSink"/>.
@@ -20,9 +21,9 @@ public partial class Program
 
     static Program()
     {
-        if (PlatformUtil.IsOSWindows())
+        if (Utils.PlatformUtil.IsOSWindows())
         {
-            WindowsNative.DisableWindowsErrorReporting();
+            Utils.WindowsNative.DisableWindowsErrorReporting();
         }
 
         var args = Environment.GetCommandLineArgs();
