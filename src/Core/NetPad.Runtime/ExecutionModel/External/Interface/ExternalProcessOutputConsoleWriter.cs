@@ -26,10 +26,7 @@ internal class ExternalProcessOutputConsoleWriter : IExternalProcessOutputWriter
 
     public Task WriteSqlAsync(object? output, DumpOptions? options = null)
     {
-        options ??= DumpOptions.Default;
-
-        ConsolePresenter.Serialize(output, options.Title, _useConsoleColors);
-
+        // Don't print SQL output
         return Task.CompletedTask;
     }
 }

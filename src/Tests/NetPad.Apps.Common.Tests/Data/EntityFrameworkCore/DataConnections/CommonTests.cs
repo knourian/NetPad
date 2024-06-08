@@ -1,8 +1,7 @@
 ﻿using NetPad.Data;
 using NetPad.Data.EntityFrameworkCore.DataConnections;
-using Xunit;
 
-namespace NetPad.Infrastructure.Tests.Data.EntityFrameworkCore.DataConnections;
+namespace NetPad.Apps.Common.Tests.Data.EntityFrameworkCore.DataConnections;
 
 public abstract class CommonTests
 {

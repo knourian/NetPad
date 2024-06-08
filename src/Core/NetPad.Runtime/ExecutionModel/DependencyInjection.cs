@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 using NetPad.Compilation;
 using NetPad.ExecutionModel.External;
 using NetPad.ExecutionModel.InMemory;
-using CSharpCodeParser = NetPad.ExecutionModel.External.CSharpCodeParser;
 
 namespace NetPad.ExecutionModel;
 
@@ -24,15 +23,16 @@ public static class DependencyInjection
                 options
             );
         });
-        services.AddTransient<ICodeParser, CSharpCodeParser>();
+        services.AddTransient<ICodeParser, ExternalRunnerCSharpCodeParser>();
     }
 
     /// <summary>
     /// Registers the "In Memory" execution model. Only one execution model should be registered per-application.
     /// </summary>
+    [Obsolete("Unmaintained and might be removed.")]
     public static void AddInMemoryExecutionModel(this IServiceCollection services)
     {
         services.AddTransient<IScriptRunnerFactory, InMemoryScriptRunnerFactory>();
-        services.AddTransient<ICodeParser, InMemory.CSharpCodeParser>();
+        services.AddTransient<ICodeParser, InMemoryRunnerCSharpCodeParser>();
     }
 }

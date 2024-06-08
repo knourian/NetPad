@@ -4,7 +4,7 @@ using NetPad.Scripts;
 
 namespace NetPad.ExecutionModel.InMemory;
 
-public class CSharpCodeParser : ICodeParser
+public class InMemoryRunnerCSharpCodeParser : ICodeParser
 {
     public const string BootstrapperClassName = "ScriptRuntimeServices";
     public const string BootstrapperSetIOMethodName = "SetIO";
@@ -17,12 +17,12 @@ public class CSharpCodeParser : ICodeParser
     };
 
     public CodeParsingResult Parse(
-        string code,
+        string scriptCode,
         ScriptKind scriptKind,
         IEnumerable<string>? usings = null,
         CodeParsingOptions? options = null)
     {
-        var userProgram = GetUserProgram(code, scriptKind);
+        var userProgram = GetUserProgram(scriptCode, scriptKind);
 
         var bootstrapperProgramTemplate = GetBootstrapperProgramTemplate();
         var bootstrapperProgram = string.Format(

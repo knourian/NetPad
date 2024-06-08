@@ -1,6 +1,6 @@
 using NetPad.Data;
 
-namespace NetPad.Infrastructure.Tests.Data;
+namespace NetPad.Apps.Common.Tests.Data;
 
 public class NullDataConnectionPasswordProtector : IDataConnectionPasswordProtector
 {

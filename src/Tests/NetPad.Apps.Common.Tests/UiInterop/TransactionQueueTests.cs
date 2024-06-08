@@ -1,11 +1,7 @@
-﻿using System;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
-using NetPad.UiInterop;
+﻿using System.Text.Json;
+using NetPad.Apps.UiInterop;
 
-namespace NetPad.Application.Tests.UiInterop;
+namespace NetPad.Apps.Common.Tests.UiInterop;
 
 public class TransactionQueueTests
 {

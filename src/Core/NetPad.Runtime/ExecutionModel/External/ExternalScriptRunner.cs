@@ -63,13 +63,14 @@ public sealed partial class ExternalScriptRunner : IScriptRunner
         _dotNetInfo = dotNetInfo;
         _settings = settings;
         _logger = logger;
+
         _externalInputReaders = new HashSet<IInputReader<string>>();
         _externalOutputWriters = new HashSet<IOutputWriter<object>>();
         _externalProcessRootDirectory = AppDataProvider.ExternalProcessesDirectoryPath
             .Combine(_script.Id.ToString())
             .GetInfo();
 
-        // Forward output to any configured external output writers
+        // Forward output to configured external output writers
         _output = new AsyncActionOutputWriter<object>(async (output, title) =>
         {
             if (output == null)
@@ -83,9 +84,9 @@ public sealed partial class ExternalScriptRunner : IScriptRunner
                 {
                     await writer.WriteAsync(output, title);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // ignored
+                    logger.LogError(ex, "Error forwarding output to writer: {type}", writer.GetType().FullName);
                 }
             }
         });

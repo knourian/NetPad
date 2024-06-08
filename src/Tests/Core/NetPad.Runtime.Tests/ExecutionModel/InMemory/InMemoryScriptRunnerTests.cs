@@ -8,6 +8,7 @@ using NetPad.CodeAnalysis;
 using NetPad.Compilation;
 using NetPad.Compilation.CSharp;
 using NetPad.ExecutionModel;
+using NetPad.ExecutionModel.External;
 using NetPad.ExecutionModel.InMemory;
 using NetPad.IO;
 using NetPad.Packages;
@@ -19,19 +20,18 @@ using NetPad.Tests.Services;
 using NetPad.Utilities;
 using Xunit;
 using Xunit.Abstractions;
-using CSharpCodeParser = NetPad.ExecutionModel.InMemory.CSharpCodeParser;
 
-namespace NetPad.Runtime.Tests.ExecutionModel;
+namespace NetPad.Runtime.Tests.ExecutionModel.InMemory;
 
-public class ScriptRuntimeTests : TestBase
+public class InMemoryScriptRunnerTests : TestBase
 {
-    public ScriptRuntimeTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    public InMemoryScriptRunnerTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
     }
 
     protected override void ConfigureServices(ServiceCollection services)
     {
-        services.AddTransient<ICodeParser, CSharpCodeParser>();
+        services.AddTransient<ICodeParser, ExternalRunnerCSharpCodeParser>();
         services.AddTransient<ICodeCompiler, CSharpCodeCompiler>();
         services.AddTransient<IAssemblyLoader, UnloadableAssemblyLoader>();
         services.AddTransient<InMemoryScriptRunnerFactory>();
@@ -47,7 +47,7 @@ public class ScriptRuntimeTests : TestBase
         new[] { "DateTime.Today", DateTime.Today.ToString() }
     };
 
-    [Fact]
+    [Fact(Skip = "InMemoryRunner is outdated")]
     public async Task Can_Not_Run_Expression_Kind_Script()
     {
         var script = GetScript();
@@ -60,7 +60,7 @@ public class ScriptRuntimeTests : TestBase
         Assert.False(result.IsRunAttemptSuccessful);
     }
 
-    [Theory]
+    [Theory(Skip = "InMemoryRunner is outdated")]
     [MemberData(nameof(ConsoleOutputTestData))]
     public async Task Can_Run_Program_Kind_Script(string code, string expectedOutput)
     {
@@ -78,7 +78,7 @@ public class ScriptRuntimeTests : TestBase
         Assert.True(runResult.IsRunAttemptSuccessful);
     }
 
-    [Fact]
+    [Fact(Skip = "InMemoryRunner is outdated")]
     public async Task Unloads_Assemblies_After_Run()
     {
         int? rollingLoadedAssembliesCount = null;

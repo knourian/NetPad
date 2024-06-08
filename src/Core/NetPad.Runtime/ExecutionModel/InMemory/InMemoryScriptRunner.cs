@@ -16,9 +16,8 @@ namespace NetPad.ExecutionModel.InMemory;
 
 /// <summary>
 /// A script runtime that runs scripts in memory.
-///
-/// NOTE: If this class is unsealed, IDisposable and IAsyncDisposable implementations must be revised.
 /// </summary>
+[Obsolete("Unmaintained and might be removed.")]
 public sealed class InMemoryScriptRunner : IScriptRunner
 {
     private readonly Script _script;
@@ -148,18 +147,18 @@ public sealed class InMemoryScriptRunner : IScriptRunner
             _script.Config.Namespaces,
             new CodeParsingOptions
             {
-                AdditionalCode = runOptions.AdditionalCode
+                //AdditionalCode = runOptions.AdditionalCode
             });
 
         var referenceAssemblyImages = new HashSet<AssemblyImage>();
-        foreach (var additionalReference in runOptions.AdditionalReferences)
-        {
-            if (additionalReference is AssemblyImageReference assemblyImageReference)
-                referenceAssemblyImages.Add(assemblyImageReference.AssemblyImage);
-        }
+        // foreach (var additionalReference in runOptions.AdditionalReferences)
+        // {
+        //     if (additionalReference is AssemblyImageReference assemblyImageReference)
+        //         referenceAssemblyImages.Add(assemblyImageReference.AssemblyImage);
+        // }
 
         var assets = await _script.Config.References
-            .Union(runOptions.AdditionalReferences)
+            //.Union(runOptions.AdditionalReferences)
             .GetAssetsAsync(_script.Config.TargetFrameworkVersion, _packageProvider);
 
         var referenceAssemblyPaths = assets.Where(a => a.IsAssembly()).Select(a => a.Path).ToHashSet();
@@ -167,8 +166,8 @@ public sealed class InMemoryScriptRunner : IScriptRunner
         var fullProgram = parsingResult.GetFullProgram()
             .ToCodeString()
             .Replace("Console.WriteLine",
-                $"{CSharpCodeParser.BootstrapperClassName}.OutputWriteLine")
-            .Replace("Console.Write", $"{CSharpCodeParser.BootstrapperClassName}.OutputWrite");
+                $"{InMemoryRunnerCSharpCodeParser.BootstrapperClassName}.OutputWriteLine")
+            .Replace("Console.Write", $"{InMemoryRunnerCSharpCodeParser.BootstrapperClassName}.OutputWrite");
 
         var compilationResult = _codeCompiler.Compile(new CompilationInput(
                 fullProgram,
@@ -214,14 +213,14 @@ public sealed class InMemoryScriptRunner : IScriptRunner
 
         var alcWeakRef = new WeakReference(assemblyLoader, true);
 
-        string bootstrapperClassName = CSharpCodeParser.BootstrapperClassName;
+        string bootstrapperClassName = InMemoryRunnerCSharpCodeParser.BootstrapperClassName;
         Type? bootstrapperType = assembly.GetTypes().FirstOrDefault(t => t.Name == bootstrapperClassName);
         if (bootstrapperType == null)
         {
             throw new ScriptRuntimeException($"Could not find the bootstrapper type: {bootstrapperClassName}");
         }
 
-        string setIOMethodName = CSharpCodeParser.BootstrapperSetIOMethodName;
+        string setIOMethodName = InMemoryRunnerCSharpCodeParser.BootstrapperSetIOMethodName;
         MethodInfo? setIOMethod =
             bootstrapperType.GetMethod(setIOMethodName, BindingFlags.Static | BindingFlags.NonPublic);
         if (setIOMethod == null)

@@ -93,7 +93,16 @@ Options:
             return;
         }
 
-        var parentProcess = Try.Run(() => Process.GetProcessById(parentProcessId));
+        Process? parentProcess = null;
+
+        try
+        {
+            parentProcess = Process.GetProcessById(parentProcessId);
+        }
+        catch
+        {
+            // ignore
+        }
 
         if (parentProcess != null)
         {

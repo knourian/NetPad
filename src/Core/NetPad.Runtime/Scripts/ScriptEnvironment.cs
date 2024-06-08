@@ -51,7 +51,7 @@ public class ScriptEnvironment : IDisposable, IAsyncDisposable
 
     public Script Script { get; }
 
-    public ScriptStatus Status { get; private set; }
+    public virtual ScriptStatus Status { get; private set; }
 
     public double RunDurationMilliseconds { get; private set; }
 

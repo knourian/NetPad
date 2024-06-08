@@ -26,12 +26,9 @@ internal class ExternalProcessOutputTextWriter : IExternalProcessOutputWriter
         await _writeToMainOut(text);
     }
 
-    public async Task WriteSqlAsync(object? output, DumpOptions? options = null)
+    public Task WriteSqlAsync(object? output, DumpOptions? options = null)
     {
-        options ??= DumpOptions.Default;
-
-        var text = TextPresenter.Serialize(output, options.Title, _useConsoleColors);
-
-        await _writeToMainOut(text);
+        // Don't print SQL output
+        return Task.CompletedTask;
     }
 }

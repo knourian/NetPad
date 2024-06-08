@@ -56,3 +56,17 @@ public class SourceCodeCollection : SourceCodeCollection<SourceCode>
     {
     }
 }
+
+public static class SourceCodeCollectionExtensions
+{
+    public static SourceCodeCollection ToSourceCodeCollection(this SourceCodeCollection source)
+    {
+        return new SourceCodeCollection(source);
+    }
+
+    public static SourceCodeCollection<T> ToSourceCodeCollection<T>(this SourceCodeCollection<T> source)
+        where T : SourceCode
+    {
+        return new SourceCodeCollection<T>(source);
+    }
+}

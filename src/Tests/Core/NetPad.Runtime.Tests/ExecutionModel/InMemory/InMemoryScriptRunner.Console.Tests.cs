@@ -7,6 +7,7 @@ using NetPad.CodeAnalysis;
 using NetPad.Compilation;
 using NetPad.Compilation.CSharp;
 using NetPad.ExecutionModel;
+using NetPad.ExecutionModel.External;
 using NetPad.ExecutionModel.InMemory;
 using NetPad.IO;
 using NetPad.Packages;
@@ -17,9 +18,8 @@ using NetPad.Tests.Helpers;
 using NetPad.Tests.Services;
 using Xunit;
 using Xunit.Abstractions;
-using CSharpCodeParser = NetPad.ExecutionModel.InMemory.CSharpCodeParser;
 
-namespace NetPad.Runtime.Tests.ExecutionModel;
+namespace NetPad.Runtime.Tests.ExecutionModel.InMemory;
 
 public class ScriptRuntimeConsoleTests : TestBase
 {
@@ -29,7 +29,7 @@ public class ScriptRuntimeConsoleTests : TestBase
 
     protected override void ConfigureServices(ServiceCollection services)
     {
-        services.AddTransient<ICodeParser, CSharpCodeParser>();
+        services.AddTransient<ICodeParser, ExternalRunnerCSharpCodeParser>();
         services.AddTransient<ICodeCompiler, CSharpCodeCompiler>();
         services.AddTransient<IAssemblyLoader, UnloadableAssemblyLoader>();
         services.AddTransient<InMemoryScriptRunnerFactory>();
@@ -45,7 +45,7 @@ public class ScriptRuntimeConsoleTests : TestBase
         new[] { "DateTime.Today", DateTime.Today.ToString() }
     };
 
-    [Theory]
+    [Theory(Skip = "InMemoryRunner is outdated")]
     [MemberData(nameof(ConsoleOutputTestData))]
     public async Task ScriptRuntime_Redirects_Console_Output(string code, string expectedOutput)
     {

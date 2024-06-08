@@ -4,7 +4,7 @@ using NetPad.Scripts;
 
 namespace NetPad.ExecutionModel.External;
 
-public class CSharpCodeParser : ICodeParser
+public class ExternalRunnerCSharpCodeParser : ICodeParser
 {
     private static readonly string[] _aspNetUsings = {
         "System.Net.Http.Json",
@@ -19,23 +19,32 @@ public class CSharpCodeParser : ICodeParser
     };
 
     public CodeParsingResult Parse(
-        string code,
+        string scriptCode,
         ScriptKind scriptKind,
         IEnumerable<string>? usings = null,
         CodeParsingOptions? options = null)
     {
-        var bootstrapperProgramCode = SourceCode.Parse(GetEmbeddedBootstrapperProgram());
+        var userProgramCode = new SourceCode(GetUserProgram(scriptCode, scriptKind));
 
-        var userProgramUsings = usings?.ToList() ?? new();
+        if (usings != null)
+        {
+            foreach (var u in usings)
+            {
+                userProgramCode.AddUsing(u);
+            }
+        }
 
         if (options?.IncludeAspNetUsings == true)
         {
-            userProgramUsings.AddRange(_aspNetUsings);
+            foreach (var u in _aspNetUsings)
+            {
+                userProgramCode.AddUsing(u);
+            }
         }
 
-        var userProgramCode = new SourceCode(GetUserProgram(code, scriptKind), userProgramUsings.ToHashSet());
+        var bootstrapperProgramCode = SourceCode.Parse(GetEmbeddedBootstrapperProgram());
 
-        var additionalCode = options != null ? new SourceCodeCollection(options.AdditionalCode) : null;
+        var additionalCode = options?.AdditionalCode.ToSourceCodeCollection();
 
         return new CodeParsingResult(userProgramCode, bootstrapperProgramCode, additionalCode);
     }
@@ -63,13 +72,13 @@ public class CSharpCodeParser : ICodeParser
         return userProgram;
     }
 
-    private static string GetEmbeddedBootstrapperProgram()
+    internal static string GetEmbeddedBootstrapperProgram()
     {
-        return AssemblyUtil.ReadEmbeddedResource(typeof(CSharpCodeParser).Assembly, "EmbeddedCode.Program.cs");
+        return AssemblyUtil.ReadEmbeddedResource(typeof(ExternalRunnerCSharpCodeParser).Assembly, "EmbeddedCode.Program.cs");
     }
 
-    private static string GetEmbeddedSqlProgram()
+    internal static string GetEmbeddedSqlProgram()
     {
-        return AssemblyUtil.ReadEmbeddedResource(typeof(CSharpCodeParser).Assembly, "EmbeddedCode.SqlAccessCode.cs");
+        return AssemblyUtil.ReadEmbeddedResource(typeof(ExternalRunnerCSharpCodeParser).Assembly, "EmbeddedCode.SqlAccessCode.cs");
     }
 }
