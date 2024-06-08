@@ -235,6 +235,6 @@ public class Startup
 #endif
         });
 
-        Program.Shell.Open(app, env);
+        Program.Shell.Initialize(app, env);
     }
 }

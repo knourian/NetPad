@@ -5,10 +5,13 @@ using Microsoft.Extensions.Hosting;
 
 namespace NetPad.Apps.Shells;
 
+/// <summary>
+/// A shell that hosts the web interface.
+/// </summary>
 public interface IShell
 {
     void ConfigureWebHost(IWebHostBuilder webHostBuilder, string[] programArgs);
     void ConfigureServices(IServiceCollection services);
-    void Open(IApplicationBuilder app, IHostEnvironment env);
+    void Initialize(IApplicationBuilder app, IHostEnvironment env);
     void ShowErrorDialog(string title, string content);
 }

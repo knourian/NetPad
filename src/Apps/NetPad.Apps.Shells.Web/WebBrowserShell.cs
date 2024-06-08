@@ -23,7 +23,7 @@ public class WebBrowserShell : IShell
         services.AddTransient<IIpcService, SignalRIpcService>();
     }
 
-    public void Open(IApplicationBuilder app, IHostEnvironment env)
+    public void Initialize(IApplicationBuilder app, IHostEnvironment env)
     {
         // Do nothing.
     }

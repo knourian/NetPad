@@ -72,8 +72,8 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Core\NetPad.Runtime\NetPad.Runtime.csproj" />
         <ProjectReference Include="..\..\External\O2Html\O2Html.csproj" />
-        <ProjectReference Include="..\..\Infrastructure\NetPad.Apps.Shells.Electron\NetPad.Apps.Shells.Electron.csproj" />
-        <ProjectReference Include="..\..\Infrastructure\NetPad.Apps.Shells.Web\NetPad.Apps.Shells.Web.csproj" />
+        <ProjectReference Include="..\NetPad.Apps.Shells.Electron\NetPad.Apps.Shells.Electron.csproj" />
+        <ProjectReference Include="..\NetPad.Apps.Shells.Web\NetPad.Apps.Shells.Web.csproj" />
         <ProjectReference Include="..\..\Plugins\NetPad.Plugins.OmniSharp\NetPad.Plugins.OmniSharp.csproj" />
         <ProjectReference Include="..\NetPad.Apps.Common\NetPad.Apps.Common.csproj" />
     </ItemGroup>

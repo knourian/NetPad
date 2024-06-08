@@ -31,7 +31,7 @@ public class ElectronShell : IShell
         services.AddHostedService<NotificationBackgroundService>();
     }
 
-    public void Open(IApplicationBuilder app, IHostEnvironment env)
+    public void Initialize(IApplicationBuilder app, IHostEnvironment env)
     {
         Task.Run(async () =>
         {
