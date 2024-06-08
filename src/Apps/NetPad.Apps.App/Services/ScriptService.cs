@@ -1,6 +1,6 @@
 using MediatR;
-using NetPad.Apps.App.Common.CQs;
-using NetPad.Apps.App.Common.UiInterop;
+using NetPad.Apps.CQs;
+using NetPad.Apps.UiInterop;
 using NetPad.Exceptions;
 using NetPad.Sessions;
 

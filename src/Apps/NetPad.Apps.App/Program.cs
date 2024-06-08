@@ -5,26 +5,26 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetPad.Application;
-using NetPad.Apps.App.Common.Application;
+using NetPad.Apps.Shells;
+using NetPad.Apps.Shells.Electron;
+using NetPad.Apps.Shells.Web;
 using NetPad.Configuration;
-using NetPad.Electron;
-using NetPad.Web;
 using Serilog;
 
 namespace NetPad;
 
 public static class Program
 {
-    internal static IApplicationConfigurator ApplicationConfigurator { get; private set; } = null!;
+    internal static IShell Shell { get; private set; } = null!;
 
     public static int Main(string[] args)
     {
         try
         {
-            // Configure as an Electron app or a web app
-            ApplicationConfigurator = args.Any(a => a.ContainsIgnoreCase("/ELECTRONPORT"))
-                ? new NetPadElectronConfigurator()
-                : new NetPadWebConfigurator();
+            // Select a shell
+            Shell = args.Any(a => a.ContainsIgnoreCase("/ELECTRONPORT"))
+                ? new ElectronShell()
+                : new WebBrowserShell();
 
             var host = CreateHostBuilder(args).Build();
 
@@ -36,7 +36,7 @@ public static class Program
         catch (IOException ioException) when (ioException.Message.ContainsIgnoreCase("address already in use"))
         {
             Console.WriteLine($"Another instance is already running. {ioException.Message}");
-            ApplicationConfigurator.ShowErrorDialog(
+            Shell.ShowErrorDialog(
                 $"{AppIdentifier.AppName} Already Running",
                 $"{AppIdentifier.AppName} is already running. You cannot open multiple instances of {AppIdentifier.AppName}.");
             return 1;
@@ -59,7 +59,7 @@ public static class Program
             .UseSerilog((ctx, config) => { ConfigureLogging(config, ctx.Configuration); })
             .ConfigureWebHostDefaults(webBuilder =>
             {
-                ApplicationConfigurator.ConfigureWebHost(webBuilder, args);
+                Shell.ConfigureWebHost(webBuilder, args);
                 webBuilder.UseStartup<Startup>();
             });
 

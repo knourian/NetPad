@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using NetPad.Application.Events;
-using NetPad.Apps.App.Common.UiInterop;
+using NetPad.Apps.UiInterop;
 using NetPad.Configuration.Events;
 using NetPad.Data.Events;
 using NetPad.Events;

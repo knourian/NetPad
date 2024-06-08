@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using NetPad.Apps.App.Common.Plugins;
+using NetPad.Apps.Plugins;
 using NJsonSchema.CodeGeneration.TypeScript;
 using NSwag;
 using NSwag.CodeGeneration.TypeScript;

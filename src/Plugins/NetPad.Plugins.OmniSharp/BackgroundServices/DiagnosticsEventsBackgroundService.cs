@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using NetPad.Application;
-using NetPad.Apps.App.Common.UiInterop;
+using NetPad.Apps.UiInterop;
 using NetPad.Events;
 using NetPad.Plugins.OmniSharp.Events;
 using OmniSharp.Models.Events;

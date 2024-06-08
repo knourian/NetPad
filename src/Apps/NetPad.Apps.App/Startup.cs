@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NetPad.Apps.App.Common;
-using NetPad.Apps.App.Common.CQs;
-using NetPad.Apps.App.Common.Plugins;
-using NetPad.Apps.App.Common.Resources;
-using NetPad.Apps.App.Common.UiInterop;
+using NetPad.Apps;
+using NetPad.Apps.CQs;
+using NetPad.Apps.Plugins;
+using NetPad.Apps.Resources;
+using NetPad.Apps.UiInterop;
 using NetPad.Assemblies;
 using NetPad.BackgroundServices;
 using NetPad.Common;
@@ -156,11 +156,11 @@ public class Startup
         SwaggerSetup.AddSwagger(services, WebHostEnvironment, pluginRegistrations);
 #endif
 
-        // Allow ApplicationConfigurator to add/modify any service registrations it needs
-        Program.ApplicationConfigurator.ConfigureServices(services);
+        // Allow Shell to add/modify any service registrations it needs
+        Program.Shell.ConfigureServices(services);
 
         // We want to always use SignalR for IPC, overriding Electron's IPC service
-        // This should come after the ApplicationConfigurator adds its services so it overrides it
+        // This should come after the Shell adds its services so it overrides it
         services.AddTransient<IIpcService, SignalRIpcService>();
     }
 
@@ -232,7 +232,6 @@ public class Startup
 #endif
         });
 
-        // Allow ApplicationConfigurator to run any configuration
-        Program.ApplicationConfigurator.Configure(app, env);
+        Program.Shell.Open(app, env);
     }
 }

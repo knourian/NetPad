@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using NetPad.Apps.App.Common.CQs;
-using NetPad.Apps.App.Common.UiInterop;
+using NetPad.Apps.CQs;
+using NetPad.Apps.UiInterop;
 using NetPad.Events;
 using NetPad.IO;
 using NetPad.Scripts;

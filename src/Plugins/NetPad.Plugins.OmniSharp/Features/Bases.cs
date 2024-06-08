@@ -1,4 +1,4 @@
-using NetPad.Apps.App.Common.CQs;
+using NetPad.Apps.CQs;
 
 namespace NetPad.Plugins.OmniSharp.Features;
 

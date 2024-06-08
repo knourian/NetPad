@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Apps\NetPad.Apps.App.Common\NetPad.Apps.App.Common.csproj" />
+        <ProjectReference Include="..\..\Apps\NetPad.Apps.Common\NetPad.Apps.Common.csproj" />
         <ProjectReference Include="..\..\Core\NetPad.Runtime\NetPad.Runtime.csproj" />
         <ProjectReference Include="..\..\External\OmniSharp.NET\OmniSharp.NET.csproj"/>
     </ItemGroup>

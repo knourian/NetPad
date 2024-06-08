@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NetPad.Apps.App.Common.UiInterop;
+using NetPad.Apps.UiInterop;
 
 namespace NetPad.Controllers;
 

@@ -1,7 +1,7 @@
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using NetPad.Application;
-using NetPad.Apps.App.Common.Plugins;
+using NetPad.Apps.Plugins;
 using NetPad.Configuration;
 using NetPad.Scripts;
 using NetPad.Sessions;

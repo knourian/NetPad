@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NetPad.Application.Events;
-using NetPad.Apps.App.Common.CQs;
-using NetPad.Apps.App.Common.UiInterop;
+using NetPad.Apps.CQs;
+using NetPad.Apps.UiInterop;
 using NetPad.Configuration.Events;
 using NetPad.Data.EntityFrameworkCore.DataConnections;
 using NetPad.Data.Events;

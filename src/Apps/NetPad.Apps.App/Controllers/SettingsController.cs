@@ -1,8 +1,8 @@
 using System.IO;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using NetPad.Apps.App.Common.CQs;
-using NetPad.Apps.App.Common.UiInterop;
+using NetPad.Apps.CQs;
+using NetPad.Apps.UiInterop;
 using NetPad.Configuration;
 
 namespace NetPad.Controllers;

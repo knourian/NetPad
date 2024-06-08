@@ -1,6 +1,6 @@
 using System.IO;
 using Microsoft.Extensions.Logging;
-using NetPad.Apps.App.Common.UiInterop;
+using NetPad.Apps.UiInterop;
 using NetPad.Configuration;
 using NetPad.Scripts;
 using NetPad.Scripts.Events;

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using NetPad.Apps.App.Common.CQs;
+using NetPad.Apps.CQs;
 using NetPad.Exceptions;
 using NetPad.Scripts;
 using NetPad.Services;
