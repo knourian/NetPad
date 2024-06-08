@@ -5,14 +5,12 @@ using NetPad.Data;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
-internal class PostgreSqlDatabaseSchemaChangeDetectionStrategy : EntityFrameworkSchemaChangeDetectionStrategyBase, IDataConnectionSchemaChangeDetectionStrategy
+internal class PostgreSqlDatabaseSchemaChangeDetectionStrategy(
+    IDataConnectionResourcesRepository dataConnectionResourcesRepository,
+    IDataConnectionPasswordProtector passwordProtector)
+    : EntityFrameworkSchemaChangeDetectionStrategyBase(dataConnectionResourcesRepository, passwordProtector),
+        IDataConnectionSchemaChangeDetectionStrategy
 {
-    public PostgreSqlDatabaseSchemaChangeDetectionStrategy(
-        IDataConnectionResourcesRepository dataConnectionResourcesRepository,
-        IDataConnectionPasswordProtector passwordProtector) : base(dataConnectionResourcesRepository, passwordProtector)
-    {
-    }
-
     public bool CanSupport(DataConnection dataConnection)
     {
         return dataConnection is PostgreSqlDatabaseConnection;
@@ -93,13 +91,8 @@ internal class PostgreSqlDatabaseSchemaChangeDetectionStrategy : EntityFramework
         return Convert.ToHexString(hash);
     }
 
-    private class PostGreSqlSchemaCompareInfo : SchemaCompareInfo
+    private class PostGreSqlSchemaCompareInfo(string schemaHash) : SchemaCompareInfo(DateTime.UtcNow)
     {
-        public PostGreSqlSchemaCompareInfo(string schemaHash) : base(DateTime.UtcNow)
-        {
-            SchemaHash = schemaHash;
-        }
-
-        public string? SchemaHash { get; }
+        public string? SchemaHash { get; } = schemaHash;
     }
 }

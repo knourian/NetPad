@@ -3,29 +3,17 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace NetPad.CodeAnalysis;
 
-public class SyntaxNodeOrTokenSlim
+public class SyntaxNodeOrTokenSlim(bool isToken, bool isNode, SyntaxKind kind, LinePositionSpan span, bool isMissing)
 {
-    public SyntaxNodeOrTokenSlim(bool isToken, bool isNode, SyntaxKind kind, LinePositionSpan span, bool isMissing)
-    {
-        IsToken = isToken;
-        IsNode = isNode;
-        Kind = kind;
-        Span = span;
-        IsMissing = isMissing;
-        LeadingTrivia = new();
-        TrailingTrivia = new();
-        Children = new();
-    }
-
-    public bool IsToken { get; }
-    public bool IsNode { get; }
-    public SyntaxKind Kind { get; }
-    public LinePositionSpan Span { get; }
-    public bool IsMissing { get; }
+    public bool IsToken { get; } = isToken;
+    public bool IsNode { get; } = isNode;
+    public SyntaxKind Kind { get; } = kind;
+    public LinePositionSpan Span { get; } = span;
+    public bool IsMissing { get; } = isMissing;
     public string? ValueText { get; private set; }
-    public List<SyntaxTriviaSlim> LeadingTrivia { get; }
-    public List<SyntaxTriviaSlim> TrailingTrivia { get; }
-    public List<SyntaxNodeOrTokenSlim> Children { get; }
+    public List<SyntaxTriviaSlim> LeadingTrivia { get; } = new();
+    public List<SyntaxTriviaSlim> TrailingTrivia { get; } = new();
+    public List<SyntaxNodeOrTokenSlim> Children { get; } = new();
 
     public void SetValueText(string text)
     {

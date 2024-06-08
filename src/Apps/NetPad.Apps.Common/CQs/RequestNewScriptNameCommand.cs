@@ -1,11 +1,6 @@
 namespace NetPad.Apps.CQs;
 
-public class RequestNewScriptNameCommand : Command<string?>
+public class RequestNewScriptNameCommand(string currentScriptName) : Command<string?>
 {
-    public RequestNewScriptNameCommand(string currentScriptName)
-    {
-        CurrentScriptName = currentScriptName;
-    }
-
-    public string CurrentScriptName { get; }
+    public string CurrentScriptName { get; } = currentScriptName;
 }

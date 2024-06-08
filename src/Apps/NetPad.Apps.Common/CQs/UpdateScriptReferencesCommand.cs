@@ -6,26 +6,13 @@ using NetPad.Scripts.Events;
 
 namespace NetPad.Apps.CQs;
 
-public class UpdateScriptReferencesCommand : Command
+public class UpdateScriptReferencesCommand(Script script, IEnumerable<Reference> newReferences) : Command
 {
-    public UpdateScriptReferencesCommand(Script script, IEnumerable<Reference> newReferences)
+    public Script Script { get; } = script;
+    public IEnumerable<Reference> NewReferences { get; } = newReferences;
+
+    public class Handler(IEventBus eventBus) : IRequestHandler<UpdateScriptReferencesCommand>
     {
-        Script = script;
-        NewReferences = newReferences;
-    }
-
-    public Script Script { get; }
-    public IEnumerable<Reference> NewReferences { get; }
-
-    public class Handler : IRequestHandler<UpdateScriptReferencesCommand>
-    {
-        private readonly IEventBus _eventBus;
-
-        public Handler(IEventBus eventBus)
-        {
-            _eventBus = eventBus;
-        }
-
         public async Task<Unit> Handle(UpdateScriptReferencesCommand request, CancellationToken cancellationToken)
         {
             var script = request.Script;
@@ -37,7 +24,7 @@ public class UpdateScriptReferencesCommand : Command
 
             script.Config.SetReferences(newReferences);
 
-            await _eventBus.PublishAsync(new ScriptReferencesUpdatedEvent(script, added, removed));
+            await eventBus.PublishAsync(new ScriptReferencesUpdatedEvent(script, added, removed));
 
             return Unit.Value;
         }

@@ -2,12 +2,7 @@ using NetPad.Events;
 
 namespace NetPad.Data.Events;
 
-public class DataConnectionSchemaValidationStartedEvent : IEvent
+public class DataConnectionSchemaValidationStartedEvent(Guid dataConnectionId) : IEvent
 {
-    public DataConnectionSchemaValidationStartedEvent(Guid dataConnectionId)
-    {
-        DataConnectionId = dataConnectionId;
-    }
-
-    public Guid DataConnectionId { get; }
+    public Guid DataConnectionId { get; } = dataConnectionId;
 }

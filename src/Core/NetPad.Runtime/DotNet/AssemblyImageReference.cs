@@ -2,14 +2,10 @@ using NetPad.Exceptions;
 
 namespace NetPad.DotNet;
 
-public class AssemblyImageReference : Reference
+public class AssemblyImageReference(AssemblyImage assemblyImage)
+    : Reference(assemblyImage.AssemblyName.Name ?? assemblyImage.AssemblyName.FullName ?? "(Unknown)")
 {
-    public AssemblyImageReference(AssemblyImage assemblyImage) : base(assemblyImage.AssemblyName.Name ?? assemblyImage.AssemblyName.FullName ?? "(Unknown)")
-    {
-        AssemblyImage = assemblyImage;
-    }
-
-    public AssemblyImage AssemblyImage { get; }
+    public AssemblyImage AssemblyImage { get; } = assemblyImage;
 
     public override void EnsureValid()
     {

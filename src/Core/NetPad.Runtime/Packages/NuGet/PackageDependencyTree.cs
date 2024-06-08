@@ -4,17 +4,11 @@ using NugetPackageIdentity = NuGet.Packaging.Core.PackageIdentity;
 
 namespace NetPad.Packages.NuGet;
 
-internal class PackageDependencyTree
+internal class PackageDependencyTree(NugetPackageIdentity packageIdentity)
 {
-    public PackageDependencyTree(NugetPackageIdentity packageIdentity)
-    {
-        Identity = packageIdentity;
-        Dependencies = new List<PackageDependencyTree>();
-    }
-
-    public NugetPackageIdentity Identity { get; }
+    public NugetPackageIdentity Identity { get; } = packageIdentity;
     public SourcePackageDependencyInfo? DependencyInfo { get; set; }
-    public List<PackageDependencyTree> Dependencies { get; }
+    public List<PackageDependencyTree> Dependencies { get; } = new();
 
     public SourcePackageDependencyInfo[] GetAllPackages()
     {

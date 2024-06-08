@@ -2,12 +2,7 @@ using NetPad.Events;
 
 namespace NetPad.Scripts.Events;
 
-public class ScriptRanEvent : IEvent
+public class ScriptRanEvent(ScriptEnvironment scriptEnvironment) : IEvent
 {
-    public ScriptRanEvent(ScriptEnvironment scriptEnvironment)
-    {
-        ScriptEnvironment = scriptEnvironment;
-    }
-
-    public ScriptEnvironment ScriptEnvironment { get; }
+    public ScriptEnvironment ScriptEnvironment { get; } = scriptEnvironment;
 }

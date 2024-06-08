@@ -4,18 +4,12 @@ using NetPad.Data;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
-public abstract class EntityFrameworkSchemaChangeDetectionStrategyBase
+public abstract class EntityFrameworkSchemaChangeDetectionStrategyBase(
+    IDataConnectionResourcesRepository dataConnectionResourcesRepository,
+    IDataConnectionPasswordProtector passwordProtector)
 {
-    protected readonly IDataConnectionResourcesRepository _dataConnectionResourcesRepository;
-    protected readonly IDataConnectionPasswordProtector _passwordProtector;
-
-    protected EntityFrameworkSchemaChangeDetectionStrategyBase(
-        IDataConnectionResourcesRepository dataConnectionResourcesRepository,
-        IDataConnectionPasswordProtector passwordProtector)
-    {
-        _dataConnectionResourcesRepository = dataConnectionResourcesRepository;
-        _passwordProtector = passwordProtector;
-    }
+    protected readonly IDataConnectionResourcesRepository _dataConnectionResourcesRepository = dataConnectionResourcesRepository;
+    protected readonly IDataConnectionPasswordProtector _passwordProtector = passwordProtector;
 
     protected async Task ExecuteSqlCommandAsync(EntityFrameworkDatabaseConnection connection, string commandText, Func<DbDataReader, Task> process)
     {

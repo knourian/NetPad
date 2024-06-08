@@ -9,17 +9,9 @@ using NetPad.IO;
 
 namespace NetPad.Compilation.CSharp;
 
-public class CSharpCodeCompiler : ICodeCompiler
+public class CSharpCodeCompiler(IDotNetInfo dotNetInfo, ICodeAnalysisService codeAnalysisService)
+    : ICodeCompiler
 {
-    private readonly IDotNetInfo _dotNetInfo;
-    private readonly ICodeAnalysisService _codeAnalysisService;
-
-    public CSharpCodeCompiler(IDotNetInfo dotNetInfo, ICodeAnalysisService codeAnalysisService)
-    {
-        _dotNetInfo = dotNetInfo;
-        _codeAnalysisService = codeAnalysisService;
-    }
-
     public CompilationResult Compile(CompilationInput input)
     {
         string assemblyName = !string.IsNullOrWhiteSpace(input.AssemblyName) ? input.AssemblyName : "NetPadScript";
@@ -45,13 +37,13 @@ public class CSharpCodeCompiler : ICodeCompiler
 
     private CSharpCompilation CreateCompilation(CompilationInput input, string assemblyName)
     {
-        SyntaxTree syntaxTree = _codeAnalysisService.GetSyntaxTree(
+        SyntaxTree syntaxTree = codeAnalysisService.GetSyntaxTree(
             input.Code,
             input.TargetFrameworkVersion,
             input.OptimizationLevel);
 
         // Build references
-        var assemblyLocations = SystemAssemblies.GetAssemblyLocations(_dotNetInfo, input.TargetFrameworkVersion, input.UseAspNet);
+        var assemblyLocations = SystemAssemblies.GetAssemblyLocations(dotNetInfo, input.TargetFrameworkVersion, input.UseAspNet);
 
         foreach (var assemblyReferenceLocation in input.AssemblyFileReferences)
             assemblyLocations.Add(assemblyReferenceLocation);

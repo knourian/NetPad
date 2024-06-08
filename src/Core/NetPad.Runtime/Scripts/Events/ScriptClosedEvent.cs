@@ -2,12 +2,7 @@ using NetPad.Events;
 
 namespace NetPad.Scripts.Events;
 
-public class ScriptClosedEvent : IEvent
+public class ScriptClosedEvent(Script script) : IEvent
 {
-    public ScriptClosedEvent(Script script)
-    {
-        Script = script;
-    }
-
-    public Script Script { get; }
+    public Script Script { get; } = script;
 }

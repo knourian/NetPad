@@ -7,12 +7,7 @@ namespace NetPad.Apps.Configuration;
 
 public class FileSystemSettingsRepository : ISettingsRepository
 {
-    private readonly FilePath _settingsFilePath;
-
-    public FileSystemSettingsRepository()
-    {
-        _settingsFilePath = AppDataProvider.AppDataDirectoryPath.CombineFilePath("settings.json");
-    }
+    private readonly FilePath _settingsFilePath = AppDataProvider.AppDataDirectoryPath.CombineFilePath("settings.json");
 
     public Task<FilePath> GetSettingsFileLocationAsync()
     {

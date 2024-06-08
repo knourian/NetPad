@@ -7,12 +7,8 @@ namespace NetPad.BackgroundServices;
 /// Periodically outputs the compiled script assemblies loaded by the program into memory. This is
 /// mainly used to debug assembly unloading after script execution (when using InMemoryScriptRunner only).
 /// </summary>
-public class DebugAssemblyUnloadBackgroundService : BackgroundService
+public class DebugAssemblyUnloadBackgroundService(ILoggerFactory loggerFactory) : BackgroundService(loggerFactory)
 {
-    public DebugAssemblyUnloadBackgroundService(ILoggerFactory loggerFactory) : base(loggerFactory)
-    {
-    }
-
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         Task.Run(async () =>

@@ -2,23 +2,16 @@ using NetPad.DotNet;
 
 namespace NetPad.Compilation;
 
-public class CodeParsingResult
+public class CodeParsingResult(
+    SourceCode userProgram,
+    SourceCode bootstrapperProgram,
+    SourceCodeCollection? additionalCodeProgram)
 {
     private int? _userProgramStartLineNumber;
 
-    public CodeParsingResult(
-        SourceCode userProgram,
-        SourceCode bootstrapperProgram,
-        SourceCodeCollection? additionalCodeProgram)
-    {
-        UserProgram = userProgram;
-        BootstrapperProgram = bootstrapperProgram;
-        AdditionalCodeProgram = additionalCodeProgram;
-    }
-
-    public SourceCode UserProgram { get; }
-    public SourceCode BootstrapperProgram { get; }
-    public SourceCodeCollection? AdditionalCodeProgram { get; }
+    public SourceCode UserProgram { get; } = userProgram;
+    public SourceCode BootstrapperProgram { get; } = bootstrapperProgram;
+    public SourceCodeCollection? AdditionalCodeProgram { get; } = additionalCodeProgram;
 
     public int UserProgramStartLineNumber
     {

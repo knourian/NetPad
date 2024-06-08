@@ -5,13 +5,14 @@ using NetPad.Data;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
-public abstract class EntityFrameworkRelationalDatabaseConnection : EntityFrameworkDatabaseConnection
+public abstract class EntityFrameworkRelationalDatabaseConnection(
+    Guid id,
+    string name,
+    DataConnectionType type,
+    string entityFrameworkProviderName,
+    ScaffoldOptions? scaffoldOptions)
+    : EntityFrameworkDatabaseConnection(id, name, type, entityFrameworkProviderName, scaffoldOptions)
 {
-    protected EntityFrameworkRelationalDatabaseConnection(Guid id, string name, DataConnectionType type, string entityFrameworkProviderName, ScaffoldOptions? scaffoldOptions)
-        : base(id, name, type, entityFrameworkProviderName, scaffoldOptions)
-    {
-    }
-
     public override async Task<DataConnectionTestResult> TestConnectionAsync(IDataConnectionPasswordProtector passwordProtector)
     {
         await using var dbContext = CreateDbContext(passwordProtector);

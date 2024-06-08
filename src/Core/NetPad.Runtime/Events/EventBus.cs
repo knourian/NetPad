@@ -3,20 +3,12 @@ namespace NetPad.Events;
 /// <summary>
 /// Event bus responsible for taking subscriptions/publications and delivering of Events.
 /// </summary>
-public sealed class EventBus : IEventBus
+public sealed class EventBus(ISubscriberErrorHandler subscriberErrorHandler) : IEventBus
 {
-    private readonly ISubscriberErrorHandler _subscriberErrorHandler;
-
     #region ctor methods
 
-    public EventBus()
+    public EventBus() : this(new DefaultSubscriberErrorHandler())
     {
-        _subscriberErrorHandler = new DefaultSubscriberErrorHandler();
-    }
-
-    public EventBus(ISubscriberErrorHandler subscriberErrorHandler)
-    {
-        _subscriberErrorHandler = subscriberErrorHandler;
     }
 
     #endregion
@@ -144,16 +136,10 @@ public sealed class EventBus : IEventBus
 
     #region Subscription dictionary
 
-    private class SubscriptionItem
+    private class SubscriptionItem(IEventProxy proxy, IEventSubscription subscription)
     {
-        public IEventProxy Proxy { get; private set; }
-        public IEventSubscription Subscription { get; private set; }
-
-        public SubscriptionItem(IEventProxy proxy, IEventSubscription subscription)
-        {
-            Proxy = proxy;
-            Subscription = subscription;
-        }
+        public IEventProxy Proxy { get; private set; } = proxy;
+        public IEventSubscription Subscription { get; private set; } = subscription;
     }
 
     private readonly object _subscriptionsPadlock = new();
@@ -379,7 +365,7 @@ public sealed class EventBus : IEventBus
             catch (Exception exception)
             {
                 // By default ignore any errors and carry on
-                _subscriberErrorHandler.Handle(Event, exception);
+                subscriberErrorHandler.Handle(Event, exception);
             }
         }
     }

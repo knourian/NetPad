@@ -6,27 +6,14 @@ using NetPad.Scripts.Events;
 
 namespace NetPad.Apps.CQs;
 
-public class UpdateScriptTargetFrameworkCommand : Command
+public class UpdateScriptTargetFrameworkCommand(Script script, DotNetFrameworkVersion targetFrameworkVersion)
+    : Command
 {
+    public Script Script { get; } = script;
+    public DotNetFrameworkVersion TargetFrameworkVersion { get; } = targetFrameworkVersion;
 
-    public UpdateScriptTargetFrameworkCommand(Script script, DotNetFrameworkVersion targetFrameworkVersion)
+    public class Handler(IEventBus eventBus) : IRequestHandler<UpdateScriptTargetFrameworkCommand>
     {
-        Script = script;
-        TargetFrameworkVersion = targetFrameworkVersion;
-    }
-
-    public Script Script { get; }
-    public DotNetFrameworkVersion TargetFrameworkVersion { get; }
-
-    public class Handler : IRequestHandler<UpdateScriptTargetFrameworkCommand>
-    {
-        private readonly IEventBus _eventBus;
-
-        public Handler(IEventBus eventBus)
-        {
-            _eventBus = eventBus;
-        }
-
         public async Task<Unit> Handle(UpdateScriptTargetFrameworkCommand request, CancellationToken cancellationToken)
         {
             var script = request.Script;
@@ -40,7 +27,7 @@ public class UpdateScriptTargetFrameworkCommand : Command
 
             script.Config.SetTargetFrameworkVersion(newTargetFramework);
 
-            await _eventBus.PublishAsync(new ScriptTargetFrameworkVersionUpdatedEvent(script, oldTargetFramework, newTargetFramework));
+            await eventBus.PublishAsync(new ScriptTargetFrameworkVersionUpdatedEvent(script, oldTargetFramework, newTargetFramework));
 
             return Unit.Value;
         }

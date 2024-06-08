@@ -5,19 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace NetPad.Apps.Shells.Electron.UiInterop;
 
-public class WindowManager
+public class WindowManager(ILogger<WindowManager> logger, HostInfo hostInfo)
 {
-    private readonly ILogger<WindowManager> _logger;
-    private readonly ConcurrentDictionary<Guid, BrowserWindowInfo> _windows;
-
-    private readonly HostInfo _hostInfo;
-
-    public WindowManager(ILogger<WindowManager> logger, HostInfo hostInfo)
-    {
-        _logger = logger;
-        _hostInfo = hostInfo;
-        _windows = new();
-    }
+    private readonly ConcurrentDictionary<Guid, BrowserWindowInfo> _windows = new();
 
     public BrowserWindow? FindWindowAsync(Guid id)
     {
@@ -37,7 +27,7 @@ public class WindowManager
             return existing.Window;
         }
 
-        var url = $"{_hostInfo.HostUrl}?win={windowName}";
+        var url = $"{hostInfo.HostUrl}?win={windowName}";
 
         if (queryParams.Any())
         {
@@ -63,7 +53,7 @@ public class WindowManager
 
         _windows.TryAdd(windowId, new BrowserWindowInfo(windowId, windowName, window, singleInstance));
 
-        _logger.LogDebug("Created window with name: {WindowName} and ID: {ID} and URL: {Url}", windowName, window.Id, url);
+        logger.LogDebug("Created window with name: {WindowName} and ID: {ID} and URL: {Url}", windowName, window.Id, url);
 
         window.OnClosed += () =>_windows.TryRemove(windowId, out _);
 

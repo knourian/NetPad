@@ -1,12 +1,7 @@
 namespace NetPad.Scripts.Events;
 
-public class ScriptSavedEvent : IScriptEvent
+public class ScriptSavedEvent(Script script) : IScriptEvent
 {
-    public ScriptSavedEvent(Script script)
-    {
-        Script = script;
-    }
-
-    public Script Script { get; }
+    public Script Script { get; } = script;
     public Guid ScriptId => Script.Id;
 }

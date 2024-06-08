@@ -1,13 +1,7 @@
 ﻿namespace NetPad.Apps.CQs;
 
-public class PromptUserCommand : Command<string?>
+public class PromptUserCommand(string message, string? prefillValue) : Command<string?>
 {
-    public PromptUserCommand(string message, string? prefillValue)
-    {
-        Message = message;
-        PrefillValue = prefillValue;
-    }
-
-    public string Message { get; }
-    public string? PrefillValue { get; }
+    public string Message { get; } = message;
+    public string? PrefillValue { get; } = prefillValue;
 }

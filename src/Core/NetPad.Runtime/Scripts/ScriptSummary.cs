@@ -1,17 +1,9 @@
 namespace NetPad.Scripts;
 
-public class ScriptSummary
+public class ScriptSummary(Guid id, string name, string path, ScriptKind kind)
 {
-    public ScriptSummary(Guid id, string name, string path, ScriptKind kind)
-    {
-        Id = id;
-        Name = name;
-        Path = path;
-        Kind = kind;
-    }
-
-    public Guid Id { get; }
-    public string Name { get; set; }
-    public string Path { get; set; }
-    public ScriptKind Kind { get; }
+    public Guid Id { get; } = id;
+    public string Name { get; set; } = name;
+    public string Path { get; set; } = path;
+    public ScriptKind Kind { get; } = kind;
 }

@@ -2,26 +2,19 @@
 
 namespace NetPad.IO;
 
-public class ProcessStartResult
+public class ProcessStartResult(bool started, Process process, Task<int> waitForExitTask)
 {
-    public ProcessStartResult(bool started, Process process, Task<int> waitForExitTask)
-    {
-        Started = started;
-        Process = process;
-        WaitForExitTask = waitForExitTask;
-    }
-
     /// <summary>
     /// Indicates if the process was started successfully or not.
     /// </summary>
-    public bool Started { get; }
+    public bool Started { get; } = started;
 
-    public Process Process { get; }
+    public Process Process { get; } = process;
 
     /// <summary>
     /// A task that completes when the process terminates. It returns the process exit code.
     /// </summary>
-    public Task<int> WaitForExitTask { get; }
+    public Task<int> WaitForExitTask { get; } = waitForExitTask;
 }
 
 public static class ProcessHelper

@@ -3,35 +3,31 @@ namespace NetPad.ExecutionModel;
 /// <summary>
 /// Represents the result of running a script.
 /// </summary>
-public class RunResult
+public class RunResult(
+    bool isRunAttemptSuccessful,
+    bool isScriptCompletedSuccessfully,
+    bool isRunCancelled,
+    double durationMs)
 {
-    public RunResult(bool isRunAttemptSuccessful, bool isScriptCompletedSuccessfully, bool isRunCancelled, double durationMs)
-    {
-        IsRunAttemptSuccessful = isRunAttemptSuccessful;
-        IsScriptCompletedSuccessfully = isScriptCompletedSuccessfully;
-        IsRunCancelled = isRunCancelled;
-        DurationMs = durationMs;
-    }
-
     /// <summary>
     /// Indicates whether the operation to run the script occurred successfully.
     /// </summary>
-    public bool IsRunAttemptSuccessful { get; }
+    public bool IsRunAttemptSuccessful { get; } = isRunAttemptSuccessful;
 
     /// <summary>
     /// Indicates whether the script code ran to completion successfully.
     /// </summary>
-    public bool IsScriptCompletedSuccessfully { get; }
+    public bool IsScriptCompletedSuccessfully { get; } = isScriptCompletedSuccessfully;
 
     /// <summary>
     /// Indicates the run was cancelled.
     /// </summary>
-    public bool IsRunCancelled { get; }
+    public bool IsRunCancelled { get; } = isRunCancelled;
 
     /// <summary>
     /// The duration, in milliseconds, it took to run the script.
     /// </summary>
-    public double DurationMs { get; }
+    public double DurationMs { get; } = durationMs;
 
     /// <summary>
     /// Returns a <see cref="RunResult"/> that indicates that the attempt to run the script failed.

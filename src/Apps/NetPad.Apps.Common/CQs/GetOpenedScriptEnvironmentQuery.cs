@@ -5,29 +5,16 @@ using NetPad.Sessions;
 
 namespace NetPad.Apps.CQs;
 
-public class GetOpenedScriptEnvironmentQuery : Query<ScriptEnvironment?>
+public class GetOpenedScriptEnvironmentQuery(Guid scriptId, bool errorIfNotFound = false) : Query<ScriptEnvironment?>
 {
-    public GetOpenedScriptEnvironmentQuery(Guid scriptId, bool errorIfNotFound = false)
+    public Guid ScriptId { get; } = scriptId;
+    public bool ErrorIfNotFound { get; } = errorIfNotFound;
+
+    public class Handler(ISession session) : IRequestHandler<GetOpenedScriptEnvironmentQuery, ScriptEnvironment?>
     {
-        ScriptId = scriptId;
-        ErrorIfNotFound = errorIfNotFound;
-    }
-
-    public Guid ScriptId { get; }
-    public bool ErrorIfNotFound { get; }
-
-    public class Handler : IRequestHandler<GetOpenedScriptEnvironmentQuery, ScriptEnvironment?>
-    {
-        private readonly ISession _session;
-
-        public Handler(ISession session)
-        {
-            _session = session;
-        }
-
         public Task<ScriptEnvironment?> Handle(GetOpenedScriptEnvironmentQuery request, CancellationToken cancellationToken)
         {
-            var environment = _session.Get(request.ScriptId);
+            var environment = session.Get(request.ScriptId);
 
             if (environment == null && request.ErrorIfNotFound)
             {

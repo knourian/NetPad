@@ -4,10 +4,9 @@ using NetPad.Configuration;
 
 namespace NetPad.DotNet;
 
-public class DotNetInfo : IDotNetInfo
+public class DotNetInfo(Settings settings) : IDotNetInfo
 {
     private static readonly SemanticVersion _environmentVersion = new(Environment.Version);
-    private readonly Settings _settings;
 
     private readonly object _dotNetRootDirLocateLock = new();
     private string? _dotNetRootDirPath;
@@ -24,11 +23,6 @@ public class DotNetInfo : IDotNetInfo
     private static readonly object _dotNetSdkVersionsLocateLock = new();
     private static DotNetSdkVersion[]? _dotNetSdkVersions;
 
-    public DotNetInfo(Settings settings)
-    {
-        _settings = settings;
-    }
-
     /// <summary>
     /// Returns the version of the .NET runtime used in the current app domain.
     /// </summary>
@@ -42,10 +36,10 @@ public class DotNetInfo : IDotNetInfo
 
     public string? LocateDotNetRootDirectory()
     {
-        if (!string.IsNullOrWhiteSpace(_settings.DotNetSdkDirectoryPath))
+        if (!string.IsNullOrWhiteSpace(settings.DotNetSdkDirectoryPath))
         {
-            return IsValidDotNetSdkRootDirectory(_settings.DotNetSdkDirectoryPath)
-                ? _settings.DotNetSdkDirectoryPath
+            return IsValidDotNetSdkRootDirectory(settings.DotNetSdkDirectoryPath)
+                ? settings.DotNetSdkDirectoryPath
                 : null;
         }
 

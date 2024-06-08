@@ -2,12 +2,7 @@ using NetPad.Events;
 
 namespace NetPad.Data.Events;
 
-public class DataConnectionDeletedEvent : IEvent
+public class DataConnectionDeletedEvent(DataConnection dataConnection) : IEvent
 {
-    public DataConnectionDeletedEvent(DataConnection dataConnection)
-    {
-        DataConnection = dataConnection;
-    }
-
-    public DataConnection DataConnection { get; }
+    public DataConnection DataConnection { get; } = dataConnection;
 }

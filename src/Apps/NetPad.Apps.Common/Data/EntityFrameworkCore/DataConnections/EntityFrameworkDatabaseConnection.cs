@@ -4,17 +4,16 @@ using NetPad.Data;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
-public abstract class EntityFrameworkDatabaseConnection : DatabaseConnection
+public abstract class EntityFrameworkDatabaseConnection(
+    Guid id,
+    string name,
+    DataConnectionType type,
+    string entityFrameworkProviderName,
+    ScaffoldOptions? scaffoldOptions)
+    : DatabaseConnection(id, name, type)
 {
-    protected EntityFrameworkDatabaseConnection(Guid id, string name, DataConnectionType type, string entityFrameworkProviderName, ScaffoldOptions? scaffoldOptions)
-        : base(id, name, type)
-    {
-        EntityFrameworkProviderName = entityFrameworkProviderName;
-        ScaffoldOptions = scaffoldOptions;
-    }
-
-    public string EntityFrameworkProviderName { get; }
-    public ScaffoldOptions? ScaffoldOptions { get; }
+    public string EntityFrameworkProviderName { get; } = entityFrameworkProviderName;
+    public ScaffoldOptions? ScaffoldOptions { get; } = scaffoldOptions;
 
     public abstract Task ConfigureDbContextOptionsAsync(DbContextOptionsBuilder builder, IDataConnectionPasswordProtector passwordProtector);
 

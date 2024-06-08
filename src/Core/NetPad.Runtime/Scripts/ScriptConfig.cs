@@ -5,56 +5,42 @@ using NetPad.DotNet;
 
 namespace NetPad.Scripts;
 
-public class ScriptConfig : INotifyOnPropertyChanged
+public class ScriptConfig(
+    ScriptKind kind,
+    DotNetFrameworkVersion targetFrameworkVersion,
+    List<string>? namespaces = null,
+    List<Reference>? references = null,
+    OptimizationLevel optimizationLevel = OptimizationLevel.Debug,
+    bool useAspNet = false)
+    : INotifyOnPropertyChanged
 {
-    private ScriptKind _kind;
-    private DotNetFrameworkVersion _targetFrameworkVersion;
-    private List<string> _namespaces;
-    private List<Reference> _references;
-    private bool _useAspNet;
-    private OptimizationLevel _optimizationLevel;
+    private List<string> _namespaces = namespaces ?? new List<string>();
+    private List<Reference> _references = references ?? new List<Reference>();
 
-    public ScriptConfig(
-        ScriptKind kind,
-        DotNetFrameworkVersion targetFrameworkVersion,
-        List<string>? namespaces = null,
-        List<Reference>? references = null,
-        OptimizationLevel optimizationLevel = OptimizationLevel.Debug,
-        bool useAspNet = false)
-    {
-        _kind = kind;
-        _targetFrameworkVersion = targetFrameworkVersion;
-        _optimizationLevel = optimizationLevel;
-        _useAspNet = useAspNet;
-        _namespaces = namespaces ?? new List<string>();
-        _references = references ?? new List<Reference>();
-        OnPropertyChanged = new List<Func<PropertyChangedArgs, Task>>();
-    }
-
-    [JsonIgnore] public List<Func<PropertyChangedArgs, Task>> OnPropertyChanged { get; }
+    [JsonIgnore] public List<Func<PropertyChangedArgs, Task>> OnPropertyChanged { get; } = new();
 
     public ScriptKind Kind
     {
-        get => _kind;
-        private set => this.RaiseAndSetIfChanged(ref _kind, value);
+        get => kind;
+        private set => this.RaiseAndSetIfChanged(ref kind, value);
     }
 
     public DotNetFrameworkVersion TargetFrameworkVersion
     {
-        get => _targetFrameworkVersion;
-        private set => this.RaiseAndSetIfChanged(ref _targetFrameworkVersion, value);
+        get => targetFrameworkVersion;
+        private set => this.RaiseAndSetIfChanged(ref targetFrameworkVersion, value);
     }
 
     public OptimizationLevel OptimizationLevel
     {
-        get => _optimizationLevel;
-        private set => this.RaiseAndSetIfChanged(ref _optimizationLevel, value);
+        get => optimizationLevel;
+        private set => this.RaiseAndSetIfChanged(ref optimizationLevel, value);
     }
 
     public bool UseAspNet
     {
-        get => _useAspNet;
-        private set => this.RaiseAndSetIfChanged(ref _useAspNet, value);
+        get => useAspNet;
+        private set => this.RaiseAndSetIfChanged(ref useAspNet, value);
     }
 
     public List<string> Namespaces
@@ -85,20 +71,20 @@ public class ScriptConfig : INotifyOnPropertyChanged
         TargetFrameworkVersion = targetFrameworkVersion;
     }
 
-    public void SetOptimizationLevel(OptimizationLevel optimizationLevel)
+    public void SetOptimizationLevel(OptimizationLevel level)
     {
-        if (optimizationLevel == _optimizationLevel)
+        if (level == optimizationLevel)
             return;
 
-        OptimizationLevel = optimizationLevel;
+        OptimizationLevel = level;
     }
 
-    public void SetUseAspNet(bool useAspNet)
+    public void SetUseAspNet(bool use)
     {
-        if (useAspNet == _useAspNet)
+        if (use == useAspNet)
             return;
 
-        UseAspNet = useAspNet;
+        UseAspNet = use;
     }
 
     public void SetNamespaces(IEnumerable<string> namespaces)

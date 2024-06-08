@@ -1,11 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <TargetFramework>$(EarliestSupportedTargetFramework)</TargetFramework>
         <RootNamespace>NetPad.Apps</RootNamespace>
-        <LangVersion>11</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,5 +19,5 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Core\NetPad.Runtime\NetPad.Runtime.csproj" />
     </ItemGroup>
-    
+
 </Project>

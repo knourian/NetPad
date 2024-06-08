@@ -7,22 +7,12 @@ using NetPad.Data;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore;
 
-internal class EntityFrameworkDatabaseConnectionMetadataProvider : IDatabaseConnectionMetadataProvider
+internal class EntityFrameworkDatabaseConnectionMetadataProvider(
+    IDataConnectionResourcesCache dataConnectionResourcesCache,
+    IAssemblyLoader assemblyLoader,
+    IDataConnectionPasswordProtector dataConnectionPasswordProtector)
+    : IDatabaseConnectionMetadataProvider
 {
-    private readonly IDataConnectionResourcesCache _dataConnectionResourcesCache;
-    private readonly IAssemblyLoader _assemblyLoader;
-    private readonly IDataConnectionPasswordProtector _dataConnectionPasswordProtector;
-
-    public EntityFrameworkDatabaseConnectionMetadataProvider(
-        IDataConnectionResourcesCache dataConnectionResourcesCache,
-        IAssemblyLoader assemblyLoader,
-        IDataConnectionPasswordProtector dataConnectionPasswordProtector)
-    {
-        _dataConnectionResourcesCache = dataConnectionResourcesCache;
-        _assemblyLoader = assemblyLoader;
-        _dataConnectionPasswordProtector = dataConnectionPasswordProtector;
-    }
-
     public async Task<DatabaseStructure> GetDatabaseStructureAsync(DatabaseConnection databaseConnection)
     {
         if (databaseConnection is not EntityFrameworkDatabaseConnection dbConnection)
@@ -42,14 +32,14 @@ internal class EntityFrameworkDatabaseConnectionMetadataProvider : IDatabaseConn
 
     private async Task<DbContext?> CreateDbContextAsync(EntityFrameworkDatabaseConnection dbConnection)
     {
-        var assemblyImage = await _dataConnectionResourcesCache.GetAssemblyAsync(dbConnection, GlobalConsts.AppDotNetFrameworkVersion);
+        var assemblyImage = await dataConnectionResourcesCache.GetAssemblyAsync(dbConnection, GlobalConsts.AppDotNetFrameworkVersion);
 
         if (assemblyImage == null)
         {
             return null;
         }
 
-        var assembly = _assemblyLoader.LoadFrom(assemblyImage.Image);
+        var assembly = assemblyLoader.LoadFrom(assemblyImage.Image);
 
         var dbContextType = assembly.GetExportedTypes().FirstOrDefault(x => typeof(DbContext).IsAssignableFrom(x) && x.BaseType != typeof(DbContext));
         if (dbContextType == null)
@@ -64,7 +54,7 @@ internal class EntityFrameworkDatabaseConnectionMetadataProvider : IDatabaseConn
             throw new Exception($"Could not create DbContextOptionsBuilder<> for DbContext of type {dbContextType.FullName}.");
         }
 
-        await dbConnection.ConfigureDbContextOptionsAsync(dbContextOptionsBuilder, _dataConnectionPasswordProtector);
+        await dbConnection.ConfigureDbContextOptionsAsync(dbContextOptionsBuilder, dataConnectionPasswordProtector);
 
         var ctor = dbContextType
             .GetConstructors(BindingFlags.Public | BindingFlags.Instance)

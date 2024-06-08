@@ -7,16 +7,10 @@ using JsonSerializer = NetPad.Common.JsonSerializer;
 
 namespace NetPad.Apps.Data;
 
-public class FileSystemDataConnectionRepository : IDataConnectionRepository
+public class FileSystemDataConnectionRepository(ILogger<FileSystemDataConnectionRepository> logger)
+    : IDataConnectionRepository
 {
-    private readonly ILogger<FileSystemDataConnectionRepository> _logger;
-    private readonly FilePath _connectionsFilePath;
-
-    public FileSystemDataConnectionRepository(ILogger<FileSystemDataConnectionRepository> logger)
-    {
-        _logger = logger;
-        _connectionsFilePath = AppDataProvider.AppDataDirectoryPath.CombineFilePath("data-connections.json");
-    }
+    private readonly FilePath _connectionsFilePath = AppDataProvider.AppDataDirectoryPath.CombineFilePath("data-connections.json");
 
     public async Task<IEnumerable<DataConnection>> GetAllAsync()
     {
@@ -84,7 +78,7 @@ public class FileSystemDataConnectionRepository : IDataConnectionRepository
                 {
                     if (!Guid.TryParse(o.Name, out var id))
                     {
-                        _logger.LogError("Could not deserialize data connection ID at index: {Index}. Data connections file: {Path}",
+                        logger.LogError("Could not deserialize data connection ID at index: {Index}. Data connections file: {Path}",
                             itemIndex,
                             _connectionsFilePath.Path);
                         continue;
@@ -96,7 +90,7 @@ public class FileSystemDataConnectionRepository : IDataConnectionRepository
 
                     if (connection == null)
                     {
-                        _logger.LogError("Could not deserialize data connection at index: {Index}. Connection ID: {ConnectionId}. Data connections file: {Path}",
+                        logger.LogError("Could not deserialize data connection at index: {Index}. Connection ID: {ConnectionId}. Data connections file: {Path}",
                             itemIndex,
                             connectionId,
                             _connectionsFilePath.Path);
@@ -107,7 +101,7 @@ public class FileSystemDataConnectionRepository : IDataConnectionRepository
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex,
+                    logger.LogError(ex,
                         "Could not deserialize data connection at index: {Index}. Connection ID: {ConnectionId}. Data connections file: {Path}",
                         itemIndex,
                         connectionId,
@@ -117,7 +111,7 @@ public class FileSystemDataConnectionRepository : IDataConnectionRepository
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error while deserializing data connections file at: {Path}", _connectionsFilePath.Path);
+            logger.LogError(ex, "Error while deserializing data connections file at: {Path}", _connectionsFilePath.Path);
         }
 
         return connections;

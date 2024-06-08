@@ -17,15 +17,8 @@ namespace NetPad.Controllers;
 
 [ApiController]
 [Route("app")]
-public class AppController : ControllerBase
+public class AppController(ILogger<AppController> logger) : ControllerBase
 {
-    private readonly ILogger<AppController> _logger;
-
-    public AppController(ILogger<AppController> logger)
-    {
-        _logger = logger;
-    }
-
     [HttpGet("identifier")]
     public AppIdentifier GetIdentifier([FromServices] AppIdentifier appIdentifier)
     {
@@ -65,7 +58,7 @@ public class AppController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting latest version");
+            logger.LogError(ex, "Error getting latest version");
         }
 
         return null;

@@ -3,16 +3,9 @@ using NetPad.Presentation;
 
 namespace NetPad.Scripts.Events;
 
-public class ScriptOutputEmittedEvent : IEvent
+public class ScriptOutputEmittedEvent(Guid scriptId, ScriptOutput output) : IEvent
 {
-    public ScriptOutputEmittedEvent(Guid scriptId, ScriptOutput output)
-    {
-        ScriptId = scriptId;
-        Output = output;
-        OutputType = output.GetType().Name;
-    }
-
-    public Guid ScriptId { get; }
-    public ScriptOutput Output { get; }
-    public string OutputType { get; }
+    public Guid ScriptId { get; } = scriptId;
+    public ScriptOutput Output { get; } = output;
+    public string OutputType { get; } = output.GetType().Name;
 }

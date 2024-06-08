@@ -2,12 +2,7 @@ using NetPad.Events;
 
 namespace NetPad.Scripts.Events;
 
-public class ScriptRunCancelledEvent : IEvent
+public class ScriptRunCancelledEvent(ScriptEnvironment scriptEnvironment) : IEvent
 {
-    public ScriptRunCancelledEvent(ScriptEnvironment scriptEnvironment)
-    {
-        ScriptEnvironment = scriptEnvironment;
-    }
-
-    public ScriptEnvironment ScriptEnvironment { get; }
+    public ScriptEnvironment ScriptEnvironment { get; } = scriptEnvironment;
 }

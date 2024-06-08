@@ -1,11 +1,6 @@
 namespace NetPad.Apps.CQs;
 
-public class PromptUserForInputCommand : Command<string?>
+public class PromptUserForInputCommand(Guid scriptId) : Command<string?>
 {
-    public PromptUserForInputCommand(Guid scriptId)
-    {
-        ScriptId = scriptId;
-    }
-
-    public Guid ScriptId { get; }
+    public Guid ScriptId { get; } = scriptId;
 }

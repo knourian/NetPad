@@ -2,12 +2,7 @@ using NetPad.Events;
 
 namespace NetPad.Sessions.Events;
 
-public class ActiveEnvironmentChangedEvent : IEvent
+public class ActiveEnvironmentChangedEvent(Guid? scriptId) : IEvent
 {
-    public ActiveEnvironmentChangedEvent(Guid? scriptId)
-    {
-        ScriptId = scriptId;
-    }
-
-    public Guid? ScriptId { get; }
+    public Guid? ScriptId { get; } = scriptId;
 }

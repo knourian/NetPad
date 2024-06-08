@@ -8,36 +8,24 @@ using NetPad.Scripts;
 
 namespace NetPad.Apps.Shells.Electron.UiInterop;
 
-public class ElectronWindowService : IUiWindowService
+public class ElectronWindowService(
+    WindowManager windowManager,
+    ITrivialDataStore trivialDataStore,
+    Settings settings,
+    ILogger<ElectronWindowService> logger)
+    : IUiWindowService
 {
-    private readonly WindowManager _windowManager;
-    private readonly ITrivialDataStore _trivialDataStore;
-    private readonly Settings _settings;
-    private readonly ILogger<ElectronWindowService> _logger;
-
-    public ElectronWindowService(
-        WindowManager windowManager,
-        ITrivialDataStore trivialDataStore,
-        Settings settings,
-        ILogger<ElectronWindowService> logger)
-    {
-        _windowManager = windowManager;
-        _trivialDataStore = trivialDataStore;
-        _settings = settings;
-        _logger = logger;
-    }
-
     private async Task<Display> PrimaryDisplay() => await ElectronNET.API.Electron.Screen.GetPrimaryDisplayAsync();
 
     public async Task OpenMainWindowAsync()
     {
-        bool useNativeDecorations = _settings.Appearance.Titlebar.Type == TitlebarType.Native;
+        bool useNativeDecorations = settings.Appearance.Titlebar.Type == TitlebarType.Native;
 
-        var window = await _windowManager.CreateWindowAsync("main", true, new BrowserWindowOptions
+        var window = await windowManager.CreateWindowAsync("main", true, new BrowserWindowOptions
         {
             Show = false,
             Frame = useNativeDecorations,
-            AutoHideMenuBar = _settings.Appearance.Titlebar.MainMenuVisibility == MainMenuVisibility.AutoHidden,
+            AutoHideMenuBar = settings.Appearance.Titlebar.MainMenuVisibility == MainMenuVisibility.AutoHidden,
             Fullscreenable = true,
         });
 
@@ -48,7 +36,7 @@ public class ElectronWindowService : IUiWindowService
     {
         try
         {
-            var windowState = _trivialDataStore.Get<WindowState>("main-window.bounds");
+            var windowState = trivialDataStore.Get<WindowState>("main-window.bounds");
 
             if (windowState?.HasSaneBounds() == true)
             {
@@ -71,14 +59,14 @@ public class ElectronWindowService : IUiWindowService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error while restoring main window size and position");
+            logger.LogError(ex, "Error while restoring main window size and position");
             window.Show();
             window.Maximize();
         }
 
         window.OnClose += async () =>
         {
-            _trivialDataStore.Set("main-window.bounds",
+            trivialDataStore.Set("main-window.bounds",
                 new WindowState(await window.GetBoundsAsync(), await window.IsMaximizedAsync()));
         };
     }
@@ -87,7 +75,7 @@ public class ElectronWindowService : IUiWindowService
     {
         const string windowName = "settings";
 
-        if (_windowManager.FocusExistingWindowIfOpen(windowName))
+        if (windowManager.FocusExistingWindowIfOpen(windowName))
         {
             return;
         }
@@ -95,7 +83,7 @@ public class ElectronWindowService : IUiWindowService
         var queryParams = new List<(string, object?)>();
         if (tab != null) queryParams.Add(("tab", tab));
 
-        var window = await _windowManager.CreateWindowAsync(windowName, true, new BrowserWindowOptions
+        var window = await windowManager.CreateWindowAsync(windowName, true, new BrowserWindowOptions
         {
             Title = "Settings",
             AutoHideMenuBar = true,
@@ -109,7 +97,7 @@ public class ElectronWindowService : IUiWindowService
     {
         const string windowName = "script-config";
 
-        if (_windowManager.FocusExistingWindowIfOpen(windowName))
+        if (windowManager.FocusExistingWindowIfOpen(windowName))
         {
             return;
         }
@@ -118,7 +106,7 @@ public class ElectronWindowService : IUiWindowService
         queryParams.Add(("script-id", script.Id));
         if (tab != null) queryParams.Add(("tab", tab));
 
-        var window = await _windowManager.CreateWindowAsync(windowName, true, new BrowserWindowOptions
+        var window = await windowManager.CreateWindowAsync(windowName, true, new BrowserWindowOptions
         {
             Title = script.Name,
             AutoHideMenuBar = true,
@@ -137,7 +125,7 @@ public class ElectronWindowService : IUiWindowService
 
         const string windowName = "data-connection";
 
-        if (_windowManager.FocusExistingWindowIfOpen(windowName))
+        if (windowManager.FocusExistingWindowIfOpen(windowName))
         {
             return;
         }
@@ -154,7 +142,7 @@ public class ElectronWindowService : IUiWindowService
             queryParams.Add(("copy", "true"));
         }
 
-        var window = await _windowManager.CreateWindowAsync(windowName, true, new BrowserWindowOptions
+        var window = await windowManager.CreateWindowAsync(windowName, true, new BrowserWindowOptions
         {
             Title = (dataConnectionId.HasValue ? "Edit" : "New") + "Connection",
             AutoHideMenuBar = true,
@@ -170,12 +158,12 @@ public class ElectronWindowService : IUiWindowService
     {
         const string windowName = "output";
 
-        if (_windowManager.FocusExistingWindowIfOpen(windowName))
+        if (windowManager.FocusExistingWindowIfOpen(windowName))
         {
             return;
         }
 
-        var window = await _windowManager.CreateWindowAsync(windowName, true, new BrowserWindowOptions
+        var window = await windowManager.CreateWindowAsync(windowName, true, new BrowserWindowOptions
         {
             Title = "Output",
             AutoHideMenuBar = true,
@@ -189,12 +177,12 @@ public class ElectronWindowService : IUiWindowService
     {
         const string windowName = "code";
 
-        if (_windowManager.FocusExistingWindowIfOpen(windowName))
+        if (windowManager.FocusExistingWindowIfOpen(windowName))
         {
             return;
         }
 
-        var window = await _windowManager.CreateWindowAsync(windowName, true, new BrowserWindowOptions
+        var window = await windowManager.CreateWindowAsync(windowName, true, new BrowserWindowOptions
         {
             Title = "Code",
             AutoHideMenuBar = true,

@@ -4,13 +4,10 @@ using NetPad.Data;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
-public sealed class SQLiteDatabaseConnection : EntityFrameworkRelationalDatabaseConnection
+public sealed class SQLiteDatabaseConnection(Guid id, string name, ScaffoldOptions? scaffoldOptions = null)
+    : EntityFrameworkRelationalDatabaseConnection(id, name, DataConnectionType.SQLite,
+        "Microsoft.EntityFrameworkCore.Sqlite", scaffoldOptions)
 {
-    public SQLiteDatabaseConnection(Guid id, string name, ScaffoldOptions? scaffoldOptions = null)
-        : base(id, name, DataConnectionType.SQLite, "Microsoft.EntityFrameworkCore.Sqlite", scaffoldOptions)
-    {
-    }
-
     public override string GetConnectionString(IDataConnectionPasswordProtector passwordProtector)
     {
         var connectionStringBuilder = new ConnectionStringBuilder();

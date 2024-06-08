@@ -3,27 +3,16 @@ using NetPad.Data;
 
 namespace NetPad.Apps.CQs;
 
-public class GetDataConnectionQuery : Query<DataConnection?>
+public class GetDataConnectionQuery(Guid dataConnectionid) : Query<DataConnection?>
 {
-    public GetDataConnectionQuery(Guid dataConnectionid)
+    public Guid DataConnectionid { get; } = dataConnectionid;
+
+    public class Handler(IDataConnectionRepository dataConnectionRepository)
+        : IRequestHandler<GetDataConnectionQuery, DataConnection?>
     {
-        DataConnectionid = dataConnectionid;
-    }
-
-    public Guid DataConnectionid { get; }
-
-    public class Handler : IRequestHandler<GetDataConnectionQuery, DataConnection?>
-    {
-        private readonly IDataConnectionRepository _dataConnectionRepository;
-
-        public Handler(IDataConnectionRepository dataConnectionRepository)
-        {
-            _dataConnectionRepository = dataConnectionRepository;
-        }
-
         public async Task<DataConnection?> Handle(GetDataConnectionQuery request, CancellationToken cancellationToken)
         {
-            return await _dataConnectionRepository.GetAsync(request.DataConnectionid);
+            return await dataConnectionRepository.GetAsync(request.DataConnectionid);
         }
     }
 }

@@ -5,27 +5,13 @@ using NetPad.Scripts.Events;
 
 namespace NetPad.Apps.CQs;
 
-public class UpdateScriptUseAspNetCommand : Command
+public class UpdateScriptUseAspNetCommand(Script script, bool useAspNet) : Command
 {
+    public Script Script { get; } = script;
+    public bool UseAspNet { get; } = useAspNet;
 
-    public UpdateScriptUseAspNetCommand(Script script, bool useAspNet)
+    public class Handler(IEventBus eventBus) : IRequestHandler<UpdateScriptUseAspNetCommand>
     {
-        Script = script;
-        UseAspNet = useAspNet;
-    }
-
-    public Script Script { get; }
-    public bool UseAspNet { get; }
-
-    public class Handler : IRequestHandler<UpdateScriptUseAspNetCommand>
-    {
-        private readonly IEventBus _eventBus;
-
-        public Handler(IEventBus eventBus)
-        {
-            _eventBus = eventBus;
-        }
-
         public async Task<Unit> Handle(UpdateScriptUseAspNetCommand request, CancellationToken cancellationToken)
         {
             var script = request.Script;
@@ -39,7 +25,7 @@ public class UpdateScriptUseAspNetCommand : Command
 
             script.Config.SetUseAspNet(newUseAspNet);
 
-            await _eventBus.PublishAsync(new ScriptUseAspNetUpdatedEvent(script, oldUseAspNet, newUseAspNet));
+            await eventBus.PublishAsync(new ScriptUseAspNetUpdatedEvent(script, oldUseAspNet, newUseAspNet));
 
             return Unit.Value;
         }

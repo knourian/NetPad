@@ -3,14 +3,8 @@ using NetPad.Events;
 
 namespace NetPad.Scripts.Events;
 
-public class ScriptDataConnectionChangedEvent : IEvent
+public class ScriptDataConnectionChangedEvent(Script script, DataConnection? dataConnection) : IEvent
 {
-    public ScriptDataConnectionChangedEvent(Script script, DataConnection? dataConnection)
-    {
-        Script = script;
-        DataConnection = dataConnection;
-    }
-
-    public Script Script { get; }
-    public DataConnection? DataConnection { get; }
+    public Script Script { get; } = script;
+    public DataConnection? DataConnection { get; } = dataConnection;
 }

@@ -2,17 +2,11 @@ using NetPad.DotNet;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore.Scaffolding;
 
-public class ScaffoldedSourceFile : SourceCode
+public class ScaffoldedSourceFile(string path, string className, string code, IEnumerable<string> usings)
+    : SourceCode(code, usings)
 {
-    public ScaffoldedSourceFile(string path, string className, string code, IEnumerable<string> usings)
-        : base(code, usings)
-    {
-        Path = path;
-        ClassName = className;
-    }
-
-    public string Path { get; }
-    public string ClassName { get; }
+    public string Path { get; } = path;
+    public string ClassName { get; } = className;
     public bool IsDbContext { get; init; }
     public bool IsDbContextCompiledModel { get; init; }
 }

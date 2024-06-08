@@ -2,14 +2,11 @@ using NetPad.Events;
 
 namespace NetPad.Data.Events;
 
-public class DataConnectionResourcesUpdatingEvent : IEvent
+public class DataConnectionResourcesUpdatingEvent(
+    DataConnection dataConnection,
+    DataConnectionResourceComponent updatingComponent)
+    : IEvent
 {
-    public DataConnectionResourcesUpdatingEvent(DataConnection dataConnection, DataConnectionResourceComponent updatingComponent)
-    {
-        DataConnection = dataConnection;
-        UpdatingComponent = updatingComponent;
-    }
-
-    public DataConnection DataConnection { get; }
-    public DataConnectionResourceComponent UpdatingComponent { get; }
+    public DataConnection DataConnection { get; } = dataConnection;
+    public DataConnectionResourceComponent UpdatingComponent { get; } = updatingComponent;
 }

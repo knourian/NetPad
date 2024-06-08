@@ -3,16 +3,9 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace NetPad.CodeAnalysis;
 
-public class SyntaxTriviaSlim
+public class SyntaxTriviaSlim(SyntaxKind kind, LinePositionSpan span, string? displayValue = null)
 {
-    public SyntaxTriviaSlim(SyntaxKind kind, LinePositionSpan span, string? displayValue = null)
-    {
-        Kind = kind;
-        Span = span;
-        DisplayValue = displayValue.Truncate(50, true);
-    }
-
-    public SyntaxKind Kind { get; }
-    public LinePositionSpan Span { get; }
-    public string? DisplayValue { get; }
+    public SyntaxKind Kind { get; } = kind;
+    public LinePositionSpan Span { get; } = span;
+    public string? DisplayValue { get; } = displayValue.Truncate(50, true);
 }

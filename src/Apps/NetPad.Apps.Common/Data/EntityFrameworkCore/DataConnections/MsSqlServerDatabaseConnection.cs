@@ -4,13 +4,10 @@ using NetPad.Data;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
-public sealed class MsSqlServerDatabaseConnection : EntityFrameworkRelationalDatabaseConnection
+public sealed class MsSqlServerDatabaseConnection(Guid id, string name, ScaffoldOptions? scaffoldOptions = null)
+    : EntityFrameworkRelationalDatabaseConnection(id, name, DataConnectionType.MSSQLServer,
+        "Microsoft.EntityFrameworkCore.SqlServer", scaffoldOptions)
 {
-    public MsSqlServerDatabaseConnection(Guid id, string name, ScaffoldOptions? scaffoldOptions = null)
-        : base(id, name, DataConnectionType.MSSQLServer, "Microsoft.EntityFrameworkCore.SqlServer", scaffoldOptions)
-    {
-    }
-
     public override string GetConnectionString(IDataConnectionPasswordProtector passwordProtector)
     {
         var connectionStringBuilder = new ConnectionStringBuilder();

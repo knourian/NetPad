@@ -1,17 +1,10 @@
 namespace NetPad.Packages;
 
-public class PackageInstallInfo
+public class PackageInstallInfo(string packageId, string version, PackageInstallReason installReason)
 {
-    public PackageInstallInfo(string packageId, string version, PackageInstallReason installReason)
-    {
-        PackageId = packageId;
-        Version = version;
-        InstallReason = installReason;
-    }
-
-    public string PackageId { get; }
-    public string Version { get; }
-    public PackageInstallReason InstallReason { get; private set; }
+    public string PackageId { get; } = packageId;
+    public string Version { get; } = version;
+    public PackageInstallReason InstallReason { get; private set; } = installReason;
 
     public void ChangeInstallReason(PackageInstallReason installReason)
     {

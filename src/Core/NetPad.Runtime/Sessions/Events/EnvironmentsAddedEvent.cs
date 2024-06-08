@@ -3,12 +3,7 @@ using NetPad.Scripts;
 
 namespace NetPad.Sessions.Events;
 
-public class EnvironmentsAddedEvent : IEvent
+public class EnvironmentsAddedEvent(params ScriptEnvironment[] environments) : IEvent
 {
-    public EnvironmentsAddedEvent(params ScriptEnvironment[] environments)
-    {
-        Environments = environments;
-    }
-
-    public ScriptEnvironment[] Environments { get; }
+    public ScriptEnvironment[] Environments { get; } = environments;
 }

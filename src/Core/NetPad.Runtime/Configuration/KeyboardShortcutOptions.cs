@@ -37,14 +37,9 @@ public class KeyboardShortcutOptions : ISettingsOptions
     }
 }
 
-public class KeyboardShortcutConfiguration
+public class KeyboardShortcutConfiguration(string id)
 {
-    public KeyboardShortcutConfiguration(string id)
-    {
-        Id = id;
-    }
-
-    public string Id { get; set; }
+    public string Id { get; set; } = id;
     public bool Meta { get; set; }
     public bool Alt { get; set; }
     public bool Ctrl { get; set; }

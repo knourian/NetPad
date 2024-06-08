@@ -3,27 +3,15 @@ using NetPad.Sessions;
 
 namespace NetPad.Apps.CQs;
 
-public class ActivateScriptCommand : Command
+public class ActivateScriptCommand(Guid scriptId) : Command
 {
-    public ActivateScriptCommand(Guid scriptId)
+    public Guid ScriptId { get; } = scriptId;
+
+    public class Handler(ISession session) : IRequestHandler<ActivateScriptCommand>
     {
-        ScriptId = scriptId;
-    }
-
-    public Guid ScriptId { get; }
-
-    public class Handler : IRequestHandler<ActivateScriptCommand>
-    {
-        private readonly ISession _session;
-
-        public Handler(ISession session)
-        {
-            _session = session;
-        }
-
         public async Task<Unit> Handle(ActivateScriptCommand request, CancellationToken cancellationToken)
         {
-            await _session.ActivateAsync(request.ScriptId);
+            await session.ActivateAsync(request.ScriptId);
             return Unit.Value;
         }
     }

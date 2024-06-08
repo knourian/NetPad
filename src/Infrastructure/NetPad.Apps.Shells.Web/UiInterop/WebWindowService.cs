@@ -4,15 +4,8 @@ using NetPad.Scripts;
 
 namespace NetPad.Apps.Shells.Web.UiInterop;
 
-public class WebWindowService : IUiWindowService
+public class WebWindowService(IIpcService ipcService) : IUiWindowService
 {
-    private readonly IIpcService _ipcService;
-
-    public WebWindowService(IIpcService ipcService)
-    {
-        _ipcService = ipcService;
-    }
-
     public Task OpenMainWindowAsync()
     {
         throw new PlatformNotSupportedException();
@@ -26,7 +19,7 @@ public class WebWindowService : IUiWindowService
 
         if (tab != null) command.Metadata.Add("tab", tab);
 
-        await _ipcService.SendAsync(command);
+        await ipcService.SendAsync(command);
     }
 
     public async Task OpenScriptConfigWindowAsync(Script script, string? tab = null)
@@ -38,7 +31,7 @@ public class WebWindowService : IUiWindowService
         command.Metadata.Add("script-id", script.Id);
         if (tab != null) command.Metadata.Add("tab", tab);
 
-        await _ipcService.SendAsync(command);
+        await ipcService.SendAsync(command);
     }
 
     public async Task OpenDataConnectionWindowAsync(Guid? dataConnectionId, bool copy = false)
@@ -62,7 +55,7 @@ public class WebWindowService : IUiWindowService
             command.Metadata.Add("copy", "true");
         }
 
-        await _ipcService.SendAsync(command);
+        await ipcService.SendAsync(command);
     }
 
     public async Task OpenOutputWindowAsync()
@@ -71,7 +64,7 @@ public class WebWindowService : IUiWindowService
         command.Options.Height = 2 / 3.0;
         command.Options.Width = 4 / 5.0;
 
-        await _ipcService.SendAsync(command);
+        await ipcService.SendAsync(command);
     }
 
     public async Task OpenCodeWindowAsync()
@@ -80,6 +73,6 @@ public class WebWindowService : IUiWindowService
         command.Options.Height = 2 / 3.0;
         command.Options.Width = 4 / 5.0;
 
-        await _ipcService.SendAsync(command);
+        await ipcService.SendAsync(command);
     }
 }

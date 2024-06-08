@@ -5,15 +5,8 @@ using NetPad.Common;
 
 namespace NetPad.Apps.Shells.Electron.UiInterop;
 
-public class ElectronIpcService : IIpcService
+public class ElectronIpcService(ILogger<ElectronIpcService> logger) : IIpcService
 {
-    private readonly ILogger<ElectronIpcService> _logger;
-
-    public ElectronIpcService(ILogger<ElectronIpcService> logger)
-    {
-        _logger = logger;
-    }
-
     public async Task SendAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : class
     {
         await SendAsync(typeof(TMessage).Name, message, cancellationToken);
@@ -35,7 +28,7 @@ public class ElectronIpcService : IIpcService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error sending message on channel: {Channel}", channel);
+            logger.LogError(ex, "Error sending message on channel: {Channel}", channel);
         }
 
         return Task.CompletedTask;

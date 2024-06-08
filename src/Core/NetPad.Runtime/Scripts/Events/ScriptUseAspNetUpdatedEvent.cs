@@ -2,16 +2,9 @@ using NetPad.Events;
 
 namespace NetPad.Scripts.Events;
 
-public class ScriptUseAspNetUpdatedEvent : IEvent
+public class ScriptUseAspNetUpdatedEvent(Script script, bool oldValue, bool newValue) : IEvent
 {
-    public ScriptUseAspNetUpdatedEvent(Script script, bool oldValue, bool newValue)
-    {
-        Script = script;
-        OldValue = oldValue;
-        NewValue = newValue;
-    }
-
-    public Script Script { get; }
-    public bool OldValue { get; }
-    public bool NewValue { get; }
+    public Script Script { get; } = script;
+    public bool OldValue { get; } = oldValue;
+    public bool NewValue { get; } = newValue;
 }

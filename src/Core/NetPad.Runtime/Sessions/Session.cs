@@ -8,29 +8,17 @@ using NetPad.Sessions.Events;
 
 namespace NetPad.Sessions;
 
-public class Session : ISession
+public class Session(
+    IServiceScopeFactory serviceScopeFactory,
+    ITrivialDataStore trivialDataStore,
+    IEventBus eventBus,
+    ILogger<Session> logger)
+    : ISession
 {
     private const string CurrentActiveSaveKey = "session.active";
 
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly ITrivialDataStore _trivialDataStore;
-    private readonly IEventBus _eventBus;
-    private readonly ILogger<Session> _logger;
-    private readonly List<ScriptEnvironment> _environments;
+    private readonly List<ScriptEnvironment> _environments = new();
     private Guid? _lastActiveScriptId;
-
-    public Session(
-        IServiceScopeFactory serviceScopeFactory,
-        ITrivialDataStore trivialDataStore,
-        IEventBus eventBus,
-        ILogger<Session> logger)
-    {
-        _serviceScopeFactory = serviceScopeFactory;
-        _trivialDataStore = trivialDataStore;
-        _eventBus = eventBus;
-        _logger = logger;
-        _environments = new List<ScriptEnvironment>();
-    }
 
     public IReadOnlyList<ScriptEnvironment> Environments => _environments.AsReadOnly();
 
@@ -48,9 +36,9 @@ public class Session : ISession
 
         if (environment == null)
         {
-            environment = new ScriptEnvironment(script, _serviceScopeFactory.CreateScope());
+            environment = new ScriptEnvironment(script, serviceScopeFactory.CreateScope());
             _environments.Add(environment);
-            await _eventBus.PublishAsync(new EnvironmentsAddedEvent(environment));
+            await eventBus.PublishAsync(new EnvironmentsAddedEvent(environment));
         }
 
         if (activate)
@@ -68,7 +56,7 @@ public class Session : ISession
             await OpenAsync(script, activate: false);
         }
 
-        if (Guid.TryParse(_trivialDataStore.Get<string>(CurrentActiveSaveKey), out var lastSavedScriptId) &&
+        if (Guid.TryParse(trivialDataStore.Get<string>(CurrentActiveSaveKey), out var lastSavedScriptId) &&
             scripts.Any(s => s.Id == lastSavedScriptId))
         {
             await ActivateAsync(lastSavedScriptId);
@@ -81,7 +69,7 @@ public class Session : ISession
 
     public async Task CloseAsync(Guid scriptId, bool activateNextScript = true)
     {
-        _logger.LogDebug("Closing script: {ScriptId}", scriptId);
+        logger.LogDebug("Closing script: {ScriptId}", scriptId);
         var environment = Get(scriptId);
         if (environment == null)
             return;
@@ -90,7 +78,7 @@ public class Session : ISession
 
         _environments.RemoveAt(ix);
         await environment.DisposeAsync();
-        await _eventBus.PublishAsync(new EnvironmentsRemovedEvent(environment));
+        await eventBus.PublishAsync(new EnvironmentsRemovedEvent(environment));
 
         if (activateNextScript && Active == environment)
         {
@@ -110,7 +98,7 @@ public class Session : ISession
             }
         }
 
-        _logger.LogDebug("Closed script: {ScriptId}", scriptId);
+        logger.LogDebug("Closed script: {ScriptId}", scriptId);
     }
 
     public async Task CloseAsync(IEnumerable<Guid> scriptIds)
@@ -148,9 +136,9 @@ public class Session : ISession
         }
 
         Active = newActive;
-        _eventBus.PublishAsync(new ActiveEnvironmentChangedEvent(newActive?.Script.Id));
+        eventBus.PublishAsync(new ActiveEnvironmentChangedEvent(newActive?.Script.Id));
 
-        _trivialDataStore.Set(CurrentActiveSaveKey, Active?.Script.Id);
+        trivialDataStore.Set(CurrentActiveSaveKey, Active?.Script.Id);
 
         return Task.CompletedTask;
     }

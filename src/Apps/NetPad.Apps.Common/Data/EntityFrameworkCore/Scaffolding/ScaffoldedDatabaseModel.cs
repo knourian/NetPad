@@ -4,12 +4,7 @@ namespace NetPad.Apps.Data.EntityFrameworkCore.Scaffolding;
 
 public class ScaffoldedDatabaseModel
 {
-    public ScaffoldedDatabaseModel()
-    {
-        SourceFiles = new SourceCodeCollection<ScaffoldedSourceFile>();
-    }
-
-    public SourceCodeCollection<ScaffoldedSourceFile> SourceFiles { get; }
+    public SourceCodeCollection<ScaffoldedSourceFile> SourceFiles { get; } = new();
 
     public ScaffoldedSourceFile DbContextFile => SourceFiles.Single(f => f.IsDbContext);
 

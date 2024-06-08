@@ -3,16 +3,10 @@ using NetPad.Events;
 
 namespace NetPad.Scripts.Events;
 
-public class ScriptReferencesUpdatedEvent : IEvent
+public class ScriptReferencesUpdatedEvent(Script script, IEnumerable<Reference> added, IEnumerable<Reference> removed)
+    : IEvent
 {
-    public ScriptReferencesUpdatedEvent(Script script, IEnumerable<Reference> added, IEnumerable<Reference> removed)
-    {
-        Script = script;
-        Added = added;
-        Removed = removed;
-    }
-
-    public Script Script { get; }
-    public IEnumerable<Reference> Added { get; }
-    public IEnumerable<Reference> Removed { get; }
+    public Script Script { get; } = script;
+    public IEnumerable<Reference> Added { get; } = added;
+    public IEnumerable<Reference> Removed { get; } = removed;
 }

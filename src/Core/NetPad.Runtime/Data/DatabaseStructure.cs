@@ -1,16 +1,10 @@
 namespace NetPad.Data;
 
-public class DatabaseStructure
+public class DatabaseStructure(string databaseName)
 {
-    private readonly List<DatabaseSchema> _schemas;
+    private readonly List<DatabaseSchema> _schemas = new();
 
-    public DatabaseStructure(string databaseName)
-    {
-        DatabaseName = databaseName;
-        _schemas = new List<DatabaseSchema>();
-    }
-
-    public string DatabaseName { get; }
+    public string DatabaseName { get; } = databaseName;
     public IReadOnlyList<DatabaseSchema> Schemas => _schemas;
 
     public DatabaseSchema GetOrAddSchema(string? name)
@@ -27,17 +21,11 @@ public class DatabaseStructure
     }
 }
 
-public class DatabaseSchema
+public class DatabaseSchema(string? name = null)
 {
-    private readonly List<DatabaseTable> _tables;
+    private readonly List<DatabaseTable> _tables = new();
 
-    public DatabaseSchema(string? name = null)
-    {
-        _tables = new List<DatabaseTable>();
-        Name = name;
-    }
-
-    public string? Name { get; }
+    public string? Name { get; } = name;
     public IReadOnlyList<DatabaseTable> Tables => _tables;
 
     public DatabaseTable GetOrAddTable(string name, string displayName)
@@ -54,23 +42,14 @@ public class DatabaseSchema
     }
 }
 
-public class DatabaseTable
+public class DatabaseTable(string name, string displayName)
 {
-    private readonly List<DatabaseTableColumn> _columns;
-    private readonly List<DatabaseIndex> _indexes;
-    private readonly List<DatabaseTableNavigation> _navigations;
+    private readonly List<DatabaseTableColumn> _columns = new();
+    private readonly List<DatabaseIndex> _indexes = new();
+    private readonly List<DatabaseTableNavigation> _navigations = new();
 
-    public DatabaseTable(string name, string displayName)
-    {
-        _columns = new List<DatabaseTableColumn>();
-        _indexes = new List<DatabaseIndex>();
-        _navigations = new List<DatabaseTableNavigation>();
-        Name = name;
-        DisplayName = displayName;
-    }
-
-    public string Name { get; }
-    public string DisplayName { get; }
+    public string Name { get; } = name;
+    public string DisplayName { get; } = displayName;
     public IReadOnlyList<DatabaseTableColumn> Columns => _columns;
     public IReadOnlyList<DatabaseIndex> Indexes => _indexes;
     public IReadOnlyList<DatabaseTableNavigation> Navigations => _navigations;
@@ -103,22 +82,13 @@ public class DatabaseTable
     }
 }
 
-public class DatabaseTableColumn
+public class DatabaseTableColumn(string name, string type, string clrType, bool isPrimaryKey, bool isForeignKey)
 {
-    public DatabaseTableColumn(string name, string type, string clrType, bool isPrimaryKey, bool isForeignKey)
-    {
-        Name = name;
-        Type = type;
-        ClrType = clrType;
-        IsPrimaryKey = isPrimaryKey;
-        IsForeignKey = isForeignKey;
-    }
-
-    public string Name { get; }
-    public string Type { get; }
-    public string ClrType { get; }
-    public bool IsPrimaryKey { get; }
-    public bool IsForeignKey { get; }
+    public string Name { get; } = name;
+    public string Type { get; } = type;
+    public string ClrType { get; } = clrType;
+    public bool IsPrimaryKey { get; } = isPrimaryKey;
+    public bool IsForeignKey { get; } = isForeignKey;
     public int? Order { get; private set; }
 
     public void SetOrder(int? order)
@@ -130,34 +100,18 @@ public class DatabaseTableColumn
     }
 }
 
-public class DatabaseTableNavigation
+public class DatabaseTableNavigation(string name, string target, string? clrType)
 {
-    public string Name { get; }
-    public string Target { get; }
-    public string? ClrType { get; }
-
-    public DatabaseTableNavigation(string name, string target, string? clrType)
-    {
-        Name = name;
-        Target = target;
-        ClrType = clrType;
-    }
+    public string Name { get; } = name;
+    public string Target { get; } = target;
+    public string? ClrType { get; } = clrType;
 }
 
-public class DatabaseIndex
+public class DatabaseIndex(string name, string? type, bool isUnique, bool isClustered, string[] columns)
 {
-    public string Name { get; }
-    public string? Type { get; }
-    public bool IsUnique { get; }
-    public bool IsClustered { get; }
-    public string[] Columns { get; }
-
-    public DatabaseIndex(string name, string? type, bool isUnique, bool isClustered, string[] columns)
-    {
-        Name = name;
-        Type = type;
-        IsUnique = isUnique;
-        IsClustered = isClustered;
-        Columns = columns;
-    }
+    public string Name { get; } = name;
+    public string? Type { get; } = type;
+    public bool IsUnique { get; } = isUnique;
+    public bool IsClustered { get; } = isClustered;
+    public string[] Columns { get; } = columns;
 }

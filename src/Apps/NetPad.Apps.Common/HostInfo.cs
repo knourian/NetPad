@@ -4,14 +4,8 @@ namespace NetPad.Apps;
 
 public class HostInfo
 {
-    public HostInfo()
-    {
-        HostUrl = "http://localhost";
-        WorkingDirectory = Assembly.GetEntryAssembly()?.Location ?? "./";
-    }
-
-    public string HostUrl { get; private set; }
-    public string WorkingDirectory { get; private set; }
+    public string HostUrl { get; private set; } = "http://localhost";
+    public string WorkingDirectory { get; private set; } = Assembly.GetEntryAssembly()?.Location ?? "./";
 
     public void SetHostUrl(string url)
     {

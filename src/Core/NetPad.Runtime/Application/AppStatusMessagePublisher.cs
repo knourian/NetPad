@@ -3,15 +3,8 @@ using NetPad.Events;
 
 namespace NetPad.Application;
 
-public class AppStatusMessagePublisher : IAppStatusMessagePublisher
+public class AppStatusMessagePublisher(IEventBus eventBus) : IAppStatusMessagePublisher
 {
-    private readonly IEventBus _eventBus;
-
-    public AppStatusMessagePublisher(IEventBus eventBus)
-    {
-        _eventBus = eventBus;
-    }
-
     public async Task PublishAsync(
         string text,
         AppStatusMessagePriority priority = AppStatusMessagePriority.Normal,
@@ -30,5 +23,5 @@ public class AppStatusMessagePublisher : IAppStatusMessagePublisher
     }
 
     private async Task PublishAsync(AppStatusMessage message) =>
-        await _eventBus.PublishAsync(new AppStatusMessagePublishedEvent(message));
+        await eventBus.PublishAsync(new AppStatusMessagePublishedEvent(message));
 }

@@ -3,14 +3,12 @@ using NetPad.Data;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
-internal class MsSqlServerDatabaseSchemaChangeDetectionStrategy : EntityFrameworkSchemaChangeDetectionStrategyBase, IDataConnectionSchemaChangeDetectionStrategy
+internal class MsSqlServerDatabaseSchemaChangeDetectionStrategy(
+    IDataConnectionResourcesRepository dataConnectionResourcesRepository,
+    IDataConnectionPasswordProtector passwordProtector)
+    : EntityFrameworkSchemaChangeDetectionStrategyBase(dataConnectionResourcesRepository, passwordProtector),
+        IDataConnectionSchemaChangeDetectionStrategy
 {
-    public MsSqlServerDatabaseSchemaChangeDetectionStrategy(
-        IDataConnectionResourcesRepository dataConnectionResourcesRepository,
-        IDataConnectionPasswordProtector passwordProtector) : base(dataConnectionResourcesRepository, passwordProtector)
-    {
-    }
-
     public bool CanSupport(DataConnection dataConnection)
     {
         return dataConnection is MsSqlServerDatabaseConnection;
@@ -71,13 +69,8 @@ internal class MsSqlServerDatabaseSchemaChangeDetectionStrategy : EntityFramewor
         return lastSchemaModificationTime;
     }
 
-    private class MsSqlServerSchemaCompareInfo : SchemaCompareInfo
+    private class MsSqlServerSchemaCompareInfo(DateTime lastSchemaModificationTime) : SchemaCompareInfo(DateTime.UtcNow)
     {
-        public MsSqlServerSchemaCompareInfo(DateTime lastSchemaModificationTime) : base(DateTime.UtcNow)
-        {
-            LastSchemaModificationTime = lastSchemaModificationTime;
-        }
-
-        public DateTime LastSchemaModificationTime { get; }
+        public DateTime LastSchemaModificationTime { get; } = lastSchemaModificationTime;
     }
 }

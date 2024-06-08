@@ -5,26 +5,13 @@ using NetPad.Scripts.Events;
 
 namespace NetPad.Apps.CQs;
 
-public class UpdateScriptNamespacesCommand : Command
+public class UpdateScriptNamespacesCommand(Script script, IEnumerable<string> namespaces) : Command
 {
-    public UpdateScriptNamespacesCommand(Script script, IEnumerable<string> namespaces)
+    public Script Script { get; } = script;
+    public IEnumerable<string> Namespaces { get; } = namespaces;
+
+    public class Handler(IEventBus eventBus) : IRequestHandler<UpdateScriptNamespacesCommand>
     {
-        Script = script;
-        Namespaces = namespaces;
-    }
-
-    public Script Script { get; }
-    public IEnumerable<string> Namespaces { get; }
-
-    public class Handler : IRequestHandler<UpdateScriptNamespacesCommand>
-    {
-        private readonly IEventBus _eventBus;
-
-        public Handler(IEventBus eventBus)
-        {
-            _eventBus = eventBus;
-        }
-
         public async Task<Unit> Handle(UpdateScriptNamespacesCommand request, CancellationToken cancellationToken)
         {
             var script = request.Script;
@@ -36,7 +23,7 @@ public class UpdateScriptNamespacesCommand : Command
 
             script.Config.SetNamespaces(newNamespaces);
 
-            await _eventBus.PublishAsync(new ScriptNamespacesUpdatedEvent(script, added, removed));
+            await eventBus.PublishAsync(new ScriptNamespacesUpdatedEvent(script, added, removed));
 
             return Unit.Value;
         }

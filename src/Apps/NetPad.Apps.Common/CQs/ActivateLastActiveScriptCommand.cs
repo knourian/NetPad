@@ -5,18 +5,11 @@ namespace NetPad.Apps.CQs;
 
 public class ActivateLastActiveScriptCommand : Command
 {
-    public class Handler : IRequestHandler<ActivateLastActiveScriptCommand>
+    public class Handler(ISession session) : IRequestHandler<ActivateLastActiveScriptCommand>
     {
-        private readonly ISession _session;
-
-        public Handler(ISession session)
-        {
-            _session = session;
-        }
-
         public async Task<Unit> Handle(ActivateLastActiveScriptCommand request, CancellationToken cancellationToken)
         {
-            await _session.ActivateLastActiveScriptAsync();
+            await session.ActivateLastActiveScriptAsync();
             return Unit.Value;
         }
     }

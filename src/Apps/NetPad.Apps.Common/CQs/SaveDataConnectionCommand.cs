@@ -6,28 +6,13 @@ using NetPad.Events;
 
 namespace NetPad.Apps.CQs;
 
-public class SaveDataConnectionCommand : Command
+public class SaveDataConnectionCommand(DataConnection connection) : Command
 {
-    public SaveDataConnectionCommand(DataConnection connection)
+    public DataConnection Connection { get; } = connection;
+
+    public class Handler(IDataConnectionRepository dataConnectionRepository, IMediator mediator, IEventBus eventBus)
+        : IRequestHandler<SaveDataConnectionCommand, Unit>
     {
-        Connection = connection;
-    }
-
-    public DataConnection Connection { get; }
-
-    public class Handler : IRequestHandler<SaveDataConnectionCommand, Unit>
-    {
-        private readonly IDataConnectionRepository _dataConnectionRepository;
-        private readonly IMediator _mediator;
-        private readonly IEventBus _eventBus;
-
-        public Handler(IDataConnectionRepository dataConnectionRepository, IMediator mediator, IEventBus eventBus)
-        {
-            _dataConnectionRepository = dataConnectionRepository;
-            _mediator = mediator;
-            _eventBus = eventBus;
-        }
-
         public async Task<Unit> Handle(SaveDataConnectionCommand request, CancellationToken cancellationToken)
         {
             if (request.Connection.Id == default)
@@ -36,18 +21,18 @@ public class SaveDataConnectionCommand : Command
             }
 
             var updated = request.Connection;
-            var existing = await _dataConnectionRepository.GetAsync(request.Connection.Id);
+            var existing = await dataConnectionRepository.GetAsync(request.Connection.Id);
 
-            await _dataConnectionRepository.SaveAsync(updated);
+            await dataConnectionRepository.SaveAsync(updated);
 
-            await _eventBus.PublishAsync(new DataConnectionSavedEvent(updated));
+            await eventBus.PublishAsync(new DataConnectionSavedEvent(updated));
 
             bool shouldRefreshResources = existing == null || ShouldRefreshResources(existing, updated);
 
             if (shouldRefreshResources)
             {
                 // We don't want to wait for this
-                _ = _mediator.Send(new RefreshDataConnectionCommand(updated.Id));
+                _ = mediator.Send(new RefreshDataConnectionCommand(updated.Id));
             }
 
             return Unit.Value;

@@ -2,12 +2,7 @@ using NetPad.Events;
 
 namespace NetPad.Configuration.Events;
 
-public class SettingsUpdatedEvent : IEvent
+public class SettingsUpdatedEvent(Settings settings) : IEvent
 {
-    public SettingsUpdatedEvent(Settings settings)
-    {
-        Settings = settings;
-    }
-
-    public Settings Settings { get; }
+    public Settings Settings { get; } = settings;
 }

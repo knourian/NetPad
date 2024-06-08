@@ -3,15 +3,10 @@ using NetPad.Exceptions;
 
 namespace NetPad.DotNet;
 
-public class AssemblyFileReference : Reference
+public class AssemblyFileReference(string assemblyPath)
+    : Reference(!string.IsNullOrWhiteSpace(assemblyPath) ? Path.GetFileName(assemblyPath) : "(Unknown)")
 {
-    public AssemblyFileReference(string assemblyPath)
-        : base(!string.IsNullOrWhiteSpace(assemblyPath) ? Path.GetFileName(assemblyPath) : "(Unknown)")
-    {
-        AssemblyPath = assemblyPath ?? throw new ArgumentNullException(nameof(assemblyPath));
-    }
-
-    public string AssemblyPath { get; }
+    public string AssemblyPath { get; } = assemblyPath ?? throw new ArgumentNullException(nameof(assemblyPath));
 
     public override void EnsureValid()
     {

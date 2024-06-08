@@ -9,14 +9,9 @@ public abstract class SourceCodeElement : ValueObject
     public abstract string ToCodeString();
 }
 
-public abstract class SourceCodeElement<TValue> : SourceCodeElement
+public abstract class SourceCodeElement<TValue>(TValue value) : SourceCodeElement
 {
-    protected SourceCodeElement(TValue value)
-    {
-        Value = value;
-    }
-
-    public TValue Value { get; private set; }
+    public TValue Value { get; private set; } = value;
 
     public void Update(TValue value)
     {

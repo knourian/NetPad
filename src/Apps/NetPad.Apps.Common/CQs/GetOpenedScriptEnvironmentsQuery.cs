@@ -6,18 +6,12 @@ namespace NetPad.Apps.CQs;
 
 public class GetOpenedScriptEnvironmentsQuery : Query<IEnumerable<ScriptEnvironment>>
 {
-    public class Handler : IRequestHandler<GetOpenedScriptEnvironmentsQuery, IEnumerable<ScriptEnvironment>>
+    public class Handler(ISession session)
+        : IRequestHandler<GetOpenedScriptEnvironmentsQuery, IEnumerable<ScriptEnvironment>>
     {
-        private readonly ISession _session;
-
-        public Handler(ISession session)
-        {
-            _session = session;
-        }
-
         public Task<IEnumerable<ScriptEnvironment>> Handle(GetOpenedScriptEnvironmentsQuery request, CancellationToken cancellationToken)
         {
-            return Task.FromResult<IEnumerable<ScriptEnvironment>>(_session.Environments.ToArray());
+            return Task.FromResult<IEnumerable<ScriptEnvironment>>(session.Environments.ToArray());
         }
     }
 }

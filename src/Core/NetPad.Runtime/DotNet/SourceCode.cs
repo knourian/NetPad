@@ -5,9 +5,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NetPad.DotNet;
 
-public class SourceCode
+[method: JsonConstructor]
+public class SourceCode(Code? code, IEnumerable<Using>? usings = null)
 {
-    private readonly HashSet<Using> _usings;
+    private readonly HashSet<Using> _usings = usings?.ToHashSet() ?? new HashSet<Using>();
     private bool _valueChanged;
 
     public SourceCode() : this(null, Array.Empty<Using>())
@@ -38,15 +39,8 @@ public class SourceCode
     {
     }
 
-    [JsonConstructor]
-    public SourceCode(Code? code, IEnumerable<Using>? usings = null)
-    {
-        Code = code ?? new Code(null, null);
-        _usings = usings?.ToHashSet() ?? new HashSet<Using>();
-    }
-
     public IEnumerable<Using> Usings => _usings;
-    public Code Code { get; }
+    public Code Code { get; } = code ?? new Code(null, null);
     public bool ValueChanged() => _valueChanged || Code.ValueChanged() || _usings.Any(u => u.ValueChanged());
 
     public void AddUsing(string @using)

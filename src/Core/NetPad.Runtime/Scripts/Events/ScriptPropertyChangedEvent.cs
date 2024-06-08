@@ -1,12 +1,7 @@
 namespace NetPad.Scripts.Events;
 
-public class ScriptPropertyChangedEvent : PropertyChangedEvent, IScriptEvent
+public class ScriptPropertyChangedEvent(Guid scriptId, string propertyName, object? oldValue, object? newValue)
+    : PropertyChangedEvent(propertyName, oldValue, newValue), IScriptEvent
 {
-    public ScriptPropertyChangedEvent(Guid scriptId, string propertyName, object? oldValue, object? newValue)
-        : base(propertyName, oldValue, newValue)
-    {
-        ScriptId = scriptId;
-    }
-
-    public Guid ScriptId { get; }
+    public Guid ScriptId { get; } = scriptId;
 }

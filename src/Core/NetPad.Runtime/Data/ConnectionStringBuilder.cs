@@ -1,6 +1,6 @@
 namespace NetPad.Data;
 
-public class ConnectionStringBuilder : Dictionary<string, string?>
+public class ConnectionStringBuilder() : Dictionary<string, string?>(StringComparer.InvariantCultureIgnoreCase)
 {
     public ConnectionStringBuilder(string connectionString) : this()
     {
@@ -21,10 +21,6 @@ public class ConnectionStringBuilder : Dictionary<string, string?>
         {
             Add(kv.Key, kv.Value);
         }
-    }
-
-    public ConnectionStringBuilder() : base(StringComparer.InvariantCultureIgnoreCase)
-    {
     }
 
     public void Augment(Dictionary<string, string?> augmentation)

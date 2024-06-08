@@ -11,34 +11,16 @@ using NetPad.Packages;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore;
 
-internal class EntityFrameworkResourcesGenerator : IDataConnectionResourcesGenerator
+internal class EntityFrameworkResourcesGenerator(
+    Lazy<IDataConnectionResourcesCache> dataConnectionResourcesCache,
+    ICodeCompiler codeCompiler,
+    IPackageProvider packageProvider,
+    IDataConnectionPasswordProtector dataConnectionPasswordProtector,
+    IDotNetInfo dotNetInfo,
+    Settings settings,
+    ILoggerFactory loggerFactory)
+    : IDataConnectionResourcesGenerator
 {
-    private readonly Settings _settings;
-    private readonly ILoggerFactory _loggerFactory;
-    private readonly Lazy<IDataConnectionResourcesCache> _dataConnectionResourcesCache;
-    private readonly ICodeCompiler _codeCompiler;
-    private readonly IPackageProvider _packageProvider;
-    private readonly IDataConnectionPasswordProtector _dataConnectionPasswordProtector;
-    private readonly IDotNetInfo _dotNetInfo;
-
-    public EntityFrameworkResourcesGenerator(
-        Lazy<IDataConnectionResourcesCache> dataConnectionResourcesCache,
-        ICodeCompiler codeCompiler,
-        IPackageProvider packageProvider,
-        IDataConnectionPasswordProtector dataConnectionPasswordProtector,
-        IDotNetInfo dotNetInfo,
-        Settings settings,
-        ILoggerFactory loggerFactory)
-    {
-        _dataConnectionResourcesCache = dataConnectionResourcesCache;
-        _codeCompiler = codeCompiler;
-        _packageProvider = packageProvider;
-        _dataConnectionPasswordProtector = dataConnectionPasswordProtector;
-        _dotNetInfo = dotNetInfo;
-        _settings = settings;
-        _loggerFactory = loggerFactory;
-    }
-
     public async Task<DataConnectionSourceCode> GenerateSourceCodeAsync(DataConnection dataConnection, DotNetFrameworkVersion targetFrameworkVersion)
     {
         if (!dataConnection.IsEntityFrameworkDataConnection(out var efDbConnection))
@@ -49,10 +31,10 @@ internal class EntityFrameworkResourcesGenerator : IDataConnectionResourcesGener
         var scaffolder = new EntityFrameworkDatabaseScaffolder(
             targetFrameworkVersion,
             efDbConnection,
-            _dataConnectionPasswordProtector,
-            _dotNetInfo,
-            _settings,
-            _loggerFactory.CreateLogger<EntityFrameworkDatabaseScaffolder>());
+            dataConnectionPasswordProtector,
+            dotNetInfo,
+            settings,
+            loggerFactory.CreateLogger<EntityFrameworkDatabaseScaffolder>());
 
         var model = await scaffolder.ScaffoldAsync();
 
@@ -72,7 +54,7 @@ internal class EntityFrameworkResourcesGenerator : IDataConnectionResourcesGener
             return null;
         }
 
-        var sourceCode = await _dataConnectionResourcesCache.Value.GetSourceGeneratedCodeAsync(dataConnection, targetFrameworkVersion);
+        var sourceCode = await dataConnectionResourcesCache.Value.GetSourceGeneratedCodeAsync(dataConnection, targetFrameworkVersion);
 
         if (!sourceCode.DataAccessCode.Any())
         {
@@ -115,13 +97,13 @@ internal class EntityFrameworkResourcesGenerator : IDataConnectionResourcesGener
         var assemblyFileReferences = new HashSet<string>();
 
         var requiredReferences = await GetRequiredReferencesAsync(efConnection, targetFrameworkVersion);
-        assemblyFileReferences.AddRange((await requiredReferences.GetAssetsAsync(targetFrameworkVersion, _packageProvider))
+        assemblyFileReferences.AddRange((await requiredReferences.GetAssetsAsync(targetFrameworkVersion, packageProvider))
             .Where(a => a.IsAssembly())
             .Select(a => a.Path));
 
         var code = sourceCode.ToCodeString();
 
-        return _codeCompiler.Compile(new CompilationInput(
+        return codeCompiler.Compile(new CompilationInput(
                 code,
                 targetFrameworkVersion,
                 null,

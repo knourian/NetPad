@@ -4,20 +4,16 @@ using Microsoft.CodeAnalysis;
 
 namespace NetPad.Compilation;
 
-public class CompilationResult
+public class CompilationResult(
+    bool success,
+    AssemblyName assemblyName,
+    string assemblyFileName,
+    byte[] assemblyBytes,
+    ImmutableArray<Diagnostic> diagnostics)
 {
-    public CompilationResult(bool success, AssemblyName assemblyName, string assemblyFileName, byte[] assemblyBytes, ImmutableArray<Diagnostic> diagnostics)
-    {
-        Success = success;
-        AssemblyName = assemblyName;
-        AssemblyFileName = assemblyFileName;
-        AssemblyBytes = assemblyBytes;
-        Diagnostics = diagnostics;
-    }
-
-    public bool Success { get; }
-    public AssemblyName AssemblyName { get; }
-    public string AssemblyFileName { get; }
-    public byte[] AssemblyBytes { get; }
-    public ImmutableArray<Diagnostic> Diagnostics { get; }
+    public bool Success { get; } = success;
+    public AssemblyName AssemblyName { get; } = assemblyName;
+    public string AssemblyFileName { get; } = assemblyFileName;
+    public byte[] AssemblyBytes { get; } = assemblyBytes;
+    public ImmutableArray<Diagnostic> Diagnostics { get; } = diagnostics;
 }

@@ -20,27 +20,18 @@ using NugetPackageIdentity = NuGet.Packaging.Core.PackageIdentity;
 
 namespace NetPad.Packages.NuGet;
 
-public class NuGetPackageProvider : IPackageProvider
+public class NuGetPackageProvider(
+    Settings settings,
+    IAppStatusMessagePublisher appStatusMessagePublisher,
+    ILogger<NuGetPackageProvider> logger)
+    : IPackageProvider
 {
-    private readonly Settings _settings;
-    private readonly IAppStatusMessagePublisher _appStatusMessagePublisher;
-    private readonly ILogger<NuGetPackageProvider> _logger;
     private const string NugetApiUri = "https://api.nuget.org/v3/index.json";
     private const string PackageInstallInfoFileName = "netpad.json";
 
-    public NuGetPackageProvider(
-        Settings settings,
-        IAppStatusMessagePublisher appStatusMessagePublisher,
-        ILogger<NuGetPackageProvider> logger)
-    {
-        _settings = settings;
-        _appStatusMessagePublisher = appStatusMessagePublisher;
-        _logger = logger;
-
-        // hostDependencyContext = DependencyContext.Load(hostAssembly);
-        // FrameworkName = hostDependencyContext.Target.Framework;
-        // TargetFramework = NuGetFramework.ParseFrameworkName(FrameworkName, DefaultFrameworkNameProvider.Instance);
-    }
+    // hostDependencyContext = DependencyContext.Load(hostAssembly);
+    // FrameworkName = hostDependencyContext.Target.Framework;
+    // TargetFramework = NuGetFramework.ParseFrameworkName(FrameworkName, DefaultFrameworkNameProvider.Instance);
 
     public async Task<PackageMetadata[]> SearchPackagesAsync(
         string? term,
@@ -321,7 +312,7 @@ public class NuGetPackageProvider : IPackageProvider
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Could not load icon at: {PackageDir}", packageDir.FullName);
+                        logger.LogError(ex, "Could not load icon at: {PackageDir}", packageDir.FullName);
                     }
                 }
 
@@ -352,7 +343,7 @@ public class NuGetPackageProvider : IPackageProvider
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Could not gather info about package located in: {PackageDir}",
+                logger.LogError(ex, "Could not gather info about package located in: {PackageDir}",
                     packageDir.FullName);
             }
         }
@@ -468,7 +459,7 @@ public class NuGetPackageProvider : IPackageProvider
         INugetLogger logger,
         CancellationToken cancellationToken)
     {
-        await _appStatusMessagePublisher.PublishAsync(
+        await appStatusMessagePublisher.PublishAsync(
             $"Installing package {explicitPackageToInstallIdentity.Id} (v.{explicitPackageToInstallIdentity.Version.ToString()})...");
 
         foreach (var packageToInstall in packagesToInstall)
@@ -548,13 +539,13 @@ public class NuGetPackageProvider : IPackageProvider
             }
             catch
             {
-                await _appStatusMessagePublisher.PublishAsync(
+                await appStatusMessagePublisher.PublishAsync(
                     $"Error installing package {explicitPackageToInstallIdentity.Id} (v.{explicitPackageToInstallIdentity.Version.ToString()})");
                 throw;
             }
         }
 
-        await _appStatusMessagePublisher.PublishAsync(
+        await appStatusMessagePublisher.PublishAsync(
             $"Installed package {explicitPackageToInstallIdentity.Id} (v.{explicitPackageToInstallIdentity.Version.ToString()})");
     }
 
@@ -900,7 +891,7 @@ public class NuGetPackageProvider : IPackageProvider
 
     private string GetNuGetCacheDirectoryPath()
     {
-        var path = Path.Combine(_settings.PackageCacheDirectoryPath, "NuGet");
+        var path = Path.Combine(settings.PackageCacheDirectoryPath, "NuGet");
         return Directory.CreateDirectory(path).FullName;
     }
 

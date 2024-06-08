@@ -7,45 +7,27 @@ using NetPad.Sessions;
 
 namespace NetPad.Apps.CQs;
 
-public class CloseScriptCommand : Command
+public class CloseScriptCommand(Guid scriptId) : Command
 {
-    public CloseScriptCommand(Guid scriptId)
+    public Guid ScriptId { get; } = scriptId;
+
+    public class Handler(
+        ISession session,
+        IAutoSaveScriptRepository autoSaveScriptRepository,
+        IEventBus eventBus)
+        : IRequestHandler<CloseScriptCommand>
     {
-        ScriptId = scriptId;
-    }
-
-    public Guid ScriptId { get; }
-
-    public class Handler : IRequestHandler<CloseScriptCommand>
-    {
-        private readonly ISession _session;
-        private readonly IAutoSaveScriptRepository _autoSaveScriptRepository;
-        private readonly IMediator _mediator;
-        private readonly IEventBus _eventBus;
-
-        public Handler(
-            ISession session,
-            IAutoSaveScriptRepository autoSaveScriptRepository,
-            IMediator mediator,
-            IEventBus eventBus)
-        {
-            _session = session;
-            _autoSaveScriptRepository = autoSaveScriptRepository;
-            _mediator = mediator;
-            _eventBus = eventBus;
-        }
-
         public async Task<Unit> Handle(CloseScriptCommand request, CancellationToken cancellationToken)
         {
             var scriptId = request.ScriptId;
 
-            var script = _session.Get(scriptId)?.Script ?? throw new ScriptNotFoundException(scriptId);
+            var script = session.Get(scriptId)?.Script ?? throw new ScriptNotFoundException(scriptId);
 
-            await _session.CloseAsync(scriptId);
+            await session.CloseAsync(scriptId);
 
-            await _autoSaveScriptRepository.DeleteAsync(script);
+            await autoSaveScriptRepository.DeleteAsync(script);
 
-            await _eventBus.PublishAsync(new ScriptClosedEvent(script));
+            await eventBus.PublishAsync(new ScriptClosedEvent(script));
 
             return Unit.Value;
         }

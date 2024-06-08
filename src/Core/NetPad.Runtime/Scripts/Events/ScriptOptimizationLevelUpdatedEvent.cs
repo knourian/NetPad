@@ -3,16 +3,10 @@ using NetPad.Events;
 
 namespace NetPad.Scripts.Events;
 
-public class ScriptOptimizationLevelUpdatedEvent : IEvent
+public class ScriptOptimizationLevelUpdatedEvent(Script script, OptimizationLevel oldValue, OptimizationLevel newValue)
+    : IEvent
 {
-    public ScriptOptimizationLevelUpdatedEvent(Script script, OptimizationLevel oldValue, OptimizationLevel newValue)
-    {
-        Script = script;
-        OldValue = oldValue;
-        NewValue = newValue;
-    }
-
-    public Script Script { get; }
-    public OptimizationLevel OldValue { get; }
-    public OptimizationLevel NewValue { get; }
+    public Script Script { get; } = script;
+    public OptimizationLevel OldValue { get; } = oldValue;
+    public OptimizationLevel NewValue { get; } = newValue;
 }

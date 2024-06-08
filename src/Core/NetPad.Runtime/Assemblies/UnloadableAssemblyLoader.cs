@@ -6,19 +6,12 @@ using NetPad.DotNet;
 
 namespace NetPad.Assemblies;
 
-public sealed class UnloadableAssemblyLoader : AssemblyLoadContext, IAssemblyLoader
+public sealed class UnloadableAssemblyLoader(ILogger<UnloadableAssemblyLoader> logger)
+    : AssemblyLoadContext(isCollectible: true), IAssemblyLoader
 {
-    private readonly ILogger<UnloadableAssemblyLoader> _logger;
     private bool _unloaded;
-    private Dictionary<string, ReferencedAssemblyFile> _referenceAssemblyFiles;
-    private Dictionary<string, AssemblyImage> _referenceAssemblyImages;
-
-    public UnloadableAssemblyLoader(ILogger<UnloadableAssemblyLoader> logger) : base(isCollectible: true)
-    {
-        _logger = logger;
-        _referenceAssemblyFiles = new Dictionary<string, ReferencedAssemblyFile>();
-        _referenceAssemblyImages = new Dictionary<string, AssemblyImage>();
-    }
+    private Dictionary<string, ReferencedAssemblyFile> _referenceAssemblyFiles = new();
+    private Dictionary<string, AssemblyImage> _referenceAssemblyImages = new();
 
     public UnloadableAssemblyLoader(
         IEnumerable<AssemblyImage> referenceAssemblyImages,
@@ -65,7 +58,7 @@ public sealed class UnloadableAssemblyLoader : AssemblyLoadContext, IAssemblyLoa
 
     public Assembly LoadFrom(byte[] assemblyBytes)
     {
-        _logger.LogTrace($"{nameof(LoadFrom)} start");
+        logger.LogTrace($"{nameof(LoadFrom)} start");
 
         try
         {
@@ -79,12 +72,12 @@ public sealed class UnloadableAssemblyLoader : AssemblyLoadContext, IAssemblyLoa
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error loading assembly bytes");
+            logger.LogError(ex, "Error loading assembly bytes");
             throw;
         }
         finally
         {
-            _logger.LogTrace($"{nameof(LoadFrom)} end");
+            logger.LogTrace($"{nameof(LoadFrom)} end");
         }
     }
 
@@ -109,21 +102,21 @@ public sealed class UnloadableAssemblyLoader : AssemblyLoadContext, IAssemblyLoa
 
     public void Dispose()
     {
-        _logger.LogTrace($"{nameof(Dispose)} start");
+        logger.LogTrace($"{nameof(Dispose)} start");
         UnloadLoadedAssemblies();
         GCUtil.CollectAndWait();
-        _logger.LogTrace($"{nameof(Dispose)} end ");
+        logger.LogTrace($"{nameof(Dispose)} end ");
     }
 
     private void UnloadLoadedAssemblies()
     {
-        _logger.LogTrace($"{nameof(UnloadLoadedAssemblies)} start");
+        logger.LogTrace($"{nameof(UnloadLoadedAssemblies)} start");
 
         try
         {
             if (_unloaded)
             {
-                _logger.LogWarning("AssemblyLoadContext is unloaded, yet a call was made to unload");
+                logger.LogWarning("AssemblyLoadContext is unloaded, yet a call was made to unload");
                 return;
             }
 
@@ -131,12 +124,12 @@ public sealed class UnloadableAssemblyLoader : AssemblyLoadContext, IAssemblyLoa
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error in unload");
+            logger.LogError(ex, "Error in unload");
         }
         finally
         {
             _unloaded = true;
-            _logger.LogTrace($"{nameof(UnloadLoadedAssemblies)} end");
+            logger.LogTrace($"{nameof(UnloadLoadedAssemblies)} end");
         }
     }
 

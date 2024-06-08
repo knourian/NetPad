@@ -5,16 +5,9 @@ using Microsoft.Extensions.Hosting;
 
 namespace NetPad.Apps.Plugins;
 
-public class PluginManager : IPluginManager
+public class PluginManager(PluginInitialization pluginInitialization) : IPluginManager
 {
-    private readonly Dictionary<string, PluginRegistration> _pluginRegistrations;
-    private readonly PluginInitialization _pluginInitialization;
-
-    public PluginManager(PluginInitialization pluginInitialization)
-    {
-        _pluginRegistrations = new Dictionary<string, PluginRegistration>(StringComparer.OrdinalIgnoreCase);
-        _pluginInitialization = pluginInitialization;
-    }
+    private readonly Dictionary<string, PluginRegistration> _pluginRegistrations = new(StringComparer.OrdinalIgnoreCase);
 
     public IEnumerable<PluginRegistration> PluginRegistrations => _pluginRegistrations.Values;
 
@@ -49,7 +42,7 @@ public class PluginManager : IPluginManager
                                 $"a single parameter of type {nameof(PluginInitialization)}.");
         }
 
-        if (targetCtor.Invoke(new object[] { _pluginInitialization }) is not IPlugin plugin)
+        if (targetCtor.Invoke(new object[] { pluginInitialization }) is not IPlugin plugin)
         {
             throw new Exception($"Could not construct an instance of type {pluginType.FullName}.");
         }

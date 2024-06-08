@@ -2,12 +2,7 @@
 
 namespace NetPad.Apps.CQs;
 
-public class AlertUserAboutMissingAppDependencies : Command
+public class AlertUserAboutMissingAppDependencies(AppDependencyCheckResult dependencyCheckResult) : Command
 {
-    public AlertUserAboutMissingAppDependencies(AppDependencyCheckResult dependencyCheckResult)
-    {
-        DependencyCheckResult = dependencyCheckResult;
-    }
-
-    public AppDependencyCheckResult DependencyCheckResult { get; }
+    public AppDependencyCheckResult DependencyCheckResult { get; } = dependencyCheckResult;
 }

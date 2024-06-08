@@ -3,19 +3,14 @@ using System.Text.Json.Serialization;
 
 namespace NetPad.DotNet;
 
-public class Code : SourceCodeElement<string?>
+[method: JsonConstructor]
+public class Code(Namespace? @namespace, string? value) : SourceCodeElement<string?>(value)
 {
     public Code(string? value) : this(null, value)
     {
     }
 
-    [JsonConstructor]
-    public Code(Namespace? @namespace, string? value) : base(value)
-    {
-        Namespace = @namespace;
-    }
-
-    public Namespace? Namespace { get; }
+    public Namespace? Namespace { get; } = @namespace;
 
     public override bool ValueChanged()
     {

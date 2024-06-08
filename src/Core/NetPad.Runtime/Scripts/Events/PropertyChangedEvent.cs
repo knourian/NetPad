@@ -2,16 +2,9 @@ using NetPad.Events;
 
 namespace NetPad.Scripts.Events;
 
-public abstract class PropertyChangedEvent : IEvent
+public abstract class PropertyChangedEvent(string propertyName, object? oldValue, object? newValue) : IEvent
 {
-    protected PropertyChangedEvent(string propertyName, object? oldValue, object? newValue)
-    {
-        PropertyName = propertyName;
-        OldValue = oldValue;
-        NewValue = newValue;
-    }
-
-    public string PropertyName { get; }
-    public object? OldValue { get; }
-    public object? NewValue { get; }
+    public string PropertyName { get; } = propertyName;
+    public object? OldValue { get; } = oldValue;
+    public object? NewValue { get; } = newValue;
 }

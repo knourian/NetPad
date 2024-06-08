@@ -4,20 +4,14 @@ using NetPad.Data;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore;
 
-internal class EntityFrameworkConnectionResourcesGeneratorFactory : IDataConnectionResourcesGeneratorFactory
+internal class EntityFrameworkConnectionResourcesGeneratorFactory(IServiceProvider serviceProvider)
+    : IDataConnectionResourcesGeneratorFactory
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public EntityFrameworkConnectionResourcesGeneratorFactory(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
-
     public IDataConnectionResourcesGenerator Create(DataConnection dataConnection)
     {
         if (dataConnection is EntityFrameworkDatabaseConnection)
         {
-            return _serviceProvider.GetRequiredService<EntityFrameworkResourcesGenerator>();
+            return serviceProvider.GetRequiredService<EntityFrameworkResourcesGenerator>();
         }
 
         throw new NotImplementedException("Only EntityFramework data connections are supported.");

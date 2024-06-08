@@ -3,16 +3,13 @@ using NetPad.Events;
 
 namespace NetPad.Scripts.Events;
 
-public class ScriptTargetFrameworkVersionUpdatedEvent : IEvent
+public class ScriptTargetFrameworkVersionUpdatedEvent(
+    Script script,
+    DotNetFrameworkVersion oldVersion,
+    DotNetFrameworkVersion newVersion)
+    : IEvent
 {
-    public ScriptTargetFrameworkVersionUpdatedEvent(Script script, DotNetFrameworkVersion oldVersion, DotNetFrameworkVersion newVersion)
-    {
-        Script = script;
-        OldVersion = oldVersion;
-        NewVersion = newVersion;
-    }
-
-    public Script Script { get; }
-    public DotNetFrameworkVersion OldVersion { get; }
-    public DotNetFrameworkVersion NewVersion { get; }
+    public Script Script { get; } = script;
+    public DotNetFrameworkVersion OldVersion { get; } = oldVersion;
+    public DotNetFrameworkVersion NewVersion { get; } = newVersion;
 }

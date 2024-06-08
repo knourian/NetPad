@@ -3,12 +3,7 @@ using NetPad.Scripts;
 
 namespace NetPad.Apps.CQs;
 
-public class ConfirmSaveCommand : Command<YesNoCancel>
+public class ConfirmSaveCommand(Script script) : Command<YesNoCancel>
 {
-    public ConfirmSaveCommand(Script script)
-    {
-        Message = $"You have unsaved changes. Do you want to save '{script.Name}'?";
-    }
-
-    public string Message { get; }
+    public string Message { get; } = $"You have unsaved changes. Do you want to save '{script.Name}'?";
 }

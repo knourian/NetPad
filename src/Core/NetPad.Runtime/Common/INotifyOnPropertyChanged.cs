@@ -7,20 +7,12 @@ public interface INotifyOnPropertyChanged
     List<Func<PropertyChangedArgs, Task>> OnPropertyChanged { get; }
 }
 
-public class PropertyChangedArgs
+public class PropertyChangedArgs(object obj, string propertyName, object? oldValue, object? newValue)
 {
-    public PropertyChangedArgs(object obj, string propertyName, object? oldValue, object? newValue)
-    {
-        Object = obj;
-        PropertyName = propertyName;
-        OldValue = oldValue;
-        NewValue = newValue;
-    }
-
-    public object Object { get; }
-    public string PropertyName { get; }
-    public object? OldValue { get; }
-    public object? NewValue { get; }
+    public object Object { get; } = obj;
+    public string PropertyName { get; } = propertyName;
+    public object? OldValue { get; } = oldValue;
+    public object? NewValue { get; } = newValue;
 }
 
 public static class INotifyOnPropertyChangedExtensions

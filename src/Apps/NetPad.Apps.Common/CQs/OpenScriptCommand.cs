@@ -22,19 +22,9 @@ public class OpenScriptCommand : Command
     public Script? Script { get; }
 
 
-    public class Handler : IRequestHandler<OpenScriptCommand>
+    public class Handler(IScriptRepository scriptRepository, ISession session, IEventBus eventBus)
+        : IRequestHandler<OpenScriptCommand>
     {
-        private readonly IScriptRepository _scriptRepository;
-        private readonly ISession _session;
-        private readonly IEventBus _eventBus;
-
-        public Handler(IScriptRepository scriptRepository, ISession session, IEventBus eventBus)
-        {
-            _scriptRepository = scriptRepository;
-            _session = session;
-            _eventBus = eventBus;
-        }
-
         public async Task<Unit> Handle(OpenScriptCommand request, CancellationToken cancellationToken)
         {
             Script script;
@@ -45,16 +35,16 @@ public class OpenScriptCommand : Command
             }
             else if (request.Path != null)
             {
-                script = await _scriptRepository.GetAsync(request.Path);
+                script = await scriptRepository.GetAsync(request.Path);
             }
             else
             {
                 throw new ArgumentException("Not enough information to open a script.");
             }
 
-            await _session.OpenAsync(script);
+            await session.OpenAsync(script);
 
-            await _eventBus.PublishAsync(new ScriptOpenedEvent(script));
+            await eventBus.PublishAsync(new ScriptOpenedEvent(script));
 
             return Unit.Value;
         }

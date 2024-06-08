@@ -1,17 +1,10 @@
 namespace NetPad.Apps.CQs;
 
-public class OpenWindowCommand : Command
+public class OpenWindowCommand(string windowName) : Command
 {
-    public OpenWindowCommand(string windowName)
-    {
-        WindowName = windowName;
-        Options = new WindowOptions();
-        Metadata = new Dictionary<string, object?>();
-    }
-
-    public string WindowName { get; }
-    public WindowOptions Options { get; }
-    public Dictionary<string, object?> Metadata { get; }
+    public string WindowName { get; } = windowName;
+    public WindowOptions Options { get; } = new();
+    public Dictionary<string, object?> Metadata { get; } = new();
 
     public class WindowOptions
     {

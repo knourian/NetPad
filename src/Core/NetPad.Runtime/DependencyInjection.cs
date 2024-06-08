@@ -11,14 +11,9 @@ using NetPad.Events;
 
 namespace NetPad;
 
-public class DataConnectionFeatureBuilder
+public class DataConnectionFeatureBuilder(IServiceCollection services)
 {
-    public DataConnectionFeatureBuilder(IServiceCollection services)
-    {
-        Services = services;
-    }
-
-    public IServiceCollection Services { get; }
+    public IServiceCollection Services { get; } = services;
 }
 
 internal static class DependencyInjection

@@ -2,12 +2,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore;
 
-public class DatabaseContext : DbContext
+public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
 {
-    public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
-    {
-    }
-
     public static DatabaseContext Create(Action<DbContextOptionsBuilder<DatabaseContext>> configure)
     {
         var dbOptionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();

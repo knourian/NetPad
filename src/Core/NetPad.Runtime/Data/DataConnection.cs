@@ -9,18 +9,11 @@ namespace NetPad.Data;
 [JsonConverter(typeof(JsonInheritanceConverter), "discriminator")]
 [System.Text.Json.Serialization.JsonConverter(typeof(JsonInheritanceConverter<DataConnection>))]
 [KnownType("GetKnownTypes")]
-public abstract class DataConnection
+public abstract class DataConnection(Guid id, string name, DataConnectionType type)
 {
-    protected DataConnection(Guid id, string name, DataConnectionType type)
-    {
-        Id = id;
-        Name = name;
-        Type = type;
-    }
-
-    public Guid Id { get; }
-    public string Name { get; }
-    public DataConnectionType Type { get; }
+    public Guid Id { get; } = id;
+    public string Name { get; } = name;
+    public DataConnectionType Type { get; } = type;
 
     /// <summary>
     /// Tests if the connection is valid.

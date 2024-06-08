@@ -8,17 +8,8 @@ using NetPad.Scripts;
 
 namespace NetPad.Apps.Shells.Electron.UiInterop;
 
-public class ElectronDialogService : IUiDialogService
+public class ElectronDialogService(IIpcService ipcService, Settings settings) : IUiDialogService
 {
-    private readonly IIpcService _ipcService;
-    private readonly Settings _settings;
-
-    public ElectronDialogService(IIpcService ipcService, Settings settings)
-    {
-        _ipcService = ipcService;
-        _settings = settings;
-    }
-
     public async Task<YesNoCancel> AskUserIfTheyWantToSave(Script script)
     {
         var result = await ElectronNET.API.Electron.Dialog.ShowMessageBoxAsync(ElectronUtil.MainWindow,
@@ -40,7 +31,7 @@ public class ElectronDialogService : IUiDialogService
             Message = "Where do you want to save this script?",
             NameFieldLabel = script.Name,
             Filters = new[] { new FileFilter { Name = "NetPad Script", Extensions = new[] { Script.STANDARD_EXTENSION_WO_DOT } } },
-            DefaultPath = Path.Combine(_settings.ScriptsDirectoryPath, script.Name + Script.STANDARD_EXTENSION)
+            DefaultPath = Path.Combine(settings.ScriptsDirectoryPath, script.Name + Script.STANDARD_EXTENSION)
         });
 
         if (path == null || string.IsNullOrWhiteSpace(Path.GetFileNameWithoutExtension(path)))
@@ -56,6 +47,6 @@ public class ElectronDialogService : IUiDialogService
 
     public async Task AlertUserAboutMissingDependencies(AppDependencyCheckResult dependencyCheckResult)
     {
-        await _ipcService.SendAsync(new AlertUserAboutMissingAppDependencies(dependencyCheckResult));
+        await ipcService.SendAsync(new AlertUserAboutMissingAppDependencies(dependencyCheckResult));
     }
 }

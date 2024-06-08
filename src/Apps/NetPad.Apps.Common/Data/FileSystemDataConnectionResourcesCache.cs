@@ -7,33 +7,19 @@ using NetPad.Events;
 
 namespace NetPad.Apps.Data;
 
-public partial class FileSystemDataConnectionResourcesCache : IDataConnectionResourcesCache
+public partial class FileSystemDataConnectionResourcesCache(
+    IDataConnectionResourcesRepository dataConnectionResourcesRepository,
+    IDataConnectionSchemaChangeDetectionStrategyFactory dataConnectionSchemaChangeDetectionStrategyFactory,
+    IDataConnectionResourcesGeneratorFactory dataConnectionResourcesGeneratorFactory,
+    IEventBus eventBus,
+    ILogger<FileSystemDataConnectionResourcesCache> logger)
+    : IDataConnectionResourcesCache
 {
-    private readonly ConcurrentDictionary<Guid, ConcurrentDictionary<DotNetFrameworkVersion, DataConnectionResources>> _memoryCache;
-    private readonly IDataConnectionResourcesRepository _dataConnectionResourcesRepository;
-    private readonly IDataConnectionSchemaChangeDetectionStrategyFactory _dataConnectionSchemaChangeDetectionStrategyFactory;
-    private readonly IDataConnectionResourcesGeneratorFactory _dataConnectionResourcesGeneratorFactory;
-    private readonly IEventBus _eventBus;
-    private readonly ILogger<FileSystemDataConnectionResourcesCache> _logger;
+    private readonly ConcurrentDictionary<Guid, ConcurrentDictionary<DotNetFrameworkVersion, DataConnectionResources>> _memoryCache = new();
 
     private readonly SemaphoreSlim _sourceCodeTaskLock = new(1, 1);
     private readonly SemaphoreSlim _assemblyTaskLock = new(1, 1);
     private readonly SemaphoreSlim _requiredReferencesLock = new(1, 1);
-
-    public FileSystemDataConnectionResourcesCache(
-        IDataConnectionResourcesRepository dataConnectionResourcesRepository,
-        IDataConnectionSchemaChangeDetectionStrategyFactory dataConnectionSchemaChangeDetectionStrategyFactory,
-        IDataConnectionResourcesGeneratorFactory dataConnectionResourcesGeneratorFactory,
-        IEventBus eventBus,
-        ILogger<FileSystemDataConnectionResourcesCache> logger)
-    {
-        _memoryCache = new();
-        _dataConnectionResourcesRepository = dataConnectionResourcesRepository;
-        _dataConnectionSchemaChangeDetectionStrategyFactory = dataConnectionSchemaChangeDetectionStrategyFactory;
-        _dataConnectionResourcesGeneratorFactory = dataConnectionResourcesGeneratorFactory;
-        _eventBus = eventBus;
-        _logger = logger;
-    }
 
     public async Task<bool> HasCachedResourcesAsync(Guid dataConnectionId, DotNetFrameworkVersion targetFrameworkVersion)
     {
@@ -42,11 +28,11 @@ public partial class FileSystemDataConnectionResourcesCache : IDataConnectionRes
             bool hasMemCachedResources = _memoryCache.TryGetValue(dataConnectionId, out var frameworks)
                                          && frameworks.ContainsKey(targetFrameworkVersion);
 
-            return hasMemCachedResources || await _dataConnectionResourcesRepository.HasResourcesAsync(dataConnectionId, targetFrameworkVersion);
+            return hasMemCachedResources || await dataConnectionResourcesRepository.HasResourcesAsync(dataConnectionId, targetFrameworkVersion);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error checking if data connection {DataConnectionId} has resources for .NET framework version {DotNetFramework}",
+            logger.LogError(ex, "Error checking if data connection {DataConnectionId} has resources for .NET framework version {DotNetFramework}",
                 dataConnectionId,
                 targetFrameworkVersion);
             return false;
@@ -57,11 +43,11 @@ public partial class FileSystemDataConnectionResourcesCache : IDataConnectionRes
     {
         try
         {
-            await _dataConnectionResourcesRepository.DeleteAsync(dataConnectionId);
+            await dataConnectionResourcesRepository.DeleteAsync(dataConnectionId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error removing data connection {DataConnectionId} resources from repository", dataConnectionId);
+            logger.LogError(ex, "Error removing data connection {DataConnectionId} resources from repository", dataConnectionId);
         }
 
 
@@ -72,11 +58,11 @@ public partial class FileSystemDataConnectionResourcesCache : IDataConnectionRes
     {
         try
         {
-            await _dataConnectionResourcesRepository.DeleteAsync(dataConnectionId, targetFrameworkVersion);
+            await dataConnectionResourcesRepository.DeleteAsync(dataConnectionId, targetFrameworkVersion);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error removing data connection {DataConnectionId} resources for .NET framework version {DotNetFramework} from repository",
+            logger.LogError(ex, "Error removing data connection {DataConnectionId} resources for .NET framework version {DotNetFramework} from repository",
                 dataConnectionId,
                 targetFrameworkVersion);
         }
@@ -108,12 +94,12 @@ public partial class FileSystemDataConnectionResourcesCache : IDataConnectionRes
 
             resources ??= CreateAndMemCacheResources(dataConnection, targetFrameworkVersion, DateTime.UtcNow);
 
-            _logger.LogTrace("Generating data connection {DataConnectionId} SourceCode resource", dataConnection.Id);
-            _ = _eventBus.PublishAsync(new DataConnectionResourcesUpdatingEvent(dataConnection, DataConnectionResourceComponent.SourceCode));
+            logger.LogTrace("Generating data connection {DataConnectionId} SourceCode resource", dataConnection.Id);
+            _ = eventBus.PublishAsync(new DataConnectionResourcesUpdatingEvent(dataConnection, DataConnectionResourceComponent.SourceCode));
 
             resources.SourceCode = Task.Run(async () =>
             {
-                var generator = _dataConnectionResourcesGeneratorFactory.Create(dataConnection);
+                var generator = dataConnectionResourcesGeneratorFactory.Create(dataConnection);
                 return await generator.GenerateSourceCodeAsync(dataConnection, targetFrameworkVersion);
             });
 
@@ -128,7 +114,7 @@ public partial class FileSystemDataConnectionResourcesCache : IDataConnectionRes
                     // If an error occurred, null the task so the next time its called we try again
                     resources.SourceCode = null;
 
-                    _ = _eventBus.PublishAsync(new DataConnectionResourcesUpdateFailedEvent(
+                    _ = eventBus.PublishAsync(new DataConnectionResourcesUpdateFailedEvent(
                         dataConnection,
                         DataConnectionResourceComponent.SourceCode,
                         task.Exception));
@@ -164,12 +150,12 @@ public partial class FileSystemDataConnectionResourcesCache : IDataConnectionRes
 
             resources ??= CreateAndMemCacheResources(dataConnection, targetFrameworkVersion, DateTime.UtcNow);
 
-            _logger.LogTrace("Generating data connection {DataConnectionId} Assembly resource", dataConnection.Id);
-            _ = _eventBus.PublishAsync(new DataConnectionResourcesUpdatingEvent(dataConnection, DataConnectionResourceComponent.Assembly));
+            logger.LogTrace("Generating data connection {DataConnectionId} Assembly resource", dataConnection.Id);
+            _ = eventBus.PublishAsync(new DataConnectionResourcesUpdatingEvent(dataConnection, DataConnectionResourceComponent.Assembly));
 
             resources.Assembly = Task.Run(async () =>
             {
-                var generator = _dataConnectionResourcesGeneratorFactory.Create(dataConnection);
+                var generator = dataConnectionResourcesGeneratorFactory.Create(dataConnection);
                 return await generator.GenerateAssemblyAsync(dataConnection, targetFrameworkVersion);
             });
 
@@ -184,7 +170,7 @@ public partial class FileSystemDataConnectionResourcesCache : IDataConnectionRes
                     // If an error occurred, null the task so the next time its called we try again
                     resources.Assembly = null;
 
-                    _ = _eventBus.PublishAsync(new DataConnectionResourcesUpdateFailedEvent(
+                    _ = eventBus.PublishAsync(new DataConnectionResourcesUpdateFailedEvent(
                         dataConnection,
                         DataConnectionResourceComponent.Assembly,
                         task.Exception));
@@ -220,12 +206,12 @@ public partial class FileSystemDataConnectionResourcesCache : IDataConnectionRes
 
             resources ??= CreateAndMemCacheResources(dataConnection, targetFrameworkVersion, DateTime.UtcNow);
 
-            _logger.LogTrace("Generating data connection {DataConnectionId} RequiredReferences resources", dataConnection.Id);
-            _ = _eventBus.PublishAsync(new DataConnectionResourcesUpdatingEvent(dataConnection, DataConnectionResourceComponent.RequiredReferences));
+            logger.LogTrace("Generating data connection {DataConnectionId} RequiredReferences resources", dataConnection.Id);
+            _ = eventBus.PublishAsync(new DataConnectionResourcesUpdatingEvent(dataConnection, DataConnectionResourceComponent.RequiredReferences));
 
             resources.RequiredReferences = Task.Run(async () =>
             {
-                var generator = _dataConnectionResourcesGeneratorFactory.Create(dataConnection);
+                var generator = dataConnectionResourcesGeneratorFactory.Create(dataConnection);
                 return await generator.GetRequiredReferencesAsync(dataConnection, targetFrameworkVersion);
             });
 
@@ -240,7 +226,7 @@ public partial class FileSystemDataConnectionResourcesCache : IDataConnectionRes
                     // If an error occurred, null the task so the next time its called we try again
                     resources.RequiredReferences = null;
 
-                    _ = _eventBus.PublishAsync(new DataConnectionResourcesUpdateFailedEvent(
+                    _ = eventBus.PublishAsync(new DataConnectionResourcesUpdateFailedEvent(
                         dataConnection,
                         DataConnectionResourceComponent.RequiredReferences,
                         task.Exception));

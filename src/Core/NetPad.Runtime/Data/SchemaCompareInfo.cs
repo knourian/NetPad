@@ -5,14 +5,9 @@ namespace NetPad.Data;
 /// <summary>
 /// Represents information needed to compare if a data connection's schema has changed.
 /// </summary>
-public abstract class SchemaCompareInfo
+public abstract class SchemaCompareInfo(DateTime generatedAt)
 {
-    protected SchemaCompareInfo(DateTime generatedAt)
-    {
-        GeneratedAt = generatedAt;
-    }
-
-    public DateTime GeneratedAt { get; init; }
+    public DateTime GeneratedAt { get; init; } = generatedAt;
     public string? GeneratedOnAppVersion { get; init; }
 
     public bool GeneratedUsingStaleAppVersion()

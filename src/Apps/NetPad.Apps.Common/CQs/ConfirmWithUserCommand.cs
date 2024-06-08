@@ -2,12 +2,7 @@
 
 namespace NetPad.Apps.CQs;
 
-public class ConfirmWithUserCommand : Command<YesNoCancel>
+public class ConfirmWithUserCommand(string message) : Command<YesNoCancel>
 {
-    public ConfirmWithUserCommand(string message)
-    {
-        Message = message;
-    }
-
-    public string Message { get; }
+    public string Message { get; } = message;
 }

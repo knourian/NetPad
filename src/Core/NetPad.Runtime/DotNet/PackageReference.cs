@@ -2,16 +2,10 @@ using NetPad.Exceptions;
 
 namespace NetPad.DotNet;
 
-public class PackageReference : Reference
+public class PackageReference(string packageId, string title, string version) : Reference(title)
 {
-    public PackageReference(string packageId, string title, string version) : base(title)
-    {
-        PackageId = packageId;
-        Version = version;
-    }
-
-    public string PackageId { get; }
-    public string Version { get; }
+    public string PackageId { get; } = packageId;
+    public string Version { get; } = version;
 
     public override void EnsureValid()
     {

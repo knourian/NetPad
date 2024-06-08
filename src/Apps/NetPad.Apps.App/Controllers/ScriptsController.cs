@@ -16,43 +16,36 @@ namespace NetPad.Controllers;
 
 [ApiController]
 [Route("scripts")]
-public class ScriptsController : ControllerBase
+public class ScriptsController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public ScriptsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpGet]
     public async Task<IEnumerable<ScriptSummary>> GetScripts()
     {
-        return await _mediator.Send(new GetAllScriptsQuery());
+        return await mediator.Send(new GetAllScriptsQuery());
     }
 
     [HttpPatch("create")]
     public async Task Create([FromBody] CreateScriptDto dto, [FromServices] IDataConnectionRepository dataConnectionRepository)
     {
-        var script = await _mediator.Send(new CreateScriptCommand());
+        var script = await mediator.Send(new CreateScriptCommand());
 
         bool hasSeedCode = !string.IsNullOrWhiteSpace(dto.Code);
         if (hasSeedCode)
         {
-            await _mediator.Send(new UpdateScriptCodeCommand(script, dto.Code));
+            await mediator.Send(new UpdateScriptCodeCommand(script, dto.Code));
         }
 
         if (dto.DataConnectionId != null)
         {
             var dataConnection = await dataConnectionRepository.GetAsync(dto.DataConnectionId.Value);
-            await _mediator.Send(new SetScriptDataConnectionCommand(script, dataConnection));
+            await mediator.Send(new SetScriptDataConnectionCommand(script, dataConnection));
         }
 
-        await _mediator.Send(new OpenScriptCommand(script));
+        await mediator.Send(new OpenScriptCommand(script));
 
         if (hasSeedCode && dto.RunImmediately)
         {
-            await _mediator.Send(new RunScriptCommand(script.Id, new RunOptions()));
+            await mediator.Send(new RunScriptCommand(script.Id, new RunOptions()));
         }
     }
 
@@ -60,15 +53,15 @@ public class ScriptsController : ControllerBase
     public async Task Rename(Guid id, [FromBody] string newName)
     {
         var environment = await GetScriptEnvironmentAsync(id);
-        await _mediator.Send(new RenameScriptCommand(environment.Script, newName));
+        await mediator.Send(new RenameScriptCommand(environment.Script, newName));
     }
 
     [HttpPatch("{id:guid}/duplicate")]
     public async Task Duplicate(Guid id)
     {
         var environment = await GetScriptEnvironmentAsync(id);
-        var script = await _mediator.Send(new DuplicateScriptCommand(environment.Script));
-        await _mediator.Send(new OpenScriptCommand(script));
+        var script = await mediator.Send(new DuplicateScriptCommand(environment.Script));
+        await mediator.Send(new OpenScriptCommand(script));
     }
 
     [HttpPatch("{id:guid}/save")]
@@ -80,20 +73,20 @@ public class ScriptsController : ControllerBase
     [HttpPatch("{id:guid}/run")]
     public async Task Run(Guid id, [FromBody] RunOptionsDto dto)
     {
-        await _mediator.Send(new RunScriptCommand(id, dto.ToRunOptions()));
+        await mediator.Send(new RunScriptCommand(id, dto.ToRunOptions()));
     }
 
     [HttpPatch("{id:guid}/stop")]
     public async Task Stop(Guid id)
     {
-        await _mediator.Send(new StopScriptCommand(id));
+        await mediator.Send(new StopScriptCommand(id));
     }
 
     [HttpPut("{id:guid}/code")]
     public async Task UpdateCode(Guid id, [FromBody] string code)
     {
         var environment = await GetScriptEnvironmentAsync(id);
-        await _mediator.Send(new UpdateScriptCodeCommand(environment.Script, code));
+        await mediator.Send(new UpdateScriptCodeCommand(environment.Script, code));
     }
 
     [HttpPatch("{id:guid}/open-config")]
@@ -109,7 +102,7 @@ public class ScriptsController : ControllerBase
     {
         var environment = await GetScriptEnvironmentAsync(id);
 
-        await _mediator.Send(new UpdateScriptNamespacesCommand(environment.Script, namespaces));
+        await mediator.Send(new UpdateScriptNamespacesCommand(environment.Script, namespaces));
 
         return NoContent();
     }
@@ -119,7 +112,7 @@ public class ScriptsController : ControllerBase
     {
         var environment = await GetScriptEnvironmentAsync(id);
 
-        await _mediator.Send(new UpdateScriptReferencesCommand(environment.Script, newReferences));
+        await mediator.Send(new UpdateScriptReferencesCommand(environment.Script, newReferences));
 
         return NoContent();
     }
@@ -137,7 +130,7 @@ public class ScriptsController : ControllerBase
     {
         var environment = await GetScriptEnvironmentAsync(id);
 
-        await _mediator.Send(new UpdateScriptTargetFrameworkCommand(environment.Script, targetFrameworkVersion));
+        await mediator.Send(new UpdateScriptTargetFrameworkCommand(environment.Script, targetFrameworkVersion));
 
         return NoContent();
     }
@@ -147,7 +140,7 @@ public class ScriptsController : ControllerBase
     {
         var environment = await GetScriptEnvironmentAsync(id);
 
-        await _mediator.Send(new UpdateScriptOptimizationLevelCommand(environment.Script, optimizationLevel));
+        await mediator.Send(new UpdateScriptOptimizationLevelCommand(environment.Script, optimizationLevel));
 
         return NoContent();
     }
@@ -157,7 +150,7 @@ public class ScriptsController : ControllerBase
     {
         var environment = await GetScriptEnvironmentAsync(id);
 
-        await _mediator.Send(new UpdateScriptUseAspNetCommand(environment.Script, useAspNet));
+        await mediator.Send(new UpdateScriptUseAspNetCommand(environment.Script, useAspNet));
 
         return NoContent();
     }
@@ -177,13 +170,13 @@ public class ScriptsController : ControllerBase
             dataConnection = await dataConnectionRepository.GetAsync(dataConnectionId.Value);
         }
 
-        await _mediator.Send(new SetScriptDataConnectionCommand(environment.Script, dataConnection));
+        await mediator.Send(new SetScriptDataConnectionCommand(environment.Script, dataConnection));
         return NoContent();
     }
 
     private async Task<ScriptEnvironment> GetScriptEnvironmentAsync(Guid id)
     {
-        return await _mediator.Send(new GetOpenedScriptEnvironmentQuery(id, true))
+        return await mediator.Send(new GetOpenedScriptEnvironmentQuery(id, true))
             ?? throw new ScriptNotFoundException(id);
     }
 }

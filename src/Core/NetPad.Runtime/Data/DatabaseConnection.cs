@@ -1,11 +1,7 @@
 namespace NetPad.Data;
 
-public abstract class DatabaseConnection : DataConnection
+public abstract class DatabaseConnection(Guid id, string name, DataConnectionType type) : DataConnection(id, name, type)
 {
-    protected DatabaseConnection(Guid id, string name, DataConnectionType type) : base(id, name, type)
-    {
-    }
-
     public string? Host { get; set; }
     public string? Port { get; set; }
     public string? DatabaseName { get; set; }

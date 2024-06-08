@@ -3,14 +3,10 @@ using Microsoft.AspNetCore.DataProtection;
 
 namespace NetPad.Data;
 
-public class DataProtector : IDataProtector, IDataConnectionPasswordProtector
+public class DataProtector(IDataProtectionProvider dataProtectionProvider, string purpose)
+    : IDataProtector, IDataConnectionPasswordProtector
 {
-    private readonly IDataProtector _protector;
-
-    public DataProtector(IDataProtectionProvider dataProtectionProvider, string purpose)
-    {
-        _protector = dataProtectionProvider.CreateProtector(purpose);
-    }
+    private readonly IDataProtector _protector = dataProtectionProvider.CreateProtector(purpose);
 
     public IDataProtector CreateProtector(string purpose) => _protector.CreateProtector(purpose);
 

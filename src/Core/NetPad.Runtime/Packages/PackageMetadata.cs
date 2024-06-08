@@ -1,17 +1,10 @@
 namespace NetPad.Packages;
 
-public class PackageMetadata
+public class PackageMetadata(string packageId, string title)
 {
-    public PackageMetadata(string packageId, string title)
-    {
-        PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
-        Title = title ?? throw new ArgumentNullException(nameof(title));
-        Dependencies = Array.Empty<PackageDependencySet>();
-    }
-
-    public string PackageId { get; set; }
+    public string PackageId { get; set; } = packageId ?? throw new ArgumentNullException(nameof(packageId));
     public string? Version { get; set; }
-    public string Title { get; set; }
+    public string Title { get; set; } = title ?? throw new ArgumentNullException(nameof(title));
     public string? Authors { get; set; }
     public string? Description { get; set; }
     public Uri? IconUrl { get; set; }
@@ -21,7 +14,7 @@ public class PackageMetadata
     public Uri? ReadmeUrl { get; set; }
     public Uri? ReportAbuseUrl { get; set; }
     public bool? RequireLicenseAcceptance { get; set; }
-    public PackageDependencySet[] Dependencies { get; set; }
+    public PackageDependencySet[] Dependencies { get; set; } = Array.Empty<PackageDependencySet>();
     public long? DownloadCount { get; set; }
     public DateTime? PublishedDate { get; set; }
     public string? LatestAvailableVersion { get; set; }

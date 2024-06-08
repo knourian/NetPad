@@ -6,24 +6,17 @@ using NetPad.Scripts;
 
 namespace NetPad.ExecutionModel.InMemory;
 
-public class InMemoryScriptRunnerFactory : IScriptRunnerFactory
+public class InMemoryScriptRunnerFactory(IServiceProvider serviceProvider) : IScriptRunnerFactory
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public InMemoryScriptRunnerFactory(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
-
     public IScriptRunner CreateRunner(Script script)
     {
         return new InMemoryScriptRunner(
             script,
-            _serviceProvider.CreateScope(),
-            _serviceProvider.GetRequiredService<ICodeParser>(),
-            _serviceProvider.GetRequiredService<ICodeCompiler>(),
-            _serviceProvider.GetRequiredService<IPackageProvider>(),
-            _serviceProvider.GetRequiredService<ILogger<InMemoryScriptRunner>>()
+            serviceProvider.CreateScope(),
+            serviceProvider.GetRequiredService<ICodeParser>(),
+            serviceProvider.GetRequiredService<ICodeCompiler>(),
+            serviceProvider.GetRequiredService<IPackageProvider>(),
+            serviceProvider.GetRequiredService<ILogger<InMemoryScriptRunner>>()
         );
     }
 }

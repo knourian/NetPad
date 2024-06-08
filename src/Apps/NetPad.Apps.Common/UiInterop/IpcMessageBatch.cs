@@ -1,11 +1,6 @@
 namespace NetPad.Apps.UiInterop;
 
-public class IpcMessageBatch
+public class IpcMessageBatch(IList<IpcMessage> messages)
 {
-    public IpcMessageBatch(IList<IpcMessage> messages)
-    {
-        Messages = messages;
-    }
-
-    public IList<IpcMessage> Messages { get; }
+    public IList<IpcMessage> Messages { get; } = messages;
 }

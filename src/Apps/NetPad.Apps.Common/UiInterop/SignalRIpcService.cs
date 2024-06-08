@@ -6,15 +6,8 @@ namespace NetPad.Apps.UiInterop;
 /// <summary>
 /// An IPC service that uses SignalR to communicate with external processes/clients.
 /// </summary>
-public class SignalRIpcService : IIpcService
+public class SignalRIpcService(IHubContext<IpcHub> hubContext) : IIpcService
 {
-    private readonly IHubContext<IpcHub> _hubContext;
-
-    public SignalRIpcService(IHubContext<IpcHub> hubContext)
-    {
-        _hubContext = hubContext;
-    }
-
     public async Task SendAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : class
     {
         await SendAsync(typeof(TMessage).Name, message, cancellationToken);
@@ -24,7 +17,7 @@ public class SignalRIpcService : IIpcService
     {
         if (cancellationToken.IsCancellationRequested) return;
 
-        await _hubContext.Clients.All.SendAsync(
+        await hubContext.Clients.All.SendAsync(
             channel,
             message,
             cancellationToken);

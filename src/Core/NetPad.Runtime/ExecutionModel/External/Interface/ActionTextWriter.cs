@@ -3,29 +3,22 @@ using System.Text;
 
 namespace NetPad.ExecutionModel.External.Interface;
 
-internal class ActionTextWriter : TextWriter
+internal class ActionTextWriter(Action<string?, bool> write) : TextWriter
 {
-    private readonly Action<string?, bool> _write;
-
-    public ActionTextWriter(Action<string?, bool> write)
-    {
-        _write = write;
-    }
-
     public override Encoding Encoding => Encoding.Default;
 
     public override void Write(string? value)
     {
-        _write(value, false);
+        write(value, false);
     }
 
     public override void WriteLine(string? value)
     {
-        _write(value, true);
+        write(value, true);
     }
 
     public override void WriteLine()
     {
-        _write("\n", false);
+        write("\n", false);
     }
 }

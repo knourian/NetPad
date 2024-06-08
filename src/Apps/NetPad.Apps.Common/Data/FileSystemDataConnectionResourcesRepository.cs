@@ -7,17 +7,12 @@ using NetPad.DotNet;
 
 namespace NetPad.Apps.Data;
 
-public class FileSystemDataConnectionResourcesRepository : IDataConnectionResourcesRepository
+public class FileSystemDataConnectionResourcesRepository(ILogger<FileSystemDataConnectionResourcesRepository> logger)
+    : IDataConnectionResourcesRepository
 {
-    private readonly ILogger<FileSystemDataConnectionResourcesRepository> _logger;
     private static readonly SemaphoreSlim _fsLock = new(1, 1);
     private const string InfoFileName = "info.json";
     private const string SchemaCompareInfoFileName = "schema-compare-info.json";
-
-    public FileSystemDataConnectionResourcesRepository(ILogger<FileSystemDataConnectionResourcesRepository> logger)
-    {
-        _logger = logger;
-    }
 
     public Task<bool> HasResourcesAsync(Guid dataConnectionId, DotNetFrameworkVersion dotNetFrameworkVersion)
     {
@@ -45,7 +40,7 @@ public class FileSystemDataConnectionResourcesRepository : IDataConnectionResour
                 var assemblyFile = new FileInfo(Path.Combine(dir.FullName, info.AssemblyFileName));
                 if (assemblyFile.Exists)
                 {
-                    _logger.LogTrace("Loaded data connection {DataConnectionId} Assembly resource from disk", dataConnection.Id);
+                    logger.LogTrace("Loaded data connection {DataConnectionId} Assembly resource from disk", dataConnection.Id);
                     var assemblyName = AssemblyName.GetAssemblyName(assemblyFile.FullName);
                     var bytes = await File.ReadAllBytesAsync(assemblyFile.FullName);
 
@@ -55,13 +50,13 @@ public class FileSystemDataConnectionResourcesRepository : IDataConnectionResour
 
             if (info.SourceCode != null)
             {
-                _logger.LogTrace("Loaded data connection {DataConnectionId} SourceCode resource from disk", dataConnection.Id);
+                logger.LogTrace("Loaded data connection {DataConnectionId} SourceCode resource from disk", dataConnection.Id);
                 cached.SourceCode = Task.FromResult(info.SourceCode);
             }
 
             if (info.RequiredReferences != null)
             {
-                _logger.LogTrace("Loaded data connection {DataConnectionId} RequiredReferences resource from disk", dataConnection.Id);
+                logger.LogTrace("Loaded data connection {DataConnectionId} RequiredReferences resource from disk", dataConnection.Id);
                 cached.RequiredReferences = Task.FromResult(info.RequiredReferences);
             }
 
@@ -105,7 +100,7 @@ public class FileSystemDataConnectionResourcesRepository : IDataConnectionResour
                 }
                 else
                 {
-                    _logger.LogTrace("Saving data connection {DataConnectionId} Assembly resource to disk", dataConnectionId);
+                    logger.LogTrace("Saving data connection {DataConnectionId} Assembly resource to disk", dataConnectionId);
                     var assemblyFileName = assembly.ConstructAssemblyFileName();
                     info.AssemblyFileName = assemblyFileName;
                     await File.WriteAllBytesAsync(Path.Combine(dir.FullName, assemblyFileName), assembly.Image);
@@ -122,7 +117,7 @@ public class FileSystemDataConnectionResourcesRepository : IDataConnectionResour
                 }
                 else
                 {
-                    _logger.LogTrace("Saving data connection {DataConnectionId} SourceCode resource to disk", dataConnectionId);
+                    logger.LogTrace("Saving data connection {DataConnectionId} SourceCode resource to disk", dataConnectionId);
                     info.SourceCode = sourceCode;
                 }
             }
@@ -137,7 +132,7 @@ public class FileSystemDataConnectionResourcesRepository : IDataConnectionResour
                 }
                 else
                 {
-                    _logger.LogTrace("Saving data connection {DataConnectionId} RequiredReferences resource to disk", dataConnectionId);
+                    logger.LogTrace("Saving data connection {DataConnectionId} RequiredReferences resource to disk", dataConnectionId);
                     info.RequiredReferences = references;
                 }
             }
@@ -149,7 +144,7 @@ public class FileSystemDataConnectionResourcesRepository : IDataConnectionResour
                 return;
             }
 
-            _logger.LogTrace("Saving data connection {DataConnectionId} resources info file to disk", dataConnectionId);
+            logger.LogTrace("Saving data connection {DataConnectionId} resources info file to disk", dataConnectionId);
             await File.WriteAllTextAsync(infoFile.FullName, JsonSerializer.Serialize(info));
         }
         finally
@@ -168,7 +163,7 @@ public class FileSystemDataConnectionResourcesRepository : IDataConnectionResour
 
             if (dir.Exists)
             {
-                _logger.LogTrace("Deleting all data connection {DataConnectionId} cached resources", dataConnectionId);
+                logger.LogTrace("Deleting all data connection {DataConnectionId} cached resources", dataConnectionId);
                 dir.Delete(true);
             }
         }
@@ -188,7 +183,7 @@ public class FileSystemDataConnectionResourcesRepository : IDataConnectionResour
 
             if (dir.Exists)
             {
-                _logger.LogTrace("Deleting data connection {DataConnectionId} cached resources for .NET framework {DotNetFramework}",
+                logger.LogTrace("Deleting data connection {DataConnectionId} cached resources for .NET framework {DotNetFramework}",
                     dataConnectionId,
                     dotNetFrameworkVersion);
                 dir.Delete(true);

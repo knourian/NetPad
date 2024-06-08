@@ -8,20 +8,11 @@ using NetPad.Scripts.Events;
 
 namespace NetPad.Apps.Shells.Electron.BackgroundServices;
 
-public class NotificationBackgroundService : BackgroundService
+public class NotificationBackgroundService(IEventBus eventBus, ILogoService logoService) : BackgroundService
 {
-    private readonly IEventBus _eventBus;
-    private readonly ILogoService _logoService;
-
-    public NotificationBackgroundService(IEventBus eventBus, ILogoService logoService)
-    {
-        _eventBus = eventBus;
-        _logoService = logoService;
-    }
-
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _eventBus.Subscribe<ScriptRanEvent>(async ev =>
+        eventBus.Subscribe<ScriptRanEvent>(async ev =>
         {
             if (!await ElectronUtil.MainWindow.IsFocusedAsync())
             {
@@ -31,7 +22,7 @@ public class NotificationBackgroundService : BackgroundService
 
                 ElectronNET.API.Electron.Notification.Show(new NotificationOptions("NetPad", message)
                 {
-                    Icon = _logoService.GetLogoPath(LogoStyle.Circle, LogoSize._64)
+                    Icon = logoService.GetLogoPath(LogoStyle.Circle, LogoSize._64)
                 });
             }
         });

@@ -8,17 +8,11 @@ namespace NetPad.ExecutionModel.External.Interface;
 /// Converts output emitted by the script (ex. using Dump() or Console.Write)
 /// to <see cref="ScriptOutput"/> and writes it to the main output.
 /// </summary>
-public class ExternalProcessOutputHtmlWriter : IExternalProcessOutputWriter
+public class ExternalProcessOutputHtmlWriter(Func<string, Task> writeToMainOut) : IExternalProcessOutputWriter
 {
     private static readonly Lazy<Regex> _ansiColorsRegex = new(() => new Regex(@"\x1B\[[^@-~]*[@-~]"));
-    private readonly Func<string, Task> _writeToMainOut;
     private uint _resultOutputCounter;
     private uint _sqlOutputCounter;
-
-    public ExternalProcessOutputHtmlWriter(Func<string, Task> writeToMainOut)
-    {
-        _writeToMainOut = writeToMainOut;
-    }
 
     public async Task WriteResultAsync(object? output, DumpOptions? options = null)
     {
@@ -56,6 +50,6 @@ public class ExternalProcessOutputHtmlWriter : IExternalProcessOutputWriter
     {
         var serializedOutput = Common.JsonSerializer.Serialize(processOutput);
 
-        await _writeToMainOut(serializedOutput);
+        await writeToMainOut(serializedOutput);
     }
 }

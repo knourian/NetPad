@@ -1,17 +1,10 @@
 namespace NetPad.Apps.Resources;
 
-public class LogoService : ILogoService
+public class LogoService(HostInfo hostInfo) : ILogoService
 {
-    private readonly HostInfo _hostInfo;
-
-    public LogoService(HostInfo hostInfo)
-    {
-        _hostInfo = hostInfo;
-    }
-
     public string? GetLogoPath(LogoStyle style, LogoSize size)
     {
         string sizeStr = ((int)size).ToString();
-        return Path.Combine(_hostInfo.WorkingDirectory, $"wwwroot/logo/{style.ToString().ToLowerInvariant()}/{sizeStr}x{sizeStr}.png");
+        return Path.Combine(hostInfo.WorkingDirectory, $"wwwroot/logo/{style.ToString().ToLowerInvariant()}/{sizeStr}x{sizeStr}.png");
     }
 }

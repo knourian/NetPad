@@ -9,29 +9,21 @@ using NetPad.Scripts;
 
 namespace NetPad.ExecutionModel.External;
 
-public class ExternalScriptRunnerFactory : IScriptRunnerFactory
+public class ExternalScriptRunnerFactory(IServiceProvider serviceProvider, ExternalScriptRunnerOptions options)
+    : IScriptRunnerFactory
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly ExternalScriptRunnerOptions _options;
-
-    public ExternalScriptRunnerFactory(IServiceProvider serviceProvider, ExternalScriptRunnerOptions options)
-    {
-        _serviceProvider = serviceProvider;
-        _options = options;
-    }
-
     public IScriptRunner CreateRunner(Script script)
     {
         return new ExternalScriptRunner(
-            _options,
+            options,
             script,
-            _serviceProvider.GetRequiredService<ICodeParser>(),
-            _serviceProvider.GetRequiredService<ICodeCompiler>(),
-            _serviceProvider.GetRequiredService<IPackageProvider>(),
-            _serviceProvider.GetRequiredService<IDataConnectionResourcesCache>(),
-            _serviceProvider.GetRequiredService<IDotNetInfo>(),
-            _serviceProvider.GetRequiredService<Settings>(),
-            _serviceProvider.GetRequiredService<ILogger<ExternalScriptRunner>>()
+            serviceProvider.GetRequiredService<ICodeParser>(),
+            serviceProvider.GetRequiredService<ICodeCompiler>(),
+            serviceProvider.GetRequiredService<IPackageProvider>(),
+            serviceProvider.GetRequiredService<IDataConnectionResourcesCache>(),
+            serviceProvider.GetRequiredService<IDotNetInfo>(),
+            serviceProvider.GetRequiredService<Settings>(),
+            serviceProvider.GetRequiredService<ILogger<ExternalScriptRunner>>()
         );
     }
 }

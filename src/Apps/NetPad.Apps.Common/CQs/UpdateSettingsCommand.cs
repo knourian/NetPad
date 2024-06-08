@@ -5,33 +5,18 @@ using NetPad.Events;
 
 namespace NetPad.Apps.CQs;
 
-public class UpdateSettingsCommand : Command
+public class UpdateSettingsCommand(Settings settings) : Command
 {
-    public UpdateSettingsCommand(Settings settings)
+    public Settings Settings { get; } = settings;
+
+    public class Handler(Settings settings, ISettingsRepository settingsRepository, IEventBus eventBus)
+        : IRequestHandler<UpdateSettingsCommand>
     {
-        Settings = settings;
-    }
-
-    public Settings Settings { get; }
-
-    public class Handler : IRequestHandler<UpdateSettingsCommand>
-    {
-        private readonly Settings _settings;
-        private readonly ISettingsRepository _settingsRepository;
-        private readonly IEventBus _eventBus;
-
-        public Handler(Settings settings, ISettingsRepository settingsRepository, IEventBus eventBus)
-        {
-            _settings = settings;
-            _settingsRepository = settingsRepository;
-            _eventBus = eventBus;
-        }
-
         public async Task<Unit> Handle(UpdateSettingsCommand request, CancellationToken cancellationToken)
         {
             var incoming = request.Settings;
 
-            _settings
+            settings
                 .SetAutoCheckUpdates(incoming.AutoCheckUpdates ?? true)
                 .SetDotNetSdkDirectoryPath(incoming.DotNetSdkDirectoryPath)
                 .SetScriptsDirectoryPath(incoming.ScriptsDirectoryPath)
@@ -43,9 +28,9 @@ public class UpdateSettingsCommand : Command
                 .SetKeyboardShortcutOptions(incoming.KeyboardShortcuts)
                 .SetOmniSharpOptions(incoming.OmniSharp);
 
-            await _settingsRepository.SaveSettingsAsync(_settings);
+            await settingsRepository.SaveSettingsAsync(settings);
 
-            await _eventBus.PublishAsync(new SettingsUpdatedEvent(_settings));
+            await eventBus.PublishAsync(new SettingsUpdatedEvent(settings));
 
             return Unit.Value;
         }

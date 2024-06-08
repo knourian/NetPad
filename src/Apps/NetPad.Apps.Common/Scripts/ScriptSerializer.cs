@@ -103,16 +103,10 @@ public static class ScriptSerializer
     }
 
 
-    public class ScriptData
+    public class ScriptData(ScriptConfigData config, SerializedDataConnection? dataConnection)
     {
-        public ScriptData(ScriptConfigData config, SerializedDataConnection? dataConnection)
-        {
-            Config = config;
-            DataConnection = dataConnection;
-        }
-
-        public ScriptConfigData Config { get; }
-        public SerializedDataConnection? DataConnection { get; }
+        public ScriptConfigData Config { get; } = config;
+        public SerializedDataConnection? DataConnection { get; } = dataConnection;
     }
 
     public class ScriptConfigData

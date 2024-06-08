@@ -5,14 +5,12 @@ using NetPad.Data;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
-internal class SQLiteDatabaseSchemaChangeDetectionStrategy : EntityFrameworkSchemaChangeDetectionStrategyBase, IDataConnectionSchemaChangeDetectionStrategy
+internal class SQLiteDatabaseSchemaChangeDetectionStrategy(
+    IDataConnectionResourcesRepository dataConnectionResourcesRepository,
+    IDataConnectionPasswordProtector passwordProtector)
+    : EntityFrameworkSchemaChangeDetectionStrategyBase(dataConnectionResourcesRepository, passwordProtector),
+        IDataConnectionSchemaChangeDetectionStrategy
 {
-    public SQLiteDatabaseSchemaChangeDetectionStrategy(
-        IDataConnectionResourcesRepository dataConnectionResourcesRepository,
-        IDataConnectionPasswordProtector passwordProtector) : base(dataConnectionResourcesRepository, passwordProtector)
-    {
-    }
-
     public bool CanSupport(DataConnection dataConnection)
     {
         return dataConnection is SQLiteDatabaseConnection;
@@ -80,13 +78,8 @@ internal class SQLiteDatabaseSchemaChangeDetectionStrategy : EntityFrameworkSche
         return Convert.ToHexString(hash);
     }
 
-    private class SQLiteSchemaCompareInfo : SchemaCompareInfo
+    private class SQLiteSchemaCompareInfo(string schemaHash) : SchemaCompareInfo(DateTime.UtcNow)
     {
-        public SQLiteSchemaCompareInfo(string schemaHash) : base(DateTime.UtcNow)
-        {
-            SchemaHash = schemaHash;
-        }
-
-        public string? SchemaHash { get; }
+        public string? SchemaHash { get; } = schemaHash;
     }
 }

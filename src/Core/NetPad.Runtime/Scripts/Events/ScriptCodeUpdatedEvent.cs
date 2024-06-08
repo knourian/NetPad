@@ -2,16 +2,9 @@ using NetPad.Events;
 
 namespace NetPad.Scripts.Events;
 
-public class ScriptCodeUpdatedEvent : IEvent
+public class ScriptCodeUpdatedEvent(Script script, string? newCode, string? oldCode) : IEvent
 {
-    public ScriptCodeUpdatedEvent(Script script, string? newCode, string? oldCode)
-    {
-        Script = script;
-        NewCode = newCode;
-        OldCode = oldCode;
-    }
-
-    public Script Script { get; }
-    public string? NewCode { get; }
-    public string? OldCode { get; }
+    public Script Script { get; } = script;
+    public string? NewCode { get; } = newCode;
+    public string? OldCode { get; } = oldCode;
 }

@@ -6,22 +6,11 @@ using NetPad.Sessions;
 
 namespace NetPad.Services;
 
-public class ScriptService
+public class ScriptService(ISession session, IUiDialogService uiDialogService, IMediator mediator)
 {
-    private readonly ISession _session;
-    private readonly IUiDialogService _uiDialogService;
-    private readonly IMediator _mediator;
-
-    public ScriptService(ISession session, IUiDialogService uiDialogService, IMediator mediator)
-    {
-        _session = session;
-        _uiDialogService = uiDialogService;
-        _mediator = mediator;
-    }
-
     public async Task CloseScriptAsync(Guid scriptId)
     {
-        var scriptEnvironment = _session.Get(scriptId) ?? throw new ScriptNotFoundException(scriptId);
+        var scriptEnvironment = session.Get(scriptId) ?? throw new ScriptNotFoundException(scriptId);
         var script = scriptEnvironment.Script;
 
         bool shouldAskUserToSave = script.IsDirty;
@@ -32,7 +21,7 @@ public class ScriptService
 
         if (shouldAskUserToSave)
         {
-            var response = await _uiDialogService.AskUserIfTheyWantToSave(script);
+            var response = await uiDialogService.AskUserIfTheyWantToSave(script);
             if (response == YesNoCancel.Cancel)
             {
                 return;
@@ -48,17 +37,17 @@ public class ScriptService
             }
         }
 
-        await _mediator.Send(new CloseScriptCommand(scriptId));
+        await mediator.Send(new CloseScriptCommand(scriptId));
     }
 
     public async Task<bool> SaveScriptAsync(Guid scriptId)
     {
-        var scriptEnvironment = _session.Get(scriptId) ?? throw new ScriptNotFoundException(scriptId);
+        var scriptEnvironment = session.Get(scriptId) ?? throw new ScriptNotFoundException(scriptId);
         var script = scriptEnvironment.Script;
 
         if (script.IsNew)
         {
-            var path = await _uiDialogService.AskUserForSaveLocation(script);
+            var path = await uiDialogService.AskUserForSaveLocation(script);
 
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -68,7 +57,7 @@ public class ScriptService
             script.SetPath(path);
         }
 
-        await _mediator.Send(new SaveScriptCommand(script));
+        await mediator.Send(new SaveScriptCommand(script));
 
         return true;
     }

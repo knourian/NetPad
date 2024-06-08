@@ -4,13 +4,10 @@ using NetPad.Data;
 
 namespace NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 
-public sealed class PostgreSqlDatabaseConnection : EntityFrameworkRelationalDatabaseConnection
+public sealed class PostgreSqlDatabaseConnection(Guid id, string name, ScaffoldOptions? scaffoldOptions = null)
+    : EntityFrameworkRelationalDatabaseConnection(id, name, DataConnectionType.PostgreSQL,
+        "Npgsql.EntityFrameworkCore.PostgreSQL", scaffoldOptions)
 {
-    public PostgreSqlDatabaseConnection(Guid id, string name, ScaffoldOptions? scaffoldOptions = null)
-        : base(id, name, DataConnectionType.PostgreSQL, "Npgsql.EntityFrameworkCore.PostgreSQL", scaffoldOptions)
-    {
-    }
-
     public override string GetConnectionString(IDataConnectionPasswordProtector passwordProtector)
     {
         var connectionStringBuilder = new ConnectionStringBuilder();

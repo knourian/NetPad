@@ -9,27 +9,18 @@ namespace NetPad.Controllers;
 
 [ApiController]
 [Route("settings")]
-public class SettingsController : ControllerBase
+public class SettingsController(Settings settings, IMediator mediator) : ControllerBase
 {
-    private readonly Settings _settings;
-    private readonly IMediator _mediator;
-
-    public SettingsController(Settings settings, IMediator mediator)
-    {
-        _settings = settings;
-        _mediator = mediator;
-    }
-
     [HttpGet]
     public Settings Get()
     {
-        return _settings;
+        return settings;
     }
 
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] Settings settings)
     {
-        await _mediator.Send(new UpdateSettingsCommand(settings));
+        await mediator.Send(new UpdateSettingsCommand(settings));
 
         return NoContent();
     }

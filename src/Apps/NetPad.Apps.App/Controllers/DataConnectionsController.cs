@@ -12,15 +12,8 @@ namespace NetPad.Controllers;
 
 [ApiController]
 [Route("data-connections")]
-public class DataConnectionsController : ControllerBase
+public class DataConnectionsController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public DataConnectionsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     [HttpPatch("open")]
     public async Task OpenDataConnectionWindow([FromServices] IUiWindowService uiWindowService, [FromQuery] Guid? dataConnectionId = null, [FromQuery] bool copy = false)
     {
@@ -28,12 +21,12 @@ public class DataConnectionsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<DataConnection>> GetAll() => await _mediator.Send(new GetDataConnectionsQuery());
+    public async Task<IEnumerable<DataConnection>> GetAll() => await mediator.Send(new GetDataConnectionsQuery());
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<DataConnection?>> Get(Guid id)
     {
-        var connection = await _mediator.Send(new GetDataConnectionQuery(id));
+        var connection = await mediator.Send(new GetDataConnectionQuery(id));
 
         if (connection == null) return connection;
 
@@ -58,13 +51,13 @@ public class DataConnectionsController : ControllerBase
     }
 
     [HttpPut]
-    public async Task Save(DataConnection dataConnection) => await _mediator.Send(new SaveDataConnectionCommand(dataConnection));
+    public async Task Save(DataConnection dataConnection) => await mediator.Send(new SaveDataConnectionCommand(dataConnection));
 
     [HttpPatch("{id:guid}/refresh")]
-    public async Task Refresh(Guid id) => await _mediator.Send(new RefreshDataConnectionCommand(id));
+    public async Task Refresh(Guid id) => await mediator.Send(new RefreshDataConnectionCommand(id));
 
     [HttpDelete("{id:guid}")]
-    public async Task Delete(Guid id) => await _mediator.Send(new DeleteDataConnectionCommand(id));
+    public async Task Delete(Guid id) => await mediator.Send(new DeleteDataConnectionCommand(id));
 
     [HttpPost("connection-string")]
     public string GetConnectionString(
@@ -100,13 +93,13 @@ public class DataConnectionsController : ControllerBase
     [HttpPatch("{id:guid}/database-structure")]
     public async Task<DatabaseStructure> GetDatabaseStructure(Guid id)
     {
-        var dataConnection = await _mediator.Send(new GetDataConnectionQuery(id));
+        var dataConnection = await mediator.Send(new GetDataConnectionQuery(id));
 
         if (dataConnection is not DatabaseConnection databaseConnection)
         {
             throw new InvalidOperationException($"Cannot get database structure except on connections of type {nameof(DatabaseConnection)}.");
         }
 
-        return await _mediator.Send(new GetDatabaseConnectionStructureQuery(databaseConnection));
+        return await mediator.Send(new GetDatabaseConnectionStructureQuery(databaseConnection));
     }
 }
