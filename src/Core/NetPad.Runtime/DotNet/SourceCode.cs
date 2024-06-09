@@ -3,16 +3,28 @@ using System.Text.Json.Serialization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NetPad.CodeAnalysis;
 
 namespace NetPad.DotNet;
 
-[method: JsonConstructor]
-public class SourceCode(Code? code, IEnumerable<Using>? usings = null)
+public class SourceCode
 {
-    private readonly HashSet<Using> _usings = usings?.ToHashSet() ?? new HashSet<Using>();
+    private readonly HashSet<Using> _usings;
     private bool _valueChanged;
 
-    public SourceCode() : this(null, Array.Empty<Using>())
+    [JsonConstructor]
+    public SourceCode(Code? code, IEnumerable<Using>? usings = null)
+    {
+        Code = code ?? new Code(null);
+        _usings = usings?.ToHashSet() ?? [];
+    }
+
+    public SourceCode(IEnumerable<Using> usings) : this(null, usings)
+    {
+    }
+
+    public SourceCode(string? code, IEnumerable<string>? usings = null)
+        : this(code == null ? null : new Code(code), usings?.Select(u => new Using(u)))
     {
     }
 
@@ -20,28 +32,8 @@ public class SourceCode(Code? code, IEnumerable<Using>? usings = null)
     {
     }
 
-    public SourceCode(params string[] usings) : this(null, usings)
-    {
-    }
-
-    public SourceCode(IEnumerable<Using> usings) : this(null, usings)
-    {
-    }
-
-    public SourceCode(params Using[] usings) : this(null, usings)
-    {
-    }
-
-    public SourceCode(string? code, IEnumerable<string>? usings = null)
-        : this(
-            code == null ? null : new Code(code),
-            usings?.Select(u => new Using(u))
-        )
-    {
-    }
-
     public IEnumerable<Using> Usings => _usings;
-    public Code Code { get; } = code ?? new Code(null, null);
+    public Code Code { get; }
     public bool ValueChanged() => _valueChanged || Code.ValueChanged() || _usings.Any(u => u.ValueChanged());
 
     public void AddUsing(string @using)
@@ -82,10 +74,7 @@ public class SourceCode(Code? code, IEnumerable<Using>? usings = null)
             .ToArray();
 
         var usings = usingDirectives
-            .Select(u => string.Join(
-                ' ',
-                u.NormalizeWhitespace().ChildNodes().Select(x => x.ToFullString()))
-            )
+            .Select(u => u.GetNamespaceString())
             .ToArray();
 
         var code = root

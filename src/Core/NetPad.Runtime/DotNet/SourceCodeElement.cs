@@ -1,26 +1,18 @@
 namespace NetPad.DotNet;
 
-public abstract class SourceCodeElement : ValueObject
+public abstract record SourceCodeElement<TValue>(TValue Value)
 {
     protected bool _valueChanged;
+
+    public TValue Value { get; private set; } = Value;
 
     public virtual bool ValueChanged() => _valueChanged;
 
     public abstract string ToCodeString();
-}
 
-public abstract class SourceCodeElement<TValue>(TValue value) : SourceCodeElement
-{
-    public TValue Value { get; private set; } = value;
-
-    public void Update(TValue value)
+    public void Update(TValue newValue)
     {
-        Value = value;
+        Value = newValue;
         _valueChanged = true;
-    }
-
-    protected override IEnumerable<object?> GetEqualityComponents()
-    {
-        yield return Value;
     }
 }

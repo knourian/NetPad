@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 using NetPad.Apps.Data.EntityFrameworkCore.DataConnections;
 using NetPad.Apps.Data.EntityFrameworkCore.Scaffolding.Transforms;
+using NetPad.CodeAnalysis;
 using NetPad.Configuration;
 using NetPad.Data;
 using NetPad.DotNet;
@@ -239,10 +240,7 @@ class Program
 
         var usings = nodes
             .OfType<UsingDirectiveSyntax>()
-            .Select(u => string.Join(
-                ' ',
-                u.NormalizeWhitespace().ChildNodes().Select(x => x.ToFullString()))
-            )
+            .Select(u => u.GetNamespaceString())
             .ToArray();
 
         var classDeclaration = nodes.OfType<ClassDeclarationSyntax>().Single();

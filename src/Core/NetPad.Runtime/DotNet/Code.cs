@@ -4,13 +4,11 @@ using System.Text.Json.Serialization;
 namespace NetPad.DotNet;
 
 [method: JsonConstructor]
-public class Code(Namespace? @namespace, string? value) : SourceCodeElement<string?>(value)
+public record Code(Namespace? Namespace, string? Value) : SourceCodeElement<string?>(Value)
 {
     public Code(string? value) : this(null, value)
     {
     }
-
-    public Namespace? Namespace { get; } = @namespace;
 
     public override bool ValueChanged()
     {
@@ -32,11 +30,5 @@ public class Code(Namespace? @namespace, string? value) : SourceCodeElement<stri
         }
 
         return sb.ToString();
-    }
-
-    protected override IEnumerable<object?> GetEqualityComponents()
-    {
-        yield return base.GetEqualityComponents();
-        yield return Namespace;
     }
 }
